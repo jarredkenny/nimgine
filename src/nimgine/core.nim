@@ -1,16 +1,16 @@
-import times, os
-
 import opengl/glut
 import opengl
 import opengl/glu
 
 include clock
+include ecs
 
 var clock: Clock = newClock()
 
 proc reshape(width: GLsizei, height: GLsizei) {.cdecl.} =
   if height == 0:
     return
+  echo "Resized: " & $width & "x" & $height
   glViewport(0, 0, width, height)
   glMatrixMode(GL_PROJECTION)
   glLoadIdentity()
