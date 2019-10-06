@@ -1,0 +1,3 @@
+import nimgine/core
+
+init()
