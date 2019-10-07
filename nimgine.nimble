@@ -13,3 +13,4 @@ bin           = @["nimgine"]
 
 requires "nim >= 1.0.0"
 requires "opengl >= 1.2.2"
+requires "sdl2 >= 2.0.1"

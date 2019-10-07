@@ -1,9 +1,17 @@
 import platform
-import ecs
+import events
 
-platform.init()
+proc init() =
+  platform.init()
 
-proc loop(dt: float) =
-  echo "Game Loop"
+proc loop() =
+  var running = true
+  while running:
+    platform.update()
+    platform.render()
+    for event in events.pollEvent():
+      if event == Event.Quit:
+        running = false
 
-platform.setGameLoopFunc(loop)
+init()
+loop()
