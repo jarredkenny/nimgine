@@ -1,5 +1,7 @@
 import tables, typetraits, sugar
 
+import events
+
 type
   Component* = ref object
     id*: int
@@ -24,7 +26,6 @@ var entityCount: int = 0
 var componentCount: int = 0
 var systemCount: int = 0
 var worldCount: int = 0
-
 
 # Component Functions
 proc `$`(c: Component): string =
@@ -75,8 +76,9 @@ proc init*(world: World) =
     if system.init != nil:
       system.init(system)
 
-proc update*(world: World, dt: float) =
+proc update*(event: Event, world: World, dt: float) =
   for system in world.systems:
+    echo($system & " updating for event: " & $event)
     if system.update != nil:
       system.update(system, dt)
 
