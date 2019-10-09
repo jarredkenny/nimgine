@@ -1,32 +1,26 @@
 import platform
-import clock
+import timing
 import events
 import ecs
 
-var worlds: seq[World] = @[]
-var gClock: Clock = newClock()
-
+var clock: Clock = newClock()
 var running: bool = true
 
 proc init() =
+  ecs.init()
   platform.init()
-  for world in worlds:
-    world.init()
 
 proc update() =
-  gClock.update()
+  clock.update()
   platform.update()
-
-  for event in events.pollEvent():
-    if event == Event.Quit:
+  for event in pollEvent():
+    ecs.update(event, clock.dt)
+    if event.kind == Quit:
       running = false
-    for world in worlds:
-      world.update(event, gClock.dt)
 
 proc render() =
+  ecs.render()
   platform.render()
-  for world in worlds:
-    world.render()
 
 proc loop() =
   while running:
@@ -35,23 +29,23 @@ proc loop() =
 
 proc initGame*() =
 
-  var world = newWorld()
-  worlds.add(world)
+  var testSystem = newSystem()
+  var testEntity = newEntity()
+  var testComponent = newComponent()
 
-  var e1 = newEntity()
-  var c1 = newComponent()
-  var s1 = newSystem()
+  testSystem.update = proc(system: System, event: Event, entity: Entity, dt: float) =
+    echo($event & " -> " & $entity)
 
-  s1.update = proc(system: System, event: Event, dt: float) =
-    echo("System update handling event: " & $event)
+  testSystem.subscribe(@[Input])
+  testSystem.matchComponents(@["Component"])
 
-  s1.subscribe(Event.Resize)
+  ecs.add(testSystem)
 
-  s1.subscribe(@[Event.Resize, Event.Quit])
+  testEntity.add(testComponent)
 
-  e1.add(c1)
-  world.add(e1)
-  world.add(s1)
+  ecs.add(testEntity)
+
+  # entitiesForSystem(testSystem)
 
   init()
   loop()

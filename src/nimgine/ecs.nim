@@ -1,9 +1,9 @@
-import tables, typetraits, sugar
+import tables, typetraits, sugar, sets
 
 import events
 
 type
-  Component* = ref object
+  Component* = ref object of RootObj
     id*: int
 
   Entity* = ref object
@@ -12,13 +12,13 @@ type
 
   System* = ref object
     id*: int
-    events: set[Event]
+    events: set[EventType]
+    components: HashSet[string]
     init*: proc(system: System)
-    update*: proc(system: System, event: Event, dt: float)
+    update*: proc(system: System, event: Event, entity: Entity, dt: float)
     render*: proc(system: System)
 
   World* = ref object
-    id*: int
     entities*: seq[Entity]
     systems*: seq[System]
 
@@ -26,7 +26,9 @@ type
 var entityCount: int = 0
 var componentCount: int = 0
 var systemCount: int = 0
-var worldCount: int = 0
+
+# Game World
+var world = World()
 
 # Component Functions
 proc `$`(c: Component): string =
@@ -37,6 +39,9 @@ proc newComponent*(): Component =
   result = Component(id: componentCount)
 
 # Entity Functions
+proc `$`*(entity: Entity): string =
+  result = "<Entity id=" & $entity.id & ">"
+
 proc newEntity*(): Entity =
   inc(entityCount)
   result = Entity(id: entityCount)
@@ -57,47 +62,57 @@ proc newSystem*(): System =
   inc(systemCount)
   result = System(id: systemCount)
 
-proc subscribe*(system: System, event: Event) =
+proc subscribe*(system: System, event: EventType) =
   if event notin system.events:
     system.events.incl(event)
 
-proc subscribe*(system: System, events: seq[Event]) =
+proc subscribe*(system: System, events: seq[EventType]) =
   for event in events:
     system.subscribe(event)
 
-proc unsubscribe*(system: System, event: Event) =
+proc unsubscribe*(system: System, event: EventType) =
   system.events.excl(event)
 
-proc unsubscribe*(system: System, events: seq[Event]) =
+proc unsubscribe*(system: System, events: seq[EventType]) =
   for event in events:
     system.unsubscribe(event)
 
-# World Functions
-proc `$`(w: World): string =
+proc matchComponent*(system: System, component: string) =
+  system.components.incl(component)
+
+proc matchComponents*(system: System, components: seq[string]) =
+  for component in components:
+    system.matchComponent(component)
+
+# ECS/world Functions
+proc `$`*(w: World): string =
   result = "<World entities=" & $len(w.entities) & " systems=" & $len(
       w.systems) & ">"
 
-proc newWorld*(): World =
-  inc(worldCount)
-  result = World(id: worldCount)
-
-proc add*(world: World, system: System) =
+proc add*(system: System) =
   world.systems.add(system)
 
-proc add*(world: World, entity: Entity) =
+proc add*(entity: Entity) =
   world.entities.add(entity)
 
-proc init*(world: World) =
+proc init*() =
   for system in world.systems:
     if system.init != nil:
       system.init(system)
 
-proc update*(world: World, event: Event, dt: float) =
-  for system in world.systems:
-    if system.update != nil and event in system.events:
-      system.update(system, event, dt)
+iterator entitiesForSystem(sys: System): Entity =
+  for entity in world.entities:
+    for match in sys.components:
+      if entity.components.hasKey(match):
+        yield entity
 
-proc render*(world: World) =
+proc update*(event: Event, dt: float) =
+  for system in world.systems:
+    if system.update != nil and event.kind in system.events:
+      for entity in entitiesForSystem(system):
+        system.update(system, event, entity, dt)
+
+proc render*() =
   for system in world.systems:
     if system.render != nil:
       system.render(system)
