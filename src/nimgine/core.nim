@@ -42,6 +42,13 @@ proc initGame*() =
   var c1 = newComponent()
   var s1 = newSystem()
 
+  s1.update = proc(system: System, event: Event, dt: float) =
+    echo("System update handling event: " & $event)
+
+  s1.subscribe(Event.Resize)
+
+  s1.subscribe(@[Event.Resize, Event.Quit])
+
   e1.add(c1)
   world.add(e1)
   world.add(s1)

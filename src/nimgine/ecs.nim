@@ -12,8 +12,9 @@ type
 
   System* = ref object
     id*: int
+    events: set[Event]
     init*: proc(system: System)
-    update*: proc(system: System, dt: float)
+    update*: proc(system: System, event: Event, dt: float)
     render*: proc(system: System)
 
   World* = ref object
@@ -56,6 +57,21 @@ proc newSystem*(): System =
   inc(systemCount)
   result = System(id: systemCount)
 
+proc subscribe*(system: System, event: Event) =
+  if event notin system.events:
+    system.events.incl(event)
+
+proc subscribe*(system: System, events: seq[Event]) =
+  for event in events:
+    system.subscribe(event)
+
+proc unsubscribe*(system: System, event: Event) =
+  system.events.excl(event)
+
+proc unsubscribe*(system: System, events: seq[Event]) =
+  for event in events:
+    system.unsubscribe(event)
+
 # World Functions
 proc `$`(w: World): string =
   result = "<World entities=" & $len(w.entities) & " systems=" & $len(
@@ -76,11 +92,10 @@ proc init*(world: World) =
     if system.init != nil:
       system.init(system)
 
-proc update*(event: Event, world: World, dt: float) =
+proc update*(world: World, event: Event, dt: float) =
   for system in world.systems:
-    echo($system & " updating for event: " & $event)
-    if system.update != nil:
-      system.update(system, dt)
+    if system.update != nil and event in system.events:
+      system.update(system, event, dt)
 
 proc render*(world: World) =
   for system in world.systems:
