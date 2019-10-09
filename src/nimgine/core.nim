@@ -3,6 +3,9 @@ import timing
 import events
 import ecs
 
+type Position = ref object of Component
+  x, y: int
+
 var clock: Clock = newClock()
 var running: bool = true
 
@@ -35,17 +38,15 @@ proc initGame*() =
 
   testSystem.update = proc(system: System, event: Event, entity: Entity, dt: float) =
     echo($event & " -> " & $entity)
+    echo(entity.get(Position))
 
   testSystem.subscribe(@[Input])
-  testSystem.matchComponents(@["Component"])
+  testSystem.matchComponents(@["Position"])
 
   ecs.add(testSystem)
 
-  testEntity.add(testComponent)
-
+  testEntity.add(Position())
   ecs.add(testEntity)
-
-  # entitiesForSystem(testSystem)
 
   init()
   loop()

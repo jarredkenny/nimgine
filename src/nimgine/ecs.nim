@@ -31,7 +31,7 @@ var systemCount: int = 0
 var world = World()
 
 # Component Functions
-proc `$`(c: Component): string =
+proc `$`*(c: Component): string =
   result = "<Component id=" & $c.id & ">"
 
 proc newComponent*(): Component =
@@ -52,7 +52,7 @@ proc add*[T](entity: Entity, component: T) =
 
 proc get*(entity: Entity, T: typedesc): T =
   if entity.components.hasKey(name(T)):
-    result = entity.components[name(T)]
+    result = cast[T](entity.components[name(T)])
 
 # System Functions
 proc `$`(system: System): string =
