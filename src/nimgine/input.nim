@@ -1,5 +1,6 @@
-type
+import tables
 
+type
   InputState* = bool
 
   InputType* = enum
@@ -9,7 +10,10 @@ type
     Right
     Jump
     Pause
-    LeftClick
-    RightClick
-    MouseMove
     None
+
+  InputManager* = ref object
+    inputs*: Table[InputType, InputState]
+
+proc newInputManager*(): InputManager =
+  result = InputManager()

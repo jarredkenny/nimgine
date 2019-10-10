@@ -57,7 +57,7 @@ proc update*() =
   while pollEvent(event):
     # Handle Quit Event
     if event.kind == sdl2.EventType.QuitEvent:
-      queueEvent(newEvent(events.Quit))
+      queueEvent(events.Quit)
 
     if event.kind == sdl2.EventType.KeyDown:
       queueEvent(newInputEvent(event.key.keysym.scancode.toInput, true))
@@ -75,7 +75,7 @@ proc update*() =
       # Handle Window Resize
       if windowEvent.event == WindowEvent_Resized:
         reshape(windowEvent.data1, windowEvent.data2)
-        queueEvent(newEvent(events.Resize))
+        queueEvent(events.Resize)
 
 proc render*() =
   window.glSwapWindow()

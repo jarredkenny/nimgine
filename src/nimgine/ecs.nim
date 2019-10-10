@@ -1,4 +1,4 @@
-import tables, typetraits, sugar, sets
+import tables, typetraits, sugar, sets, sequtils
 
 import events
 
@@ -55,8 +55,9 @@ proc get*(entity: Entity, T: typedesc): T =
     result = cast[T](entity.components[name(T)])
 
 # System Functions
-proc `$`(system: System): string =
-  result = "<System id=" & $system.id & ">"
+proc `$`*(system: System): string =
+  result = "<System tem): Entity = for entity in world.entities:id=" &
+      $system.id & ">"
 
 proc newSystem*(): System =
   inc(systemCount)
@@ -80,9 +81,16 @@ proc unsubscribe*(system: System, events: seq[EventType]) =
 proc matchComponent*(system: System, component: string) =
   system.components.incl(component)
 
+proc matchComponent*(system: System, component: typedesc) =
+  system.matchComponent(name(component))
+
 proc matchComponents*(system: System, components: seq[string]) =
   for component in components:
     system.matchComponent(component)
+
+proc matchComponents*(system: System, components: seq[typedesc]) =
+  for component in components:
+    system.matchComponent(name(component))
 
 # ECS/world Functions
 proc `$`*(w: World): string =
@@ -100,11 +108,11 @@ proc init*() =
     if system.init != nil:
       system.init(system)
 
-iterator entitiesForSystem(sys: System): Entity =
+iterator entitiesForSystem(system: System): Entity =
   for entity in world.entities:
-    for match in sys.components:
-      if entity.components.hasKey(match):
-        yield entity
+    if all(system.components.toSeq, proc(
+        s: string): bool = entity.components.hasKey(s)):
+      yield entity
 
 proc update*(event: Event, dt: float) =
   for system in world.systems:

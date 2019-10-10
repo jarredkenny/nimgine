@@ -5,10 +5,18 @@ import input
 type
 
   EventType* = enum
-    Quit
-    Resize
+
+    # Game Loop Events
+    Update
+    Render
+
+    # Input Type Events
     Input
     MouseMove
+
+    # Platform State Events
+    Quit
+    Resize
 
   Event* = ref object
     case kind*: EventType
@@ -31,9 +39,6 @@ proc newEventQueue*(): EventQueue =
 
 var queue = newEventQueue()
 
-proc queueEvent*(evt: Event) =
-  queue.addLast(evt)
-
 iterator pollEvent*(): Event =
   while queue.len > 0:
     yield queue.popFirst()
@@ -46,3 +51,9 @@ proc newInputEvent*(input: InputType, state: bool): Event =
 
 proc newMouseMoveEvent*(x, y: int): Event =
   result = Event(kind: MouseMove, x: x, y: y)
+
+proc queueEvent*(evt: Event) =
+  queue.addLast(evt)
+
+proc queueEvent*(kind: EventType) =
+  queueEvent(newEvent(kind))
