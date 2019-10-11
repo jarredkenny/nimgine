@@ -60,6 +60,8 @@ renderer.init = proc(system: System) =
     glVertexAttribPointer(0.GLuint, 2.GLint, cGL_FLOAT, GL_FALSE, (
         sizeof(float) * 2).GLsizei, cast[pointer](0))
 
+    # https://www.youtube.com/watch?v=x0H--CL2tUI&list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2&index=5
+    # https://github.com/ephja/nim-glfw/blob/master/examples/simple.nim
     glEnableVertexAttribArray(0.GLuint)
 
     var vertexShader: string = """
