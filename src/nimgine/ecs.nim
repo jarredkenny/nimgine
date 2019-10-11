@@ -13,9 +13,9 @@ type
   System* = ref object
     id*: int
     events: set[EventType]
-    components: HashSet[string]
+    components*: HashSet[string]
     init*: proc(system: System)
-    update*: proc(system: System, event: Event, entity: Entity, dt: float)
+    update*: proc(system: System, event: Event, dt: float)
     render*: proc(system: System)
 
   World* = ref object
@@ -108,17 +108,21 @@ proc init*() =
     if system.init != nil:
       system.init(system)
 
-iterator entitiesForSystem(system: System): Entity =
+# if all(system.components.toSeq, proc(
+#     s: string): bool = entity.components.hasKey(s)):
+iterator entitiesForSystem*(system: System): Entity =
   for entity in world.entities:
-    if all(system.components.toSeq, proc(
-        s: string): bool = entity.components.hasKey(s)):
+    echo("CP1 " & $entity & "c: " & $entity.components)
+    if all(entity.components, proc(
+        s: string): bool = system.components.contains(s)):
       yield entity
+    else:
+      echo("rejected")
 
 proc update*(event: Event, dt: float) =
   for system in world.systems:
     if system.update != nil and event.kind in system.events:
-      for entity in entitiesForSystem(system):
-        system.update(system, event, entity, dt)
+      system.update(system, event, dt)
 
 proc render*() =
   for system in world.systems:

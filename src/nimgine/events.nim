@@ -18,6 +18,12 @@ type
     Quit
     Resize
 
+    # Control Intents
+    MoveUp
+    MoveDown
+    MoveLeft
+    MoveRight
+
   Event* = ref object
     case kind*: EventType
     of Input:
