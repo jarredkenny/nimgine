@@ -1,5 +1,39 @@
+import opengl
+
 import ../ecs
 import ../components
+
+type
+    Vertex = ref object
+        x, y: GLfloat
+
+proc compileShader(shaderType: uint, source: string): uint =
+    var id: uint = glCreateShader(shaderType.GLenum)
+    var src: cstringarray = allocCStringArray([source])
+    glShaderSource(id.GLuint, 1.GLsizei, src, nil)
+    glCompileShader(id.GLuint)
+
+    var compiled: GLint;
+    glGetShaderiv(id.GLuint, GL_COMPILE_STATUS, addr(compiled))
+
+    if compiled == 0:
+        var length: GLSizei;
+        glGetShaderiv(id.GLuint, GL_INFO_LOG_LENGTH, addr(length))
+        var message: string = newString(length)
+        glGetShaderInfoLog(id.GLuint, length, addr(length), message)
+        echo("Shader compilation error: " & $message)
+
+
+    result = id
+
+proc createShader(vertexShader, fragmentShader: string): uint =
+    var program: uint = glCreateProgram()
+    var vs: uint = compileShader(GL_VERTEX_SHADER.uint, vertexShader)
+    var fs: uint = compileShader(GL_FRAGMENT_SHADER.uint, fragmentShader)
+    glAttachShader(program.GLuint, vs.GLuint)
+    glAttachShader(program.GLuint, fs.GLuint)
+    result = program
+
 
 var renderer = newSystem()
 
@@ -8,8 +42,58 @@ renderer.matchComponent(Dimensions)
 renderer.matchComponent(RenderBlock)
 
 renderer.render = proc(system: System) =
-    echo($system.components)
     for entity in entitiesForSystem(system):
-        echo(entity)
+
+        var pos = entity.get(Position)
+        var dim = entity.get(Dimensions)
+
+        # var positions: array = [
+        #     Vertex(x: pos.x.GLfloat, y: pos.y.GLfloat),
+        #     Vertex(x: (pos.x + dim.width).GLfloat, y: (pos.y +
+        #             dim.height).GLfloat),
+        #     Vertex(x: pos.x.GLfloat, y: (pos.y + dim.height).GLfloat)
+        # ]
+
+        var positions: array = [
+            -0.5, -0.5,
+            0.0, 0.5,
+            0.5, -0.5
+        ]
+
+        var buffer: GLuint;
+        glGenBuffers(1, addr(buffer))
+        glBindBuffer(GL_ARRAY_BUFFER, buffer)
+        glBufferData(GL_ARRAY_BUFFER, sizeof(positions).GLsizeiptr, addr(
+                positions), GL_STATIC_DRAW)
+
+        var vertexShader: string = """
+            #version 330 core
+            layout(location=0) in vec4 position;
+            void main() {
+                gl_Position = position;
+            }
+            """
+        var fragmentShader: string = """
+            #version 330 core
+            layout(location = 0) out vec4 color;
+            void main() {
+                color = vec4(1.0, 1.0, 1.0, 1.0);
+            }
+            """
+
+        var shader: uint = createShader(vertexShader, fragmentShader)
+
+        glLinkProgram(shader.GLuint)
+        glUseProgram(shader.GLuint)
+
+        glDrawArrays(GL_TRIANGLES, 0, 3)
+
+        glVertexAttribPointer(0.GLuint, 2.GLint, cGL_FLOAT, GL_FALSE, (
+            sizeof(float) * 2).GLsizei, cast[pointer](0))
+
+        glEnableVertexAttribArray(0.GLuint)
+
+
+        glFlush()
 
 ecs.add(renderer)

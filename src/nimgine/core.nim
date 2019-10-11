@@ -17,6 +17,10 @@ proc update() =
     if event.kind == Quit:
       running = false
 
+proc preRender() =
+  ecs.preRender()
+  platform.preRender()
+
 proc render() =
   ecs.render()
   platform.render()
@@ -24,6 +28,7 @@ proc render() =
 proc loop() =
   while running:
     update()
+    preRender()
     render()
 
 proc init*() =

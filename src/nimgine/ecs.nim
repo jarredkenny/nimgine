@@ -16,6 +16,7 @@ type
     components*: HashSet[string]
     init*: proc(system: System)
     update*: proc(system: System, event: Event, dt: float)
+    preRender*: proc(system: System)
     render*: proc(system: System)
 
   World* = ref object
@@ -112,17 +113,19 @@ proc init*() =
 #     s: string): bool = entity.components.hasKey(s)):
 iterator entitiesForSystem*(system: System): Entity =
   for entity in world.entities:
-    echo("CP1 " & $entity & "c: " & $entity.components)
-    if all(entity.components, proc(
-        s: string): bool = system.components.contains(s)):
+    if all(toSeq(system.components), proc(
+        s: string): bool = entity.components.hasKey(s)):
       yield entity
-    else:
-      echo("rejected")
 
 proc update*(event: Event, dt: float) =
   for system in world.systems:
     if system.update != nil and event.kind in system.events:
       system.update(system, event, dt)
+
+proc preRender*() =
+  for system in world.systems:
+    if system.preRender != nil:
+      system.preRender(system)
 
 proc render*() =
   for system in world.systems:

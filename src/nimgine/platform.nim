@@ -40,16 +40,19 @@ proc init*() =
   loadExtensions()
   glClearColor(0.0, 0.0, 0.0, 1.0)
   glClearDepth(1.0)
-  glEnable(Gl_DEPTH_TEST)
+  glEnable(GL_DEPTH_TEST)
   glDepthFunc(GL_LEQUAL)
-  glShadeModel(Gl_SMOOTH)
+  glShadeModel(GL_SMOOTH)
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
+  glViewport(0, 0, screenWidth, screenHeight)
+  glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
 
 proc reshape(newWidth: cint, newHeight: cint) =
   glViewport(0, 0, newWidth, newHeight)
   glMatrixMode(GL_PROJECTION)
   glLoadIdentity()
-  gluPerspective(45.0, newWidth / newHeight, 0.1, 100.0)
+  glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
+
 
 proc update*() =
 
@@ -76,6 +79,10 @@ proc update*() =
       if windowEvent.event == WindowEvent_Resized:
         reshape(windowEvent.data1, windowEvent.data2)
         queueEvent(events.Resize)
+
+proc preRender*() =
+  glClear(GL_COLOR_BUFFER_BIT)
+
 
 proc render*() =
   window.glSwapWindow()
