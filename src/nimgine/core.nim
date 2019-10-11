@@ -32,6 +32,6 @@ proc loop() =
     render()
 
 proc init*() =
-  ecs.init()
   platform.init()
+  ecs.init()
   loop()

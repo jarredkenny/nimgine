@@ -28,7 +28,7 @@ proc init*() =
   # Create Window
   window = createWindow(
       "Nimgine",
-      100, 100,
+      1, 1,
       screenWidth, screenHeight,
       SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE
   )
@@ -45,13 +45,13 @@ proc init*() =
   glShadeModel(GL_SMOOTH)
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
   glViewport(0, 0, screenWidth, screenHeight)
-  glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
+  #glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
 
 proc reshape(newWidth: cint, newHeight: cint) =
   glViewport(0, 0, newWidth, newHeight)
   glMatrixMode(GL_PROJECTION)
   glLoadIdentity()
-  glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
+  #glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
 
 
 proc update*() =
