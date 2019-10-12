@@ -6,7 +6,9 @@ import ecs
 include systems/[input, controller, renderer]
 
 var clock: Clock = newClock()
+
 var running: bool = true
+var paused: bool = false
 
 proc update() =
   queueEvent(Update)
@@ -18,8 +20,8 @@ proc update() =
       running = false
 
 proc preRender() =
-  ecs.preRender()
   platform.preRender()
+  ecs.preRender()
 
 proc render() =
   ecs.render()
@@ -27,9 +29,11 @@ proc render() =
 
 proc loop() =
   while running:
-    update()
-    preRender()
-    render()
+    if not paused:
+      update()
+      preRender()
+      render()
+    paused = true
 
 proc init*() =
   platform.init()

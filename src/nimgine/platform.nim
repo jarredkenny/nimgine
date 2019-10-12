@@ -22,6 +22,8 @@ proc toInput(key: Scancode): InputType =
   else: input.None
 
 proc init*() =
+  echo("platform - init")
+
   # Init SDL
   discard sdl2.init(INIT_EVERYTHING)
 
@@ -38,7 +40,7 @@ proc init*() =
 
   # Init opengl
   loadExtensions()
-  glClearColor(0.0, 0.0, 0.0, 1.0)
+  glClearColor(0.0, 0.5, 1.0, 1.0)
   glClearDepth(1.0)
   glEnable(GL_DEPTH_TEST)
   glDepthFunc(GL_LEQUAL)
@@ -55,6 +57,7 @@ proc reshape(newWidth: cint, newHeight: cint) =
 
 
 proc update*() =
+  echo("platform - update")
 
   # Handle SDL event
   while pollEvent(event):
@@ -81,8 +84,9 @@ proc update*() =
         queueEvent(events.Resize)
 
 proc preRender*() =
+  echo("platform - preRender: glClear")
   glClear(GL_COLOR_BUFFER_BIT)
 
-
 proc render*() =
+  echo("platform - render: swapping buffers")
   window.glSwapWindow()
