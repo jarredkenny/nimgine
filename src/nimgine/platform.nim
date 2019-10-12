@@ -1,6 +1,5 @@
 import sdl2
 import opengl
-import opengl/glu
 
 import input
 import events
@@ -27,33 +26,31 @@ proc init*() =
   # Init SDL
   discard sdl2.init(INIT_EVERYTHING)
 
+  # Configure OpenGL Version
+  discard glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3)
+  discard glSetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3)
+  discard glSetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE)
+
   # Create Window
   window = createWindow(
-      "Nimgine",
-      1, 1,
-      screenWidth, screenHeight,
-      SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE
-  )
+    "Nimgine",
+    1, 1,
+    screenWidth, screenHeight,
+    SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE
+    )
 
   # Create opengl context
   context = window.glCreateContext()
 
   # Init opengl
   loadExtensions()
-  glClearColor(0.0, 0.5, 1.0, 1.0)
-  glClearDepth(1.0)
-  glEnable(GL_DEPTH_TEST)
-  glDepthFunc(GL_LEQUAL)
-  glShadeModel(GL_SMOOTH)
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+  glEnable(GL_BLEND)
+  glClearColor(0.0, 0.5, 0.5, 1.0)
   glViewport(0, 0, screenWidth, screenHeight)
-  #glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
 
 proc reshape(newWidth: cint, newHeight: cint) =
   glViewport(0, 0, newWidth, newHeight)
-  glMatrixMode(GL_PROJECTION)
-  glLoadIdentity()
-  #glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
 
 
 proc update*() =

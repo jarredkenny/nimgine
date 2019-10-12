@@ -20,8 +20,8 @@ proc update() =
       running = false
 
 proc preRender() =
-  platform.preRender()
   ecs.preRender()
+  platform.preRender()
 
 proc render() =
   ecs.render()
@@ -33,7 +33,7 @@ proc loop() =
       update()
       preRender()
       render()
-    paused = true
+    paused = false
 
 proc init*() =
   platform.init()

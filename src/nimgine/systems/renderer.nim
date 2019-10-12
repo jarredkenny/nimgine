@@ -55,19 +55,17 @@ renderer.init = proc(system: System) =
     var buffer: GLuint = 0
     glGenBuffers(1, addr(buffer))
     glBindBuffer(GL_ARRAY_BUFFER, buffer)
-    glBufferData(GL_ARRAY_BUFFER, sizeof(positions).GLsizeiptr, addr(
-            positions), GL_STATIC_DRAW)
 
     var vertexShader: string = """
-        #version 130
-        in vec2 position;
+        #version 330 core
+        layout(location = 0) in vec2 position;
         void main() {
             gl_Position = vec4(position, 0.0, 1.0);
         }
         """
     var fragmentShader: string = """
-        #version 130
-        out vec4 color;
+        #version 330 core
+        layout(location=0) out vec4 color;
         void main() {
             color = vec4(0.0, 0.0, 0.0, 1.0);
         }
@@ -83,6 +81,8 @@ renderer.init = proc(system: System) =
     sizeOf(positions).GLsizei, cast[pointer](0))
 
     glEnableVertexAttribArray(posAttrib.GLuint)
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(positions).GLsizeiptr, addr(positions), GL_STATIC_DRAW)
 
 renderer.render = proc(system: System) =
     echo("renderer - render")
