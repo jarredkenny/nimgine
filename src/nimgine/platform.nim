@@ -27,9 +27,11 @@ proc init*() =
   discard sdl2.init(INIT_EVERYTHING)
 
   # Configure OpenGL Version
-  discard glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3)
-  discard glSetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3)
+  discard glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4)
+  discard glSetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4)
   discard glSetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE)
+  discard glSetAttribute(SDL_GL_DOUBLEBUFFER, 1)
+  discard glSetAttribute(SDL_GL_DEPTH_SIZE, 24)
 
   # Create Window
   window = createWindow(
@@ -41,6 +43,9 @@ proc init*() =
 
   # Create opengl context
   context = window.glCreateContext()
+
+  discard glMakeCurrent(window, context)
+  discard glSetSwapInterval(1)
 
   # Init opengl
   loadExtensions()

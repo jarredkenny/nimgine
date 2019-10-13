@@ -40,32 +40,16 @@ renderer.matchComponent(RenderBlock)
 
 
 renderer.init = proc(system: System) =
-    echo("renderer - init")
-
-    var positions: array = [
-        0.0, 0.5,
-        0.5, -0.5,
-        -0.5, -0.5
-    ]
-
-    var vao: GLuint;
-    glGenVertexArrays(1, addr(vao))
-    glBindVertexArray(vao)
-
-    var buffer: GLuint = 0
-    glGenBuffers(1, addr(buffer))
-    glBindBuffer(GL_ARRAY_BUFFER, buffer)
-
     var vertexShader: string = """
-        #version 330 core
-        layout(location = 0) in vec2 position;
-        void main() {
-            gl_Position = vec4(position, 0.0, 1.0);
-        }
-        """
+    #version 440 core
+    in vec2 position;
+    void main() {
+        gl_Position = vec4(position, 1.0, 1.0);
+    }
+    """
     var fragmentShader: string = """
-        #version 330 core
-        layout(location=0) out vec4 color;
+        #version 440 core
+        out vec4 color;
         void main() {
             color = vec4(0.0, 0.0, 0.0, 1.0);
         }
@@ -73,19 +57,34 @@ renderer.init = proc(system: System) =
 
     shader = createShader(vertexShader, fragmentShader)
     glLinkProgram(shader.GLuint)
-    glUseProgram(shader.GLuint)
 
-    var posAttrib: GLint = glGetAttribLocation(shader.GLuint, "position")
-
-    glVertexAttribPointer(posAttrib.GLuint, 2.GLint, cGL_FLOAT, GL_FALSE,
-    sizeOf(positions).GLsizei, cast[pointer](0))
-
-    glEnableVertexAttribArray(posAttrib.GLuint)
-
-    glBufferData(GL_ARRAY_BUFFER, sizeof(positions).GLsizeiptr, addr(positions), GL_STATIC_DRAW)
 
 renderer.render = proc(system: System) =
-    echo("renderer - render")
+    var positions: array = [
+        -1.0.GLfloat, -1.0,
+        1.0, -1.0,
+        0.0, 1.0,
+    ]
+
+    var vao, vbo: GLuint;
+    glGenVertexArrays(1, addr(vao))
+    glGenBuffers(1, addr(vbo))
+    glBindVertexArray(vao)
+    glBindBuffer(GL_ARRAY_BUFFER, vbo)
+
+    glBufferData(GL_ARRAY_BUFFER, (sizeof(GLfloat) * positions.len).GLsizeiptr,
+            addr(positions), GL_STATIC_DRAW)
+
+    var posAttrib: GLint = glGetAttribLocation(shader.GLuint, "position")
+    glEnableVertexAttribArray(posAttrib.GLuint)
+
+    glVertexAttribPointer(posAttrib.GLuint, 2.GLint, cGL_FLOAT, GL_FALSE,
+            0.GLsizei, nil)
+
+    glUseProgram(shader.GLuint)
     glDrawArrays(GL_TRIANGLES, 0, 3)
+
+    glUseProgram(0)
+    glDisableVertexAttribArray(posAttrib.GLuint)
 
 ecs.add(renderer)
