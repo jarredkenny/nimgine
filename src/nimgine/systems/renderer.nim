@@ -61,19 +61,29 @@ renderer.init = proc(system: System) =
 
 renderer.render = proc(system: System) =
     var positions: array = [
-        -1.0.GLfloat, -1.0,
-        1.0, -1.0,
-        0.0, 1.0,
+        -0.5.GLfloat, 0.5, # Top Left
+        0.5, 0.5,          # Top Right
+        0.5, -0.5,         # Botttom Right
+        -0.5, -0.5         # Bottom Left
     ]
 
-    var vao, vbo: GLuint;
+    var elements: array = [
+        0.GLint, 3, 2,
+        2, 0, 1
+    ]
+
+    var vao, vbo, ebo: GLuint;
     glGenVertexArrays(1, addr(vao))
     glGenBuffers(1, addr(vbo))
     glBindVertexArray(vao)
     glBindBuffer(GL_ARRAY_BUFFER, vbo)
+    glBufferData(GL_ARRAY_BUFFER, (sizeof(GLfloat) *
+            positions.len).GLsizeiptr, addr(positions), GL_STATIC_DRAW)
+    glGenBuffers(1, addr(ebo))
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sizeof(GLint) *
+            elements.len).GLsizeiptr, addr(elements), GL_STATIC_DRAW)
 
-    glBufferData(GL_ARRAY_BUFFER, (sizeof(GLfloat) * positions.len).GLsizeiptr,
-            addr(positions), GL_STATIC_DRAW)
 
     var posAttrib: GLint = glGetAttribLocation(shader.GLuint, "position")
     glEnableVertexAttribArray(posAttrib.GLuint)
@@ -82,7 +92,7 @@ renderer.render = proc(system: System) =
             0.GLsizei, nil)
 
     glUseProgram(shader.GLuint)
-    glDrawArrays(GL_TRIANGLES, 0, 3)
+    glDrawElements(GL_TRIANGLES, elements.len.GLsizei, GL_UNSIGNED_INT, nil)
 
     glUseProgram(0)
     glDisableVertexAttribArray(posAttrib.GLuint)
