@@ -8,4 +8,6 @@ type
     Right
     Jump
     Pause
+    ZoomIn
+    ZoomOut
     None

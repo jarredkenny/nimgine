@@ -1,6 +1,7 @@
 import tables, typetraits, sugar, sets, sequtils
 
 import events
+import renderer
 
 type
   Component* = ref object of RootObj
@@ -16,8 +17,8 @@ type
     components*: HashSet[string]
     init*: proc(world: World, system: System)
     update*: proc(world: World, system: System, event: Event, dt: float)
-    preRender*: proc(world: World, system: System)
-    render*: proc(world: World, system: System)
+    preRender*: proc(scene: Scene, world: World)
+    render*: proc(scene: Scene, world: World)
 
   World* = ref object
     entities*: seq[Entity]
@@ -104,6 +105,10 @@ proc add*(world: World, systems: seq[System]) =
 proc add*(world: World, entity: Entity) =
   world.entities.add(entity)
 
+proc add*(world: World, entities: seq[Entity]) =
+  for entity in entities:
+    world.add(entity)
+
 proc newSystem*(): System =
   inc(systemCount)
   result = System(id: systemCount)
@@ -124,12 +129,12 @@ proc update*(world: World, event: Event, dt: float) =
     if system.update != nil and event.kind in system.events:
       system.update(world, system, event, dt)
 
-proc preRender*(world: World) =
+proc preRender*(scene: Scene, world: World) =
   for system in world.systems:
     if system.preRender != nil:
-      system.preRender(world, system)
+      system.preRender(scene, world)
 
-proc render*(world: World) =
+proc render*(scene: Scene, world: World) =
   for system in world.systems:
     if system.render != nil:
-      system.render(world, system)
+      system.render(scene, world)

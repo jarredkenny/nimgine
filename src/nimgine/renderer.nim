@@ -1,4 +1,4 @@
-import sequtils, math
+import sequtils, math, deques
 import opengl
 import glm
 
@@ -21,12 +21,12 @@ type
     shader: Shader
 
   Camera* = ref object
-    projection: Mat4[GLfloat]
-    view: Mat4[GLfloat]
+    projection*: Mat4[GLfloat]
+    view*: Mat4[GLfloat]
 
   Scene* = ref object
-    camera: Camera
-    drawQueue: seq[Mesh]
+    camera*: Camera
+    drawQueue: Deque[Mesh]
 
 proc newVertexBuffer*(mVertices: seq[float]): VertexBuffer =
   var vao, vbo: GLuint
@@ -89,7 +89,6 @@ proc newShader*(vertexShader, fragmentShader: string): Shader =
   var fs: uint = compileShader(GL_FRAGMENT_SHADER.uint, fragmentShader)
   glAttachShader(id.GLuint, vs.GLuint)
   glAttachShader(id.GLuint, fs.GLuint)
-  glBindFragDataLocation(id.GLuint, 0, "color");
   glLinkProgram(id.GLuint)
   result = Shader(id: id)
 
@@ -120,29 +119,38 @@ proc uniform(mesh: Mesh, name: string, matrix: var Mat4) =
 proc draw(mesh: Mesh) =
   draw(mesh.indexBuffer)
 
-proc newCamera(eye: Vec3, center: Vec3, up: Vec3): Camera =
+proc newCamera(x, y, d: float): Camera =
   var
+    eye = vec3(x.GLfloat, y.GLfloat, d.GLfloat)
+    center = vec3(x.GLfloat, y.GLfloat, 0.GLfloat)
+    up = vec3(0.0.GLfloat, 1.0, 0.0)
     view = lookAt(eye, center, up)
     projection = perspective((math.PI/2).GLfloat, 1.0.GLfloat,
     0.01.GLfloat, 100.0.GLfloat)
   result = Camera(view: view, projection: projection)
 
-proc submit*(mesh: Mesh) =
-  var
-    eye = vec3(0.0.GLfloat, 0.0, 10.0)
-    center = vec3(0.0.GLfloat)
-    up = vec3(0.0.GLfloat, 1.0, 0.0)
-    model = mat4(1.0.GLfloat)
-    camera = newCamera(eye, center, up)
-    mvp = camera.projection * camera.view * model
+proc newScene*(): Scene =
+  let scene = Scene()
+  scene.drawQueue = initDeque[Mesh]()
+  result = scene
 
-  use(mesh)
-  mesh.vertIn("position")
-  mesh.uniform("MVP", mvp)
-  draw(mesh)
+proc setCameraPosition*(scene: Scene, x, y, z: float) =
+  echo("new camera position: " & $x & "," & $y & "," & $z)
+  scene.camera = newCamera(x, y, z)
 
-proc preRender*() =
+proc submit*(scene: Scene, mesh: Mesh) =
+  scene.drawQueue.addLast(mesh)
+
+proc preRender*(scene: Scene) =
   discard
 
-proc render*() =
-  discard
+proc render*(scene: Scene) =
+  for mesh in scene.drawQueue.items:
+    scene.drawQueue.popFirst()
+    var
+      model = mat4(1.0.GLfloat)
+      mvp = scene.camera.projection * scene.camera.view * model
+    use(mesh)
+    mesh.vertIn("position")
+    mesh.uniform("MVP", mvp)
+    mesh.draw()

@@ -4,9 +4,10 @@ import events
 import ecs
 import renderer
 
-import systems/[input, controller, render]
+import systems/[input, controller, render, camera]
 
 var clock: Clock = newClock()
+var scene: Scene = newScene()
 
 var running: bool = true
 
@@ -17,8 +18,9 @@ proc handle(evt: Event) =
 proc initialize(world: World) =
   platform.init()
   world.add(@[
-    inputSystem,
+    cameraSystem,
     controllerSystem,
+    inputSystem,
     renderSystem
   ])
   world.init()
@@ -40,11 +42,11 @@ proc start*(world: World) =
       world.update(event, clock.dt)
 
     # Pre-Render
-    world.preRender()
+    scene.preRender(world)
     platform.preRender()
-    renderer.preRender()
+    renderer.preRender(scene)
 
     # Render
-    world.render()
+    scene.render(world)
+    renderer.render(scene)
     platform.render()
-    renderer.render()

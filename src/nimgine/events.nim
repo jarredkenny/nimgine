@@ -23,6 +23,8 @@ type
     MoveDown
     MoveLeft
     MoveRight
+    ZoomIn
+    ZoomOut
 
   Event* = ref object
     case kind*: EventType

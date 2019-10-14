@@ -2,8 +2,11 @@ import ecs
 
 type
     Position* = ref object of Component
-        x*, y*: float
+        x*, y*, z*: float
     Dimensions* = ref object of Component
         width*, height*: float
+
+
+    ControlledCamera* = ref object of Component
     Controllable* = ref object of Component
     RenderBlock* = ref object of Component

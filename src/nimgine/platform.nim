@@ -17,6 +17,8 @@ proc toInput(key: Scancode): InputType =
   of SDL_SCANCODE_SPACE: input.Jump
   of SDL_SCANCODE_W: input.Up
   of SDL_SCANCODE_S: input.Down
+  of SDL_SCANCODE_E: input.ZoomIn
+  of SDL_SCANCODE_Q: input.ZoomOut
   of SDL_SCANCODE_ESCAPE: input.Pause
   else: input.None
 
