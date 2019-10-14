@@ -14,17 +14,28 @@ proc handle(evt: Event) =
   if evt.kind == Quit:
     running = false
 
+proc update() =
+  queueEvent(Update)
+  clock.update()
+  platform.update()
+  for event in pollEvent():
+    handle(event)
+    ecs.update(event, clock.dt)
+
+proc preRender() =
+  ecs.preRender()
+  platform.preRender()
+  renderer.preRender()
+
+proc render() =
+  ecs.render()
+  platform.render()
+
+
 proc init*() =
   platform.init()
   ecs.init()
   while running:
-    queueEvent(Update)
-    clock.update()
-    platform.update()
-    for event in pollEvent():
-      handle(event)
-      ecs.update(event, clock.dt)
-    ecs.preRender()
-    platform.preRender()
-    ecs.render()
-    platform.render()
+    update()
+    preRender()
+    render()

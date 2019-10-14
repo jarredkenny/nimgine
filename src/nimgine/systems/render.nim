@@ -1,13 +1,16 @@
 import ../ecs
-import ../components
 import ../renderer
+from ../events import Update
+from ../components import Position, Dimensions, RenderBlock
 
 var renderSystem = newSystem()
+renderSystem.subscribe(Update)
 renderSystem.matchComponent(Position)
 renderSystem.matchComponent(Dimensions)
 renderSystem.matchComponent(RenderBlock)
 
 var shader: Shader
+var elements: IndexBuffer
 
 renderSystem.init = proc(system: System) =
     shader = newShader(
@@ -27,7 +30,10 @@ renderSystem.init = proc(system: System) =
         }
         """
     )
-
+    elements = newIndexBuffer(@[
+        0, 1, 2,
+        2, 3, 0
+    ])
 
 renderSystem.render = proc(system: System) =
 
@@ -43,12 +49,7 @@ renderSystem.render = proc(system: System) =
             (p.x + d.width), p.y
         ])
 
-        var elements = newIndexBuffer(@[
-            0, 1, 2,
-            2, 3, 0
-        ])
-
-        var mesh: Mesh = newMesh(positions, elements, shader)
+        var mesh = newMesh(positions, elements, shader)
 
         renderer.submit(mesh)
 

@@ -20,6 +20,14 @@ type
     indexBuffer: IndexBuffer
     shader: Shader
 
+  Camera* = ref object
+    projection: Mat4[GLfloat]
+    view: Mat4[GLfloat]
+
+  Scene* = ref object
+    camera: Camera
+    drawQueue: seq[Mesh]
+
 proc newVertexBuffer*(mVertices: seq[float]): VertexBuffer =
   var vao, vbo: GLuint
   var vertices: seq[GLfloat] = mVertices.mapIt(it.GLfloat)
@@ -88,33 +96,57 @@ proc newShader*(vertexShader, fragmentShader: string): Shader =
 proc use*(shader: Shader) =
   glUseProgram(shader.id.GLuint)
 
+proc vertIn*(shader: Shader, name: string) =
+  var attribId: GLint = glGetAttribLocation(shader.id.GLuint, name)
+  glEnableVertexAttribArray(attribId.GLuint)
+  glVertexAttribPointer(attribId.GLuint, 2.GLint, cGL_FLOAT, GL_FALSE,
+      0.GLsizei, nil)
+
+proc vertIn*(mesh: Mesh, name: string) =
+  mesh.shader.vertIn(name)
+
 proc newMesh*(vb: VertexBuffer, ib: IndexBuffer, shader: Shader): Mesh =
   result = Mesh(
     vertexBuffer: vb,
     indexBuffer: ib,
     shader: shader
-  )
+    )
+
+proc use(mesh: Mesh) =
+  use(mesh.shader)
+  use(mesh.vertexBuffer)
+  use(mesh.indexBuffer)
+
+proc uniform(mesh: Mesh, name: string, matrix: var Mat4) =
+  var index: GLint = glGetUniformLocation(mesh.shader.id.GLuint, name)
+  glUniformMatrix4fv(index, 1.GLsizei, GL_FALSE, matrix.caddr)
+
+proc draw(mesh: Mesh) =
+  draw(mesh.indexBuffer)
+
+proc newCamera(eye: Vec3, center: Vec3, up: Vec3): Camera =
+  var
+    view = lookAt(eye, center, up)
+    projection = perspective((math.PI/2).GLfloat, 1.0.GLfloat,
+    0.01.GLfloat, 100.0.GLfloat)
+  result = Camera(view: view, projection: projection)
 
 proc submit*(mesh: Mesh) =
   var
     eye = vec3(0.0.GLfloat, 0.0, 10.0)
     center = vec3(0.0.GLfloat)
     up = vec3(0.0.GLfloat, 1.0, 0.0)
-    view = lookAt(eye, center, up)
-    projection = perspective((math.PI/2).GLfloat, 1.0.GLfloat,
-            0.01.GLfloat, 100.0.GLfloat)
     model = mat4(1.0.GLfloat)
+    camera = newCamera(eye, center, up)
+    mvp = camera.projection * camera.view * model
 
-    mvp = projection * view * model
-  use(mesh.vertexBuffer)
-  use(mesh.indexBuffer)
-  use(mesh.shader)
-  var mvpUni: GLint = glGetUniformLocation(mesh.shader.id.GLuint, "MVP")
-  glUniformMatrix4fv(mvpUni, 1.GLsizei, GL_FALSE, mvp.caddr)
+  use(mesh)
+  mesh.vertIn("position")
+  mesh.uniform("MVP", mvp)
+  draw(mesh)
 
-  var posAttrib: GLint = glGetAttribLocation(mesh.shader.id.GLuint, "position")
-  glEnableVertexAttribArray(posAttrib.GLuint)
+proc preRender*() =
+  discard
 
-  glVertexAttribPointer(posAttrib.GLuint, 2.GLint, cGL_FLOAT, GL_FALSE,
-          0.GLsizei, nil)
-  draw(mesh.indexBuffer)
+proc render*() =
+  discard
