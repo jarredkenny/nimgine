@@ -14,10 +14,10 @@ type
     id*: int
     events: set[EventType]
     components*: HashSet[string]
-    init*: proc(system: System)
-    update*: proc(system: System, event: Event, dt: float)
-    preRender*: proc(system: System)
-    render*: proc(system: System)
+    init*: proc(world: World, system: System)
+    update*: proc(world: World, system: System, event: Event, dt: float)
+    preRender*: proc(world: World, system: System)
+    render*: proc(world: World, system: System)
 
   World* = ref object
     entities*: seq[Entity]
@@ -27,9 +27,6 @@ type
 var entityCount: int = 0
 var componentCount: int = 0
 var systemCount: int = 0
-
-# Game World
-var world = World()
 
 # Component Functions
 proc `$`*(c: Component): string =
@@ -59,10 +56,6 @@ proc get*(entity: Entity, T: typedesc): T =
 proc `$`*(system: System): string =
   result = "<System tem): Entity = for entity in world.entities:id=" &
       $system.id & ">"
-
-proc newSystem*(): System =
-  inc(systemCount)
-  result = System(id: systemCount)
 
 proc subscribe*(system: System, event: EventType) =
   if event notin system.events:
@@ -98,34 +91,45 @@ proc `$`*(w: World): string =
   result = "<World entities=" & $len(w.entities) & " systems=" & $len(
       w.systems) & ">"
 
-proc add*(system: System) =
+proc newWorld*(): World =
+  result = World()
+
+proc add*(world: World, system: System) =
   world.systems.add(system)
 
-proc add*(entity: Entity) =
+proc add*(world: World, systems: seq[System]) =
+  for system in systems:
+    world.add(system)
+
+proc add*(world: World, entity: Entity) =
   world.entities.add(entity)
 
-proc init*() =
+proc newSystem*(): System =
+  inc(systemCount)
+  result = System(id: systemCount)
+
+proc init*(world: World) =
   for system in world.systems:
     if system.init != nil:
-      system.init(system)
+      system.init(world, system)
 
-iterator entitiesForSystem*(system: System): Entity =
+iterator entitiesForSystem*(world: World, system: System): Entity =
   for entity in world.entities:
     if all(toSeq(system.components), proc(
         s: string): bool = entity.components.hasKey(s)):
       yield entity
 
-proc update*(event: Event, dt: float) =
+proc update*(world: World, event: Event, dt: float) =
   for system in world.systems:
     if system.update != nil and event.kind in system.events:
-      system.update(system, event, dt)
+      system.update(world, system, event, dt)
 
-proc preRender*() =
+proc preRender*(world: World) =
   for system in world.systems:
     if system.preRender != nil:
-      system.preRender(system)
+      system.preRender(world, system)
 
-proc render*() =
+proc render*(world: World) =
   for system in world.systems:
     if system.render != nil:
-      system.render(system)
+      system.render(world, system)

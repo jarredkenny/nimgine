@@ -106,11 +106,7 @@ proc vertIn*(mesh: Mesh, name: string) =
   mesh.shader.vertIn(name)
 
 proc newMesh*(vb: VertexBuffer, ib: IndexBuffer, shader: Shader): Mesh =
-  result = Mesh(
-    vertexBuffer: vb,
-    indexBuffer: ib,
-    shader: shader
-    )
+  result = Mesh(vertexBuffer: vb, indexBuffer: ib, shader: shader)
 
 proc use(mesh: Mesh) =
   use(mesh.shader)

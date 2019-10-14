@@ -3,7 +3,7 @@ import ../renderer
 from ../events import Update
 from ../components import Position, Dimensions, RenderBlock
 
-var renderSystem = newSystem()
+var renderSystem* = newSystem()
 renderSystem.subscribe(Update)
 renderSystem.matchComponent(Position)
 renderSystem.matchComponent(Dimensions)
@@ -12,7 +12,7 @@ renderSystem.matchComponent(RenderBlock)
 var shader: Shader
 var elements: IndexBuffer
 
-renderSystem.init = proc(system: System) =
+renderSystem.init = proc(world: World, system: System) =
     shader = newShader(
         """
         #version 440 core
@@ -35,9 +35,9 @@ renderSystem.init = proc(system: System) =
         2, 3, 0
     ])
 
-renderSystem.render = proc(system: System) =
+renderSystem.render = proc(world: World, system: System) =
 
-    for entity in entitiesForSystem(system):
+    for entity in world.entitiesForSystem(system):
 
         var p = entity.get(Position)
         var d = entity.get(Dimensions)
@@ -52,5 +52,3 @@ renderSystem.render = proc(system: System) =
         var mesh = newMesh(positions, elements, shader)
 
         renderer.submit(mesh)
-
-ecs.add(renderSystem)

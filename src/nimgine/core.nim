@@ -4,7 +4,7 @@ import events
 import ecs
 import renderer
 
-include systems/[input, controller, render]
+import systems/[input, controller, render]
 
 var clock: Clock = newClock()
 
@@ -14,28 +14,37 @@ proc handle(evt: Event) =
   if evt.kind == Quit:
     running = false
 
-proc update() =
-  queueEvent(Update)
-  clock.update()
-  platform.update()
-  for event in pollEvent():
-    handle(event)
-    ecs.update(event, clock.dt)
-
-proc preRender() =
-  ecs.preRender()
-  platform.preRender()
-  renderer.preRender()
-
-proc render() =
-  ecs.render()
-  platform.render()
-
-
-proc init*() =
+proc initialize(world: World) =
   platform.init()
-  ecs.init()
+  world.add(@[
+    inputSystem,
+    controllerSystem,
+    renderSystem
+  ])
+  world.init()
+
+proc start*(world: World) =
+
+  # Init World
+  initialize(world)
+
+  # Game Loop
   while running:
-    update()
-    preRender()
-    render()
+
+    # Update
+    queueEvent(Update)
+    clock.update()
+    platform.update()
+    for event in pollEvent():
+      handle(event)
+      world.update(event, clock.dt)
+
+    # Pre-Render
+    world.preRender()
+    platform.preRender()
+    renderer.preRender()
+
+    # Render
+    world.render()
+    platform.render()
+    renderer.render()

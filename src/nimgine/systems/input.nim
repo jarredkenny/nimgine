@@ -8,11 +8,11 @@ type
     ActiveKeyMap = HashSet[InputType]
 
 var activeKeyMap = ActiveKeyMap()
-var inputSystem = newSystem()
+var inputSystem* = newSystem()
 
 inputSystem.subscribe(@[Input, Update])
 
-inputSystem.update = proc(system: System, event: Event, dt: float) =
+inputSystem.update = proc(world: World, system: System, event: Event, dt: float) =
     if event.kind == Input:
         if event.state:
             activeKeyMap.incl(event.input)
@@ -27,6 +27,3 @@ inputSystem.update = proc(system: System, event: Event, dt: float) =
                 of Left: queueEvent(MoveLeft)
                 of Right: queueEvent(MoveRight)
                 else: discard
-
-
-ecs.add(inputSystem)
