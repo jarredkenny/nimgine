@@ -42,19 +42,13 @@ proc init*() =
   # Create opengl context
   context = window.glCreateContext()
 
-  discard glMakeCurrent(window, context)
-  discard glSetSwapInterval(1)
-
   # Init opengl
   loadExtensions()
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-  glEnable(GL_BLEND)
   glClearColor(0.0, 0.5, 0.5, 1.0)
   glViewport(0, 0, screenWidth, screenHeight)
 
 proc reshape(newWidth: cint, newHeight: cint) =
   glViewport(0, 0, newWidth, newHeight)
-
 
 proc update*() =
   # Handle SDL event
