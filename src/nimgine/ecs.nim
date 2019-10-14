@@ -109,8 +109,6 @@ proc init*() =
     if system.init != nil:
       system.init(system)
 
-# if all(system.components.toSeq, proc(
-#     s: string): bool = entity.components.hasKey(s)):
 iterator entitiesForSystem*(system: System): Entity =
   for entity in world.entities:
     if all(toSeq(system.components), proc(

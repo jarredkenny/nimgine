@@ -78,7 +78,7 @@ renderer.render = proc(system: System) =
 
         var elements: array = [
             0.GLint, 1, 2,
-            2, 3, 1
+            2, 3, 0
         ]
 
         var
