@@ -1,4 +1,7 @@
+import math
+
 import opengl
+import glm
 
 import ../ecs
 import ../components
@@ -30,7 +33,6 @@ proc createShader(vertexShader, fragmentShader: string): uint =
     glBindFragDataLocation(program.GLuint, 0, "color");
     result = program
 
-
 var shader: uint
 var renderer = newSystem()
 
@@ -42,9 +44,10 @@ renderer.matchComponent(RenderBlock)
 renderer.init = proc(system: System) =
     var vertexShader: string = """
     #version 440 core
+    uniform mat4 MVP;
     in vec2 position;
     void main() {
-        gl_Position = vec4(position, 1.0, 1.0);
+        gl_Position = vec4(position, 1.0, 1.0) * MVP;
     }
     """
     var fragmentShader: string = """
@@ -60,41 +63,60 @@ renderer.init = proc(system: System) =
 
 
 renderer.render = proc(system: System) =
-    var positions: array = [
-        -0.5.GLfloat, 0.5, # Top Left
-        0.5, 0.5,          # Top Right
-        0.5, -0.5,         # Botttom Right
-        -0.5, -0.5         # Bottom Left
-    ]
 
-    var elements: array = [
-        0.GLint, 3, 2,
-        2, 0, 1
-    ]
+    for entity in entitiesForSystem(system):
 
-    var vao, vbo, ebo: GLuint;
-    glGenVertexArrays(1, addr(vao))
-    glGenBuffers(1, addr(vbo))
-    glBindVertexArray(vao)
-    glBindBuffer(GL_ARRAY_BUFFER, vbo)
-    glBufferData(GL_ARRAY_BUFFER, (sizeof(GLfloat) *
-            positions.len).GLsizeiptr, addr(positions), GL_STATIC_DRAW)
-    glGenBuffers(1, addr(ebo))
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sizeof(GLint) *
-            elements.len).GLsizeiptr, addr(elements), GL_STATIC_DRAW)
+        var p = entity.get(Position)
+        var d = entity.get(Dimensions)
 
+        var positions: array = [
+            p.x.GLfloat, p.y.GLfloat,
+            p.x.GLfloat, (p.y + d.height).GLfloat,
+            (p.x + d.width).GLfloat, (p.y + d.height).GLfloat,
+            (p.x + d.width).GLfloat, p.y.GLfloat
+        ]
 
-    var posAttrib: GLint = glGetAttribLocation(shader.GLuint, "position")
-    glEnableVertexAttribArray(posAttrib.GLuint)
+        var elements: array = [
+            0.GLint, 1, 2,
+            2, 3, 1
+        ]
 
-    glVertexAttribPointer(posAttrib.GLuint, 2.GLint, cGL_FLOAT, GL_FALSE,
-            0.GLsizei, nil)
+        var
+            eye = vec3(0.0.GLfloat, 0.0, 10.0)
+            center = vec3(0.0.GLfloat)
+            up = vec3(0.0.GLfloat, 1.0, 0.0)
+            view = lookAt(eye, center, up)
+            projection = perspectiveRH((math.PI/2).GLfloat, 1.0.GLfloat,
+                    0.01.GLfloat, 100.0.GLfloat)
+            model = mat4(1.0.GLfloat)
 
-    glUseProgram(shader.GLuint)
-    glDrawElements(GL_TRIANGLES, elements.len.GLsizei, GL_UNSIGNED_INT, nil)
+            mvp = projection * view * model
 
-    glUseProgram(0)
-    glDisableVertexAttribArray(posAttrib.GLuint)
+        var vao, vbo, ebo: GLuint;
+        glGenVertexArrays(1, addr(vao))
+        glGenBuffers(1, addr(vbo))
+        glBindVertexArray(vao)
+        glBindBuffer(GL_ARRAY_BUFFER, vbo)
+        glBufferData(GL_ARRAY_BUFFER, (sizeof(GLfloat) *
+                positions.len).GLsizeiptr, addr(positions), GL_STATIC_DRAW)
+        glGenBuffers(1, addr(ebo))
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sizeof(GLint) *
+                elements.len).GLsizeiptr, addr(elements), GL_STATIC_DRAW)
+
+        glUseProgram(shader.GLuint)
+        var mvpUni: GLint = glGetUniformLocation(shader.GLuint, "MVP")
+        glUniformMatrix4fv(mvpUni, 1.GLsizei, GL_FALSE, mvp.caddr)
+
+        var posAttrib: GLint = glGetAttribLocation(shader.GLuint, "position")
+        glEnableVertexAttribArray(posAttrib.GLuint)
+
+        glVertexAttribPointer(posAttrib.GLuint, 2.GLint, cGL_FLOAT, GL_FALSE,
+                0.GLsizei, nil)
+
+        glDrawElements(GL_TRIANGLES, elements.len.GLsizei, GL_UNSIGNED_INT, nil)
+
+        glUseProgram(0)
+        glDisableVertexAttribArray(posAttrib.GLuint)
 
 ecs.add(renderer)
