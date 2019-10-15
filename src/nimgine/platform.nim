@@ -47,6 +47,7 @@ proc init*() =
   # Init opengl
   loadExtensions()
   glClearColor(0.0, 0.5, 0.5, 1.0)
+  glEnable(GL_CULL_FACE);
   glViewport(0, 0, screenWidth, screenHeight)
 
 proc reshape(newWidth: cint, newHeight: cint) =

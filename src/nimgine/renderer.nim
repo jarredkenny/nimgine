@@ -1,4 +1,4 @@
-import sequtils, math, deques
+import sequtils, math, deques, tables
 import opengl
 import glm
 
@@ -12,8 +12,12 @@ type
     id: uint
     indices: seq[int]
 
+  AttributeLayout* = ref object
+    size, stride, offset: int
+
   Shader* = ref object
     id*: uint
+    attributes: Table[string, AttributeLayout]
 
   Mesh* = ref object
     vertexBuffer: VertexBuffer
@@ -92,17 +96,19 @@ proc newShader*(vertexShader, fragmentShader: string): Shader =
   glLinkProgram(id.GLuint)
   result = Shader(id: id)
 
+proc attribute(shader: Shader, name: string, size, stride, offset: int) =
+  var id: GLint = glGetAttribLocation(shader.id.GLuint, name)
+  glEnableVertexAttribArray(id.GLuint)
+  glVertexAttribPointer(id.GLuint, size.GLint, cGL_FLOAT, GL_FALSE, (sizeof(
+      GLfloat) * stride).GLsizei, cast[pointer](sizeof(GLfloat) * offset))
+
+proc attribute(mesh: Mesh, name: string, size, stride, offset: int) =
+  mesh.shader.attributes[name] = AttributeLayout(size: size, stride: stride,
+      offset: offset)
+  mesh.shader.attribute(name, size, stride, offset)
+
 proc use*(shader: Shader) =
   glUseProgram(shader.id.GLuint)
-
-proc vertIn*(shader: Shader, name: string) =
-  var attribId: GLint = glGetAttribLocation(shader.id.GLuint, name)
-  glEnableVertexAttribArray(attribId.GLuint)
-  glVertexAttribPointer(attribId.GLuint, 2.GLint, cGL_FLOAT, GL_FALSE,
-      0.GLsizei, nil)
-
-proc vertIn*(mesh: Mesh, name: string) =
-  mesh.shader.vertIn(name)
 
 proc newMesh*(vb: VertexBuffer, ib: IndexBuffer, shader: Shader): Mesh =
   result = Mesh(vertexBuffer: vb, indexBuffer: ib, shader: shader)
@@ -122,7 +128,7 @@ proc draw(mesh: Mesh) =
 proc newCamera(x, y, d: float): Camera =
   var
     eye = vec3(x.GLfloat, y.GLfloat, d.GLfloat)
-    center = vec3(x.GLfloat, y.GLfloat, 0.GLfloat)
+    center = vec3(0.GLfloat, 0.GLfloat, 0.GLfloat)
     up = vec3(0.0.GLfloat, 1.0, 0.0)
     view = lookAt(eye, center, up)
     projection = perspective((math.PI/2).GLfloat, 1.0.GLfloat,
@@ -147,10 +153,13 @@ proc preRender*(scene: Scene) =
 proc render*(scene: Scene) =
   for mesh in scene.drawQueue.items:
     scene.drawQueue.popFirst()
+
     var
       model = mat4(1.0.GLfloat)
       mvp = scene.camera.projection * scene.camera.view * model
-    use(mesh)
-    mesh.vertIn("position")
+
+    mesh.use()
+    mesh.attribute("position", 3, 6, 0)
+    mesh.attribute("color", 3, 6, 3)
     mesh.uniform("MVP", mvp)
     mesh.draw()

@@ -4,7 +4,7 @@ type
     Position* = ref object of Component
         x*, y*, z*: float
     Dimensions* = ref object of Component
-        width*, height*: float
+        width*, height*, depth*: float
 
 
     ControlledCamera* = ref object of Component
