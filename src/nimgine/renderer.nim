@@ -7,6 +7,8 @@ type
   VertexBuffer* = ref object
     id*: uint
     vertices*: seq[float]
+    name*: string
+    layout*: AttributeLayout
 
   IndexBuffer* = ref object
     id: uint
@@ -20,8 +22,9 @@ type
     attributes: Table[string, AttributeLayout]
 
   Mesh* = ref object
-    vertexBuffer: VertexBuffer
-    indexBuffer: IndexBuffer
+    vao: uint
+    buffers: seq[VertexBuffer]
+    elements: IndexBuffer
     shader: Shader
 
   Camera* = ref object
@@ -32,36 +35,15 @@ type
     camera*: Camera
     drawQueue: Deque[Mesh]
 
-proc newVertexBuffer*(mVertices: seq[float]): VertexBuffer =
-  var vao, vbo: GLuint
-  var vertices: seq[GLfloat] = mVertices.mapIt(it.GLfloat)
-  glGenVertexArrays(1, vao.addr)
-  glBindVertexArray(vao)
-  glGenBuffers(1, vbo.addr)
-  glBindBuffer(GL_ARRAY_BUFFER, vbo)
-  glBufferData(
-    GL_ARRAY_BUFFER,
-    (sizeof(GLfloat) * vertices.len).GLsizeiptr,
-    vertices[0].addr,
-    GL_STATIC_DRAW
-  )
-  result = VertexBuffer(id: vbo, vertices: mVertices)
+proc newVertexBuffer*(name: string, vertices: seq[float], size, stride,
+    offset: int): VertexBuffer =
+  var layout = AttributeLayout(size: size, stride: stride, offset: offset)
+  var vb = VertexBuffer(name: name, vertices: vertices, layout: layout)
+  result = vb
 
-proc use*(vb: VertexBuffer) =
-  glBindBuffer(GL_ARRAY_BUFFER, vb.id.GLuint)
 
-proc newIndexBuffer*(mIndices: seq[int]): IndexBuffer =
-  var ebo: GLuint
-  var indices = mIndices.mapIt(it.GLint)
-  glGenBuffers(1, ebo.addr)
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
-  glBufferData(
-    GL_ELEMENT_ARRAY_BUFFER,
-    (sizeof(GLint) * indices.len).GLsizeiptr,
-    addr(indices[0]),
-    GL_STATIC_DRAW
-  )
-  result = IndexBuffer(id: ebo, indices: mIndices)
+proc newIndexBuffer*(indices: seq[int]): IndexBuffer =
+  result = IndexBuffer(indices: indices)
 
 proc use*(ib: IndexBuffer) =
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib.id.GLuint)
@@ -96,34 +78,79 @@ proc newShader*(vertexShader, fragmentShader: string): Shader =
   glLinkProgram(id.GLuint)
   result = Shader(id: id)
 
-proc attribute(shader: Shader, name: string, size, stride, offset: int) =
-  var id: GLint = glGetAttribLocation(shader.id.GLuint, name)
-  glEnableVertexAttribArray(id.GLuint)
-  glVertexAttribPointer(id.GLuint, size.GLint, cGL_FLOAT, GL_FALSE, (sizeof(
-      GLfloat) * stride).GLsizei, cast[pointer](sizeof(GLfloat) * offset))
-
-proc attribute(mesh: Mesh, name: string, size, stride, offset: int) =
-  mesh.shader.attributes[name] = AttributeLayout(size: size, stride: stride,
-      offset: offset)
-  mesh.shader.attribute(name, size, stride, offset)
-
 proc use*(shader: Shader) =
   glUseProgram(shader.id.GLuint)
 
-proc newMesh*(vb: VertexBuffer, ib: IndexBuffer, shader: Shader): Mesh =
-  result = Mesh(vertexBuffer: vb, indexBuffer: ib, shader: shader)
+proc newMesh*(buffers: seq[VertexBuffer], elements: IndexBuffer,
+    shader: Shader): Mesh =
+  result = Mesh(buffers: buffers, elements: elements, shader: shader)
 
-proc use(mesh: Mesh) =
-  use(mesh.shader)
-  use(mesh.vertexBuffer)
-  use(mesh.indexBuffer)
+
+proc init*(mesh: Mesh) =
+
+  # Init Vertex Buffers
+  var vao: GLuint
+  glGenVertexArrays(1, vao.addr)
+  glBindVertexArray(vao)
+
+  mesh.vao = vao
+
+  for buffer in mesh.buffers:
+
+    echo("Creating buffer " & $buffer.name)
+
+    var vertices: seq[GLfloat] = buffer.vertices.mapIt(it.GLfloat)
+
+    echo(vertices)
+
+    var vbo: GLuint
+    glGenBuffers(1, vbo.addr)
+    glBindBuffer(GL_ARRAY_BUFFER, vbo)
+
+    glBufferData(
+      GL_ARRAY_BUFFER,
+      (sizeof(GLfloat) * vertices.len).GLsizeiptr,
+      vertices[0].addr,
+      GL_STATIC_DRAW
+    )
+
+    echo("Populated buffer")
+    echo("Setting layout")
+
+    var id: GLint = glGetAttribLocation(mesh.shader.id.GLuint, buffer.name)
+
+    echo("Location for " & $buffer.name & " is " & $id)
+
+    # glEnableVertexAttribArray(id.GLuint)
+    # glVertexAttribPointer(id.GLuint, buffer.layout.size.GLint, cGL_FLOAT,
+    #   GL_FALSE, (sizeof(
+    #   GLfloat) * buffer.layout.stride).GLsizei, cast[pointer](sizeof(
+    #       GLfloat) * buffer.layout.offset))
+
+  # Init Index Buffer
+  var ebo: GLuint
+  var indices = mesh.elements.indices.mapIt(it.GLint)
+  glGenBuffers(1, ebo.addr)
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
+  glBufferData(
+    GL_ELEMENT_ARRAY_BUFFER,
+    (sizeof(GLint) * indices.len).GLsizeiptr,
+    addr(indices[0]),
+    GL_STATIC_DRAW
+  )
+  mesh.elements.id = ebo
 
 proc uniform(mesh: Mesh, name: string, matrix: var Mat4) =
   var index: GLint = glGetUniformLocation(mesh.shader.id.GLuint, name)
   glUniformMatrix4fv(index, 1.GLsizei, GL_FALSE, matrix.caddr)
 
+proc use(mesh: Mesh) =
+  mesh.shader.use()
+  glBindVertexArray(mesh.vao.GLuint)
+  mesh.elements.use()
+
 proc draw(mesh: Mesh) =
-  draw(mesh.indexBuffer)
+  mesh.elements.draw()
 
 proc newCamera(x, y, d: float): Camera =
   var
@@ -141,7 +168,6 @@ proc newScene*(): Scene =
   result = scene
 
 proc setCameraPosition*(scene: Scene, x, y, z: float) =
-  echo("new camera position: " & $x & "," & $y & "," & $z)
   scene.camera = newCamera(x, y, z)
 
 proc submit*(scene: Scene, mesh: Mesh) =
@@ -159,7 +185,5 @@ proc render*(scene: Scene) =
       mvp = scene.camera.projection * scene.camera.view * model
 
     mesh.use()
-    mesh.attribute("position", 3, 6, 0)
-    mesh.attribute("color", 3, 6, 3)
     mesh.uniform("MVP", mvp)
     mesh.draw()
