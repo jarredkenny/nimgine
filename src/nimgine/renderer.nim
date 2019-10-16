@@ -76,6 +76,9 @@ proc newShader*(vertexShader, fragmentShader: string): Shader =
   glAttachShader(id.GLuint, vs.GLuint)
   glAttachShader(id.GLuint, fs.GLuint)
   glLinkProgram(id.GLuint)
+  # glBindAttribLocation(id.GLuint, 0, "position")
+  # glBindAttribLocation(id.GLuint, 1, "color")
+  glValidateProgram(id.GLuint)
   result = Shader(id: id)
 
 proc use*(shader: Shader) =
@@ -121,11 +124,11 @@ proc init*(mesh: Mesh) =
 
     echo("Location for " & $buffer.name & " is " & $id)
 
-    # glEnableVertexAttribArray(id.GLuint)
-    # glVertexAttribPointer(id.GLuint, buffer.layout.size.GLint, cGL_FLOAT,
-    #   GL_FALSE, (sizeof(
-    #   GLfloat) * buffer.layout.stride).GLsizei, cast[pointer](sizeof(
-    #       GLfloat) * buffer.layout.offset))
+    glEnableVertexAttribArray(id.GLuint)
+    glVertexAttribPointer(id.GLuint, buffer.layout.size.GLint, cGL_FLOAT,
+      GL_FALSE, (sizeof(
+      GLfloat) * buffer.layout.stride).GLsizei, cast[pointer](sizeof(
+          GLfloat) * buffer.layout.offset))
 
   # Init Index Buffer
   var ebo: GLuint

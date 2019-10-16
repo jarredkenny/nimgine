@@ -21,14 +21,15 @@ renderSystem.init = proc(world: World, system: System) =
         """
         #version 440 core
 
-        layout(location = 1) in vec3 position;
-        layout(location = 2) in vec3 color;
+        in vec3 position;
+        in vec3 color;
 
         out vec3 fragmentColor;
 
         uniform mat4 MVP;
 
         void main() {
+            fragmentColor = color;
             gl_Position = vec4(position, 1.0) * MVP;
         }
         """,
