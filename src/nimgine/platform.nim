@@ -19,7 +19,7 @@ proc toInput(key: Scancode): InputType =
   of SDL_SCANCODE_S: input.Down
   of SDL_SCANCODE_E: input.ZoomIn
   of SDL_SCANCODE_Q: input.ZoomOut
-  of SDL_SCANCODE_ESCAPE: input.Pause
+  of SDL_SCANCODE_ESCAPE: input.Quit
   else: input.None
 
 proc init*() =
@@ -47,8 +47,10 @@ proc init*() =
   # Init opengl
   loadExtensions()
   glClearColor(0.0, 0.5, 0.5, 1.0)
+  # glEnable(GL_DEPTH_TEST)
+  # glDisable(GL_CULL_FACE)
+  glDepthFunc(GL_LEQUAL)
   glEnable(GL_DEPTH_TEST)
-  glDisable(GL_CULL_FACE)
   glViewport(0, 0, screenWidth, screenHeight)
 
 proc reshape(newWidth: cint, newHeight: cint) =
@@ -57,6 +59,7 @@ proc reshape(newWidth: cint, newHeight: cint) =
 proc update*() =
   # Handle SDL event
   while pollEvent(event):
+
     # Handle Quit Event
     if event.kind == sdl2.EventType.QuitEvent:
       queueEvent(events.Quit)
@@ -76,8 +79,10 @@ proc update*() =
 
       # Handle Window Resize
       if windowEvent.event == WindowEvent_Resized:
-        reshape(windowEvent.data1, windowEvent.data2)
-        queueEvent(events.Resize)
+        let width = windowEvent.data1
+        let height = windowEvent.data2
+        reshape(width, height)
+        queueEvent(newResizeEvent(width, height))
 
 proc preRender*() =
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)

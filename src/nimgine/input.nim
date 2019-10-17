@@ -2,6 +2,8 @@ type
   InputState* = bool
 
   InputType* = enum
+
+    # Key Controls
     Up
     Down
     Left
@@ -10,4 +12,6 @@ type
     Pause
     ZoomIn
     ZoomOut
+    Quit
     None
+

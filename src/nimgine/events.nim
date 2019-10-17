@@ -33,6 +33,8 @@ type
       state*: bool
     of MouseMove:
       x*, y*: int
+    of Resize:
+      width*, height*: int
     else:
       discard
 
@@ -59,6 +61,9 @@ proc newInputEvent*(input: InputType, state: bool): Event =
 
 proc newMouseMoveEvent*(x, y: int): Event =
   result = Event(kind: MouseMove, x: x, y: y)
+
+proc newResizeEvent*(width, height: int): Event =
+  result = Event(kind: Resize, width: width, height: height)
 
 proc queueEvent*(evt: Event) =
   queue.addLast(evt)

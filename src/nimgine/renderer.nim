@@ -1,6 +1,7 @@
 import sequtils, math, deques, tables
 import opengl
 import glm
+import sdl2
 
 type
 
@@ -41,7 +42,6 @@ proc newVertexBuffer*(name: string, vertices: seq[float], size, stride,
   var vb = VertexBuffer(name: name, vertices: vertices, layout: layout)
   result = vb
 
-
 proc newIndexBuffer*(indices: seq[int]): IndexBuffer =
   result = IndexBuffer(indices: indices)
 
@@ -49,7 +49,9 @@ proc use*(ib: IndexBuffer) =
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib.id.GLuint)
 
 proc draw*(ib: IndexBuffer) =
-  glDrawElements(GL_TRIANGLES, ib.indices.len.GLsizei, GL_UNSIGNED_INT, nil)
+  glDrawElements(GL_TRIANGLES, (sizeof(GLint) * ib.indices.len).GLsizei,
+      GL_UNSIGNED_INT, nil)
+  glBindVertexArray(0)
 
 proc compileShader(shaderType: uint, source: string): uint =
   var id: uint = glCreateShader(shaderType.GLenum)
@@ -76,8 +78,6 @@ proc newShader*(vertexShader, fragmentShader: string): Shader =
   glAttachShader(id.GLuint, vs.GLuint)
   glAttachShader(id.GLuint, fs.GLuint)
   glLinkProgram(id.GLuint)
-  # glBindAttribLocation(id.GLuint, 0, "position")
-  # glBindAttribLocation(id.GLuint, 1, "color")
   glValidateProgram(id.GLuint)
   result = Shader(id: id)
 
@@ -87,7 +87,6 @@ proc use*(shader: Shader) =
 proc newMesh*(buffers: seq[VertexBuffer], elements: IndexBuffer,
     shader: Shader): Mesh =
   result = Mesh(buffers: buffers, elements: elements, shader: shader)
-
 
 proc init*(mesh: Mesh) =
 
@@ -100,11 +99,7 @@ proc init*(mesh: Mesh) =
 
   for buffer in mesh.buffers:
 
-    echo("Creating buffer " & $buffer.name)
-
     var vertices: seq[GLfloat] = buffer.vertices.mapIt(it.GLfloat)
-
-    echo(vertices)
 
     var vbo: GLuint
     glGenBuffers(1, vbo.addr)
@@ -117,12 +112,7 @@ proc init*(mesh: Mesh) =
       GL_STATIC_DRAW
     )
 
-    echo("Populated buffer")
-    echo("Setting layout")
-
     var id: GLint = glGetAttribLocation(mesh.shader.id.GLuint, buffer.name)
-
-    echo("Location for " & $buffer.name & " is " & $id)
 
     glEnableVertexAttribArray(id.GLuint)
     glVertexAttribPointer(id.GLuint, buffer.layout.size.GLint, cGL_FLOAT,
@@ -155,23 +145,33 @@ proc use(mesh: Mesh) =
 proc draw(mesh: Mesh) =
   mesh.elements.draw()
 
-proc newCamera(x, y, d: float): Camera =
+proc newCamera(x, y, d, aspect: float): Camera =
   var
-    eye = vec3(x.GLfloat, y.GLfloat, d.GLfloat)
-    center = vec3(0.GLfloat, 0.GLfloat, 0.GLfloat)
-    up = vec3(0.0.GLfloat, 1.0, 0.0)
-    view = lookAt(eye, center, up)
-    projection = perspective((math.PI/2).GLfloat, 1.0.GLfloat,
-    0.01.GLfloat, 100.0.GLfloat)
-  result = Camera(view: view, projection: projection)
+    view = lookAt(
+      vec3(1000.GLfloat, 1000.GLfloat, 1000.GLfloat),
+      vec3(0.0.GLfloat, 1.0.GLfloat, 0.0.GLfloat),
+      vec3(0.0.GLfloat, 1.0.GLfloat, 0.0.GLfloat)
+    )
+    proj = perspective(45.0.GLfloat, aspect.GLfloat, 0.1.GLfloat,
+        1000.0.GLfloat)
+
+    # eye = vec3(x.GLfloat, y.GLfloat, d.GLfloat)
+    # eye = vec3(0.GLfloat, 0.GLfloat, 0.GLfloat)
+    # center = vec3(0.GLfloat, 0.GLfloat, 0.GLfloat)
+    # up = vec3(0.0.GLfloat, 1.0, 0.0)
+    # view = lookAt(eye, center, up)
+    # projection = perspective(radians(45.GLfloat).GLfloat, 1.0 * aspect.GLfloat,
+    # 1.GLfloat, 10.0.GLfloat)
+  result = Camera(view: view, projection: proj)
 
 proc newScene*(): Scene =
   let scene = Scene()
   scene.drawQueue = initDeque[Mesh]()
   result = scene
 
-proc setCameraPosition*(scene: Scene, x, y, z: float) =
-  scene.camera = newCamera(x, y, z)
+proc setCameraPosition*(scene: Scene, x, y, z, aspect: float) =
+  echo("camera x: " & $x & " y: " & $y & " z: " & $z & " a: " & $aspect)
+  scene.camera = newCamera(x, y, z, aspect)
 
 proc submit*(scene: Scene, mesh: Mesh) =
   scene.drawQueue.addLast(mesh)
@@ -183,9 +183,15 @@ proc render*(scene: Scene) =
   for mesh in scene.drawQueue.items:
     scene.drawQueue.popFirst()
 
-    var
-      model = mat4(1.0.GLfloat)
-      mvp = scene.camera.projection * scene.camera.view * model
+    var model = mat4(1.GLfloat)
+    var view = mat4(1.GLfloat)
+
+    model = rotate(model, (getTicks().float * 1.0).GLfloat, vec3(0.5.GLfloat,
+        1.0.GLfloat, 0.0.GLfloat))
+
+    view = translate(view, vec3(0.0.GLfloat, 0.0.GLfloat, 20.0.GLfloat))
+
+    var mvp = scene.camera.projection * view * model
 
     mesh.use()
     mesh.uniform("MVP", mvp)
