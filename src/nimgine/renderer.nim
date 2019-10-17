@@ -148,20 +148,13 @@ proc draw(mesh: Mesh) =
 proc newCamera(x, y, d, aspect: float): Camera =
   var
     view = lookAt(
-      vec3(1000.GLfloat, 1000.GLfloat, 1000.GLfloat),
-      vec3(0.0.GLfloat, 1.0.GLfloat, 0.0.GLfloat),
+      vec3(x.GLfloat, y.GLfloat, d.GLfloat),
+      vec3(0.0.GLfloat, 0.0.GLfloat, 0.0.GLfloat),
       vec3(0.0.GLfloat, 1.0.GLfloat, 0.0.GLfloat)
     )
     proj = perspective(45.0.GLfloat, aspect.GLfloat, 0.1.GLfloat,
         1000.0.GLfloat)
 
-    # eye = vec3(x.GLfloat, y.GLfloat, d.GLfloat)
-    # eye = vec3(0.GLfloat, 0.GLfloat, 0.GLfloat)
-    # center = vec3(0.GLfloat, 0.GLfloat, 0.GLfloat)
-    # up = vec3(0.0.GLfloat, 1.0, 0.0)
-    # view = lookAt(eye, center, up)
-    # projection = perspective(radians(45.GLfloat).GLfloat, 1.0 * aspect.GLfloat,
-    # 1.GLfloat, 10.0.GLfloat)
   result = Camera(view: view, projection: proj)
 
 proc newScene*(): Scene =
@@ -183,15 +176,20 @@ proc render*(scene: Scene) =
   for mesh in scene.drawQueue.items:
     scene.drawQueue.popFirst()
 
-    var model = mat4(1.GLfloat)
-    var view = mat4(1.GLfloat)
+    var model = translate(mat4(1.GLfloat), vec3(0.0.Glfloat, 0.0.GLfloat, -4.0.GLfloat))
 
-    model = rotate(model, (getTicks().float * 1.0).GLfloat, vec3(0.5.GLfloat,
-        1.0.GLfloat, 0.0.GLfloat))
+    # var eye = vec3(0.0.GLfloat, 2.0.GLfloat, 0.0.GLfloat)
+    # var center = vec3(0.0.GLfloat, 0.0.GLfloat, -4.0.GLfloat)
+    # var up = vec3(0.0.GLfloat, 1.0.GLfloat, 0.0.GLfloat)
 
-    view = translate(view, vec3(0.0.GLfloat, 0.0.GLfloat, 20.0.GLfloat))
+    # var view = lookAt(eye, center, up)
 
-    var mvp = scene.camera.projection * view * model
+    # var proj = perspective(radians(45.0).GLfloat, (1.0 * (16.0/9.0)).GLfloat,
+    #     0.1, 10)
+
+    # var mvp = proj * view * model
+
+    var mvp = scene.camera.projection * scene.camera.view * model
 
     mesh.use()
     mesh.uniform("MVP", mvp)
