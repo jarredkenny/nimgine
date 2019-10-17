@@ -149,10 +149,10 @@ proc newCamera(x, y, d, aspect: float): Camera =
   var
     view = lookAt(
       vec3(x.GLfloat, y.GLfloat, d.GLfloat),
-      vec3(0.0.GLfloat, 0.0.GLfloat, 0.0.GLfloat),
+      vec3(0.0.GLfloat, 0.0.GLfloat, -4.0.GLfloat),
       vec3(0.0.GLfloat, 1.0.GLfloat, 0.0.GLfloat)
     )
-    proj = perspective(45.0.GLfloat, aspect.GLfloat, 0.1.GLfloat,
+    proj = perspective(65.0.GLfloat, aspect.GLfloat, 0.1.GLfloat,
         1000.0.GLfloat)
 
   result = Camera(view: view, projection: proj)
@@ -163,7 +163,6 @@ proc newScene*(): Scene =
   result = scene
 
 proc setCameraPosition*(scene: Scene, x, y, z, aspect: float) =
-  echo("camera x: " & $x & " y: " & $y & " z: " & $z & " a: " & $aspect)
   scene.camera = newCamera(x, y, z, aspect)
 
 proc submit*(scene: Scene, mesh: Mesh) =
@@ -178,16 +177,8 @@ proc render*(scene: Scene) =
 
     var model = translate(mat4(1.GLfloat), vec3(0.0.Glfloat, 0.0.GLfloat, -4.0.GLfloat))
 
-    # var eye = vec3(0.0.GLfloat, 2.0.GLfloat, 0.0.GLfloat)
-    # var center = vec3(0.0.GLfloat, 0.0.GLfloat, -4.0.GLfloat)
-    # var up = vec3(0.0.GLfloat, 1.0.GLfloat, 0.0.GLfloat)
-
-    # var view = lookAt(eye, center, up)
-
-    # var proj = perspective(radians(45.0).GLfloat, (1.0 * (16.0/9.0)).GLfloat,
-    #     0.1, 10)
-
-    # var mvp = proj * view * model
+    model = rotate(model, (getTicks().float * 0.001).GLfloat, vec3(0.5.GLfloat,
+        0.6.GLfloat, 1.0.GLfloat))
 
     var mvp = scene.camera.projection * scene.camera.view * model
 

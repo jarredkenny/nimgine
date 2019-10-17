@@ -8,7 +8,7 @@ player.add(Dimensions())
 player.add(RenderBlock())
 
 let camera: Entity = newEntity()
-camera.add(Position(x: 0, y: 0, z: 20))
+camera.add(Position(x: 0, y: 0, z: 0))
 camera.add(Controllable())
 camera.add(ControlledCamera())
 
