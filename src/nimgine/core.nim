@@ -1,3 +1,5 @@
+import imgui
+
 import platform
 import timing
 import events
@@ -30,6 +32,8 @@ proc start*(world: World) =
   # Init World
   initialize(world)
 
+  igCreateContext()
+
   # Game Loop
   while running:
 
@@ -49,4 +53,5 @@ proc start*(world: World) =
     # Render
     scene.render(world)
     renderer.render(scene)
+
     platform.render()

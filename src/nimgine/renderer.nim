@@ -177,10 +177,10 @@ proc render*(scene: Scene) =
 
     var model = translate(mat4(1.GLfloat), vec3(0.0.Glfloat, 0.0.GLfloat, -4.0.GLfloat))
 
-    model = rotate(model, (getTicks().float * 0.001).GLfloat, vec3(0.5.GLfloat,
-        0.6.GLfloat, 1.0.GLfloat))
+    var view = rotate(scene.camera.view, (getTicks().float * 0.001).GLfloat,
+        vec3(0.7.GLfloat, 0.5.GLfloat, -4.0.GLfloat))
 
-    var mvp = scene.camera.projection * scene.camera.view * model
+    var mvp = scene.camera.projection * view * model
 
     mesh.use()
     mesh.uniform("MVP", mvp)

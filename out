@@ -1,0 +1,134 @@
+execve("./nimgine", ["./nimgine"], 0x7fffcbb44700 /* 79 vars */) = 0
+brk(NULL)                               = 0x1958000
+arch_prctl(0x3001 /* ARCH_??? */, 0x7ffcaee8aa10) = -1 EINVAL (Invalid argument)
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=165860, ...}) = 0
+mmap(NULL, 165860, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fb0c9067000
+close(3)                                = 0
+openat(AT_FDCWD, "/lib64/libm.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\220\323\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=3621096, ...}) = 0
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fb0c9065000
+mmap(NULL, 1331456, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fb0c8f1f000
+mmap(0x7fb0c8f2c000, 638976, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0xd000) = 0x7fb0c8f2c000
+mmap(0x7fb0c8fc8000, 634880, PROT_READ, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0xa9000) = 0x7fb0c8fc8000
+mmap(0x7fb0c9063000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x143000) = 0x7fb0c9063000
+close(3)                                = 0
+openat(AT_FDCWD, "/lib64/librt.so.1", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\20'\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=149504, ...}) = 0
+mmap(NULL, 39872, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fb0c8f15000
+mmap(0x7fb0c8f17000, 16384, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x2000) = 0x7fb0c8f17000
+mmap(0x7fb0c8f1b000, 8192, PROT_READ, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x6000) = 0x7fb0c8f1b000
+mmap(0x7fb0c8f1d000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x7000) = 0x7fb0c8f1d000
+close(3)                                = 0
+openat(AT_FDCWD, "/lib64/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0p\22\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=61872, ...}) = 0
+mmap(NULL, 20784, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fb0c8f0f000
+mmap(0x7fb0c8f10000, 8192, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1000) = 0x7fb0c8f10000
+mmap(0x7fb0c8f12000, 4096, PROT_READ, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x3000) = 0x7fb0c8f12000
+mmap(0x7fb0c8f13000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x3000) = 0x7fb0c8f13000
+close(3)                                = 0
+openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P@\2\0\0\0\0\0"..., 832) = 832
+lseek(3, 792, SEEK_SET)                 = 792
+read(3, "\4\0\0\0\24\0\0\0\3\0\0\0GNU\0\346\4=\16,\314\275\4\36$\325#\200%i\326"..., 68) = 68
+fstat(3, {st_mode=S_IFREG|0755, st_size=6697832, ...}) = 0
+lseek(3, 792, SEEK_SET)                 = 792
+read(3, "\4\0\0\0\24\0\0\0\3\0\0\0GNU\0\346\4=\16,\314\275\4\36$\325#\200%i\326"..., 68) = 68
+lseek(3, 864, SEEK_SET)                 = 864
+read(3, "\4\0\0\0\20\0\0\0\5\0\0\0GNU\0\2\0\0\300\4\0\0\0\3\0\0\0\0\0\0\0", 32) = 32
+mmap(NULL, 1857472, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fb0c8d49000
+mprotect(0x7fb0c8d6b000, 1679360, PROT_NONE) = 0
+mmap(0x7fb0c8d6b000, 1363968, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x22000) = 0x7fb0c8d6b000
+mmap(0x7fb0c8eb8000, 311296, PROT_READ, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x16f000) = 0x7fb0c8eb8000
+mmap(0x7fb0c8f05000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1bb000) = 0x7fb0c8f05000
+mmap(0x7fb0c8f0b000, 14272, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fb0c8f0b000
+close(3)                                = 0
+openat(AT_FDCWD, "/lib64/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\0r\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=823192, ...}) = 0
+lseek(3, 808, SEEK_SET)                 = 808
+read(3, "\4\0\0\0\20\0\0\0\5\0\0\0GNU\0\2\0\0\300\4\0\0\0\3\0\0\0\0\0\0\0", 32) = 32
+mmap(NULL, 132288, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fb0c8d28000
+mmap(0x7fb0c8d2e000, 61440, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x6000) = 0x7fb0c8d2e000
+mmap(0x7fb0c8d3d000, 24576, PROT_READ, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x15000) = 0x7fb0c8d3d000
+mmap(0x7fb0c8d43000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1a000) = 0x7fb0c8d43000
+mmap(0x7fb0c8d45000, 13504, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fb0c8d45000
+close(3)                                = 0
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fb0c8d26000
+arch_prctl(ARCH_SET_FS, 0x7fb0c8d27140) = 0
+mprotect(0x7fb0c8f05000, 16384, PROT_READ) = 0
+mprotect(0x7fb0c8d43000, 4096, PROT_READ) = 0
+mprotect(0x7fb0c8f13000, 4096, PROT_READ) = 0
+mprotect(0x7fb0c8f1d000, 4096, PROT_READ) = 0
+mprotect(0x7fb0c9063000, 4096, PROT_READ) = 0
+mprotect(0x43b000, 4096, PROT_READ)     = 0
+mprotect(0x7fb0c90ba000, 4096, PROT_READ) = 0
+munmap(0x7fb0c9067000, 165860)          = 0
+set_tid_address(0x7fb0c8d27410)         = 3882
+set_robust_list(0x7fb0c8d27420, 24)     = 0
+rt_sigaction(SIGRTMIN, {sa_handler=0x7fb0c8d2ec50, sa_mask=[], sa_flags=SA_RESTORER|SA_SIGINFO, sa_restorer=0x7fb0c8d3ac60}, NULL, 8) = 0
+rt_sigaction(SIGRT_1, {sa_handler=0x7fb0c8d2ecf0, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART|SA_SIGINFO, sa_restorer=0x7fb0c8d3ac60}, NULL, 8) = 0
+rt_sigprocmask(SIG_UNBLOCK, [RTMIN RT_1], NULL, 8) = 0
+prlimit64(0, RLIMIT_STACK, NULL, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+mmap(NULL, 524288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fb0c8ca6000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fb0c90b9000
+rt_sigaction(SIGINT, {sa_handler=0x40cea6, sa_mask=[INT], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7fb0c8d80ec0}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGSEGV, {sa_handler=0x40cea6, sa_mask=[SEGV], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7fb0c8d80ec0}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGABRT, {sa_handler=0x40cea6, sa_mask=[ABRT], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7fb0c8d80ec0}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGFPE, {sa_handler=0x40cea6, sa_mask=[FPE], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7fb0c8d80ec0}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGILL, {sa_handler=0x40cea6, sa_mask=[ILL], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7fb0c8d80ec0}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGPIPE, {sa_handler=0x40cea6, sa_mask=[PIPE], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7fb0c8d80ec0}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+futex(0x7fb0c8f140e8, FUTEX_WAKE_PRIVATE, 2147483647) = 0
+brk(NULL)                               = 0x1958000
+brk(0x1979000)                          = 0x1979000
+brk(NULL)                               = 0x1979000
+openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=165860, ...}) = 0
+mmap(NULL, 165860, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fb0c9067000
+close(3)                                = 0
+openat(AT_FDCWD, "/lib64/tls/haswell/x86_64/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib64/tls/haswell/x86_64", 0x7ffcaee8a050) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/lib64/tls/haswell/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib64/tls/haswell", 0x7ffcaee8a050) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/lib64/tls/x86_64/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib64/tls/x86_64", 0x7ffcaee8a050) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/lib64/tls/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib64/tls", {st_mode=S_IFDIR|0555, st_size=4096, ...}) = 0
+openat(AT_FDCWD, "/lib64/haswell/x86_64/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib64/haswell/x86_64", 0x7ffcaee8a050) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/lib64/haswell/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib64/haswell", 0x7ffcaee8a050)  = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/lib64/x86_64/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib64/x86_64", 0x7ffcaee8a050)   = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/lib64/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib64", {st_mode=S_IFDIR|0555, st_size=151552, ...}) = 0
+openat(AT_FDCWD, "/usr/lib64/tls/haswell/x86_64/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/usr/lib64/tls/haswell/x86_64", 0x7ffcaee8a050) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/usr/lib64/tls/haswell/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/usr/lib64/tls/haswell", 0x7ffcaee8a050) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/usr/lib64/tls/x86_64/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/usr/lib64/tls/x86_64", 0x7ffcaee8a050) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/usr/lib64/tls/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/usr/lib64/tls", {st_mode=S_IFDIR|0555, st_size=4096, ...}) = 0
+openat(AT_FDCWD, "/usr/lib64/haswell/x86_64/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/usr/lib64/haswell/x86_64", 0x7ffcaee8a050) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/usr/lib64/haswell/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/usr/lib64/haswell", 0x7ffcaee8a050) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/usr/lib64/x86_64/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/usr/lib64/x86_64", 0x7ffcaee8a050) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/usr/lib64/libcimgui", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/usr/lib64", {st_mode=S_IFDIR|0555, st_size=151552, ...}) = 0
+munmap(0x7fb0c9067000, 165860)          = 0
+write(2, "could not load: ", 16could not load: )        = 16
+write(2, "libcimgui", 9libcimgui)                = 9
+write(2, "\n", 1
+)                       = 1
+write(2, "compile with -d:nimDebugDlOpen f"..., 52compile with -d:nimDebugDlOpen for more information
+) = 52
+exit_group(1)                           = ?
++++ exited with 1 +++
+
