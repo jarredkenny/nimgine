@@ -1,3 +1,5 @@
+{.passL: "-Xlinker -rpath .".}
+
 import imgui
 
 import platform
