@@ -1,4 +1,4 @@
-import deques, tables
+import deques
 
 import input
 
