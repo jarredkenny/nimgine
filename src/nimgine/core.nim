@@ -1,14 +1,11 @@
-{.passL: "-Xlinker -rpath .".}
-
-import imgui
-
 import platform
+import ui
 import timing
 import events
 import ecs
 import renderer
 
-import systems/[input, controller, render, camera]
+import systems/[input, controller, render, camera, gui]
 
 var clock: Clock = newClock()
 var scene: Scene = newScene()
@@ -19,22 +16,22 @@ proc handle(evt: Event) =
   if evt.kind == Quit:
     running = false
 
-proc initialize(world: World) =
-  platform.init()
+proc start*(world: World) =
+
+  # Init World
+  var window = platform.init()
+
+  ui.init(window)
+
   world.add(@[
+    guiSystem,
     cameraSystem,
     controllerSystem,
     inputSystem,
     renderSystem
   ])
+
   world.init()
-
-proc start*(world: World) =
-
-  # Init World
-  initialize(world)
-
-  igCreateContext()
 
   # Game Loop
   while running:
@@ -43,6 +40,7 @@ proc start*(world: World) =
     queueEvent(Update)
     clock.update()
     platform.update()
+    ui.update()
     for event in pollEvent():
       handle(event)
       world.update(event, clock.dt)
@@ -55,5 +53,6 @@ proc start*(world: World) =
     # Render
     scene.render(world)
     renderer.render(scene)
+    ui.render()
 
     platform.render()

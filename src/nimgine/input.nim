@@ -13,5 +13,8 @@ type
     ZoomIn
     ZoomOut
     Quit
-    None
 
+    MouseLeft
+    MouseRight
+
+    None

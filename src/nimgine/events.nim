@@ -1,4 +1,4 @@
-import deques
+import deques, tables
 
 import input
 
@@ -70,3 +70,6 @@ proc queueEvent*(evt: Event) =
 
 proc queueEvent*(kind: EventType) =
   queueEvent(newEvent(kind))
+
+proc on*(kind: EventType, callback: proc(): void) =
+  callback()

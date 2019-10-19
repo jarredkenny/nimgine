@@ -3,6 +3,7 @@ import opengl
 
 import input
 import events
+import ui
 
 var screenWidth: cint = 640
 var screenHeight: cint = 480
@@ -22,7 +23,7 @@ proc toInput(key: Scancode): InputType =
   of SDL_SCANCODE_ESCAPE: input.Quit
   else: input.None
 
-proc init*() =
+proc init*(): WindowPtr =
   # Init SDL
   discard sdl2.init(INIT_EVERYTHING)
 
@@ -51,6 +52,8 @@ proc init*() =
   glDepthFunc(GL_LEQUAL)
   glViewport(0, 0, screenWidth, screenHeight)
 
+  result = window
+
 proc reshape(newWidth: cint, newHeight: cint) =
   glViewport(0, 0, newWidth, newHeight)
 
@@ -70,6 +73,15 @@ proc update*() =
 
     if event.kind == sdl2.EventType.MouseMotion:
       queueEvent(newMouseMoveEvent(event.motion.x, event.motion.y))
+
+    # Mouse Buttons
+    if event.kind == MouseButtonDown or event.kind == MouseButtonUp:
+      var mouseButtonEvent = cast[MouseButtonEventPtr](event.addr)
+      var state = cast[bool](mouseButtonEvent.state)
+      case mouseButtonEvent.button:
+        of 1: queueEvent(newInputEvent(MouseLeft, state))
+        of 3: queueEvent(newInputEvent(MouseRight, state))
+        else: discard
 
     # Handle Window Events
     if event.kind == WindowEvent:

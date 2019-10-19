@@ -1,6 +1,7 @@
 import sets
 
 import ../input
+import ../ui
 import ../ecs
 import ../events
 
@@ -12,13 +13,36 @@ var inputSystem* = newSystem()
 
 inputSystem.subscribe(@[Input, Update])
 
+proc handleInputStateOn(input: InputType) =
+    case input:
+        of MouseLeft:
+            ui.setMouseDown(1, true)
+        of MouseRight:
+            ui.setMouseDown(2, true)
+        else: discard
+
+proc handleInputStateOff(input: InputType) =
+    case input:
+        of MouseLeft:
+            ui.setMouseDown(1, false)
+        of MouseRight:
+            ui.setMouseDown(2, false)
+        else: discard
+
 inputSystem.update = proc(world: World, system: System, event: Event, dt: float) =
+
+    # When an input event occurs, update that inputs state in our key map
     if event.kind == Input:
         if event.state:
-            activeKeyMap.incl(event.input)
+            if not activeKeyMap.contains(event.input):
+                handleInputStateOn(event.input)
+                activeKeyMap.incl(event.input)
         else:
-            activeKeyMap.excl(event.input)
+            if activeKeyMap.contains(event.input):
+                handleInputStateOff(event.input)
+                activeKeyMap.excl(event.input)
 
+    # Handle event that fire every frame if an input is active
     if event.kind == Update:
         for input in activeKeyMap:
             case input:
