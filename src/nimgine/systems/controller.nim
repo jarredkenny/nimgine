@@ -1,6 +1,5 @@
+import ../types
 import ../ecs
-import ../events
-import ../components
 
 var controllerSystem* = newSystem()
 

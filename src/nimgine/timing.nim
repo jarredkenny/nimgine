@@ -1,12 +1,6 @@
 import times
 
-type
-  Clock* = object
-    dt*: float
-    fps*: float
-    timer*: float
-    ticks*: int
-    last*: float
+import types
 
 proc newClock*(): Clock =
   result = Clock(

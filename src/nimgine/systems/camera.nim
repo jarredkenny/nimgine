@@ -1,7 +1,6 @@
+import ../types
 import ../ecs
-import ../events
 import ../renderer
-import ../components
 
 var cameraSystem* = newSystem()
 var aspect = 16.0 / 9.0

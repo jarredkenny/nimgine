@@ -1,6 +1,6 @@
-import nimgine/[core, ecs, events, components]
+import nimgine/[types, core, ecs, events]
 
-let world: World = newWorld()
+let app: Application = newApplication()
 
 let player: Entity = newEntity()
 player.add(Position())
@@ -12,6 +12,6 @@ camera.add(Position(x: 0, y: 0, z: 0))
 camera.add(Controllable())
 camera.add(ControlledCamera())
 
-world.add(@[camera, player])
+app.world.add(@[camera, player])
 
-world.start()
+app.start()

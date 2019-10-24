@@ -1,3 +1,4 @@
+import types
 import platform
 import ui
 import timing
@@ -7,52 +8,68 @@ import renderer
 
 import systems/[input, controller, render, camera, gui]
 
-var clock: Clock = newClock()
-var scene: Scene = newScene()
+proc newApplication*(): Application = Application(
+  world: newWorld(),
+  scene: newScene(),
+  clock: newClock(),
+  layers: @[
+    PlatformLayer,
+    UILayer,
+    WorldLayer,
+    RendererLayer
+  ]
+)
 
-var running: bool = true
-
-proc handle(evt: Event) =
-  if evt.kind == Quit:
-    running = false
-
-proc start*(world: World) =
-
-  # Init World
-  var window = platform.init()
-
-  ui.init(window)
-
-  world.add(@[
+proc init(app: Application) =
+  app.world.add(@[
     guiSystem,
     cameraSystem,
     controllerSystem,
     inputSystem,
     renderSystem
   ])
+  for layer in app.layers:
+    if layer.init != nil:
+      layer.init(app)
 
-  world.init()
+proc handle(app: Application, event: Event) =
+  for layer in app.layers:
+    if layer.handle != nil:
+      layer.handle(app, event)
+      if event.handled:
+        break
 
-  # Game Loop
-  while running:
+proc loop(app: Application) =
+  while app.running:
 
     # Update
     queueEvent(Update)
-    clock.update()
-    platform.update()
-    ui.update()
+
+    update(app.clock)
+
+    for layer in app.layers:
+      if layer.update != nil:
+        layer.update(app)
+
+    # Handle Events
     for event in pollEvent():
-      handle(event)
-      world.update(event, clock.dt)
+      echo(event)
+      app.handle(event)
 
     # Pre-Render
-    scene.preRender(world)
-    platform.preRender()
-    renderer.preRender(scene)
+    for i in countdown(app.layers.len - 1, 0):
+      let layer = app.layers[i]
+      if layer.preRender != nil:
+        layer.preRender(app)
 
     # Render
-    scene.render(world)
-    renderer.render(scene)
-    ui.render()
+    for i in countdown(app.layers.len - 1, 0):
+      let layer = app.layers[i]
+      if layer.render != nil:
+        layer.render(app)
 
-    platform.render()
+
+proc start*(app: Application) =
+  app.running = true
+  app.init()
+  app.loop()
