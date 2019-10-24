@@ -1,45 +1,6 @@
 import deques
 
-import input
-
-type
-
-  EventType* = enum
-
-    # Game Loop Events
-    Update
-    Render
-
-    # Input Type Events
-    Input
-    MouseMove
-
-    # Platform State Events
-    Quit
-    Resize
-
-    # Control Intents
-    MoveUp
-    MoveDown
-    MoveLeft
-    MoveRight
-    ZoomIn
-    ZoomOut
-
-  Event* = ref object
-    case kind*: EventType
-    of Input:
-      input*: InputType
-      state*: bool
-    of MouseMove:
-      x*, y*: int
-    of Resize:
-      width*, height*: int
-    else:
-      discard
-
-  EventQueue = Deque[Event]
-
+import types
 
 proc `$`*(e: Event): string =
   result = "<Event kind=" & $e.kind & ">"

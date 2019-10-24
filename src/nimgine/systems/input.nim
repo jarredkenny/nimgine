@@ -1,6 +1,6 @@
 import sets
 
-import ../input
+import ../types
 import ../ui
 import ../ecs
 import ../events
@@ -50,7 +50,7 @@ inputSystem.update = proc(world: World, system: System, event: Event, dt: float)
                 of Down: queueEvent(MoveDown)
                 of Left: queueEvent(MoveLeft)
                 of Right: queueEvent(MoveRight)
-                of InputType.Quit: queueEvent(EventType.Quit)
-                of InputType.ZoomIn: queueEvent(EventType.ZoomIn)
-                of InputType.ZoomOut: queueEvent(EventType.ZoomOut)
+                # of InputType.Quit: queueEvent(EventType.Quit)
+                # of InputType.ZoomIn: queueEvent(EventType.ZoomIn)
+                # of InputType.ZoomOut: queueEvent(EventType.ZoomOut)
                 else: discard

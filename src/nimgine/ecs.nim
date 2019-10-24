@@ -1,28 +1,7 @@
 import tables, typetraits, sugar, sets, sequtils
 
-import events
-import renderer
+import types
 
-type
-  Component* = ref object of RootObj
-    id*: int
-
-  Entity* = ref object
-    id*: int
-    components*: Table[string, Component]
-
-  System* = ref object
-    id*: int
-    events: set[EventType]
-    components*: HashSet[string]
-    init*: proc(world: World, system: System)
-    update*: proc(world: World, system: System, event: Event, dt: float)
-    preRender*: proc(scene: Scene, world: World)
-    render*: proc(scene: Scene, world: World)
-
-  World* = ref object
-    entities*: seq[Entity]
-    systems*: seq[System]
 
 # Id counters
 var entityCount: int = 0
@@ -55,7 +34,7 @@ proc get*(entity: Entity, T: typedesc): T =
 
 # System Functions
 proc `$`*(system: System): string =
-  result = "<System tem): Entity = for entity in world.entities:id=" &
+  result = "<System id=" &
       $system.id & ">"
 
 proc subscribe*(system: System, event: EventType) =
@@ -113,10 +92,10 @@ proc newSystem*(): System =
   inc(systemCount)
   result = System(id: systemCount)
 
-proc init*(world: World) =
-  for system in world.systems:
+proc init*(app: Application) =
+  for system in app.world.systems:
     if system.init != nil:
-      system.init(world, system)
+      system.init(app.world, system)
 
 iterator entitiesForSystem*(world: World, system: System): Entity =
   for entity in world.entities:
@@ -129,12 +108,35 @@ proc update*(world: World, event: Event, dt: float) =
     if system.update != nil and event.kind in system.events:
       system.update(world, system, event, dt)
 
+proc handle*(app: Application, event: Event) =
+  for system in app.world.systems:
+    if system.update != nil and event.kind in system.events:
+      system.update(app.world, system, event, app.clock.dt)
+
 proc preRender*(scene: Scene, world: World) =
   for system in world.systems:
     if system.preRender != nil:
       system.preRender(scene, world)
 
+proc preRender*(app: Application) =
+  for system in app.world.systems:
+    if system.preRender != nil:
+      system.preRender(app.scene, app.world)
+
 proc render*(scene: Scene, world: World) =
   for system in world.systems:
     if system.render != nil:
       system.render(scene, world)
+
+proc render*(app: Application) =
+  for system in app.world.systems:
+    if system.render != nil:
+      system.render(app.scene, app.world)
+
+
+var WorldLayer* = ApplicationLayer()
+
+WorldLayer.init = init
+WorldLayer.handle = handle
+WorldLayer.preRender = preRender
+WorldLayer.render = render

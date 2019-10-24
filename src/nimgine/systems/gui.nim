@@ -1,5 +1,5 @@
+import ../types
 import ../ecs
-import ../events
 import ../ui
 
 var guiSystem* = newSystem()

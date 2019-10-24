@@ -1,40 +1,9 @@
-import sequtils, math, deques, tables
+import sequtils, math, deques
 import opengl
 import glm
 import sdl2
 
-type
-
-  VertexBuffer* = ref object
-    id*: uint
-    vertices*: seq[float]
-    name*: string
-    layout*: AttributeLayout
-
-  IndexBuffer* = ref object
-    id: uint
-    indices: seq[int]
-
-  AttributeLayout* = ref object
-    size, stride, offset: int
-
-  Shader* = ref object
-    id*: uint
-    attributes: Table[string, AttributeLayout]
-
-  Mesh* = ref object
-    vao: uint
-    buffers: seq[VertexBuffer]
-    elements: IndexBuffer
-    shader: Shader
-
-  Camera* = ref object
-    projection*: Mat4[GLfloat]
-    view*: Mat4[GLfloat]
-
-  Scene* = ref object
-    camera*: Camera
-    drawQueue: Deque[Mesh]
+import types
 
 proc newVertexBuffer*(name: string, vertices: seq[float], size, stride,
     offset: int): VertexBuffer =
@@ -171,17 +140,20 @@ proc submit*(scene: Scene, mesh: Mesh) =
 proc preRender*(scene: Scene) =
   discard
 
-proc render*(scene: Scene) =
-  for mesh in scene.drawQueue.items:
-    scene.drawQueue.popFirst()
+proc render*(app: Application) =
+  for mesh in app.scene.drawQueue.items:
+    app.scene.drawQueue.popFirst()
 
     var model = translate(mat4(1.GLfloat), vec3(0.0.Glfloat, 0.0.GLfloat, -4.0.GLfloat))
 
-    var view = rotate(scene.camera.view, (getTicks().float * 0.001).GLfloat,
+    var view = rotate(app.scene.camera.view, (getTicks().float * 0.001).GLfloat,
         vec3(0.7.GLfloat, 0.5.GLfloat, -4.0.GLfloat))
 
-    var mvp = scene.camera.projection * view * model
+    var mvp = app.scene.camera.projection * view * model
 
     mesh.use()
     mesh.uniform("MVP", mvp)
     mesh.draw()
+
+var RendererLayer* = ApplicationLayer()
+RendererLayer.render = render

@@ -1,29 +1,29 @@
 import sdl2
 import opengl
 
-import input
+import types
 import events
-import ui
 
 var screenWidth: cint = 640
 var screenHeight: cint = 480
-var window: WindowPtr
 var context: GlContextPtr
 var event = defaultEvent
 
 proc toInput(key: Scancode): InputType =
   case key
-  of SDL_SCANCODE_A: input.Left
-  of SDL_SCANCODE_D: input.Right
-  of SDL_SCANCODE_SPACE: input.Jump
-  of SDL_SCANCODE_W: input.Up
-  of SDL_SCANCODE_S: input.Down
-  of SDL_SCANCODE_E: input.ZoomIn
-  of SDL_SCANCODE_Q: input.ZoomOut
-  of SDL_SCANCODE_ESCAPE: input.Quit
-  else: input.None
+  of SDL_SCANCODE_A: InputType.Left
+  of SDL_SCANCODE_D: InputType.Right
+  of SDL_SCANCODE_SPACE: InputType.Jump
+  of SDL_SCANCODE_W: InputType.Up
+  of SDL_SCANCODE_S: InputType.Down
+  # of SDL_SCANCODE_E: InputType.ZoomIn
+  # of SDL_SCANCODE_Q: InputType.ZoomOut
+  # of SDL_SCANCODE_ESCAPE: InputType.Quit
+  else: InputType.None
 
-proc init*(): WindowPtr =
+proc init*(app: Application) =
+  echo("PLATFORM INIT")
+
   # Init SDL
   discard sdl2.init(INIT_EVERYTHING)
 
@@ -35,7 +35,7 @@ proc init*(): WindowPtr =
   discard glSetAttribute(SDL_GL_DEPTH_SIZE, 24)
 
   # Create Window
-  window = createWindow(
+  app.window = createWindow(
     "Nimgine",
     1, 1,
     screenWidth, screenHeight,
@@ -43,7 +43,7 @@ proc init*(): WindowPtr =
     )
 
   # Create opengl context
-  context = window.glCreateContext()
+  context = app.window.glCreateContext()
 
   # Init opengl
   loadExtensions()
@@ -52,18 +52,17 @@ proc init*(): WindowPtr =
   glDepthFunc(GL_LEQUAL)
   glViewport(0, 0, screenWidth, screenHeight)
 
-  result = window
-
 proc reshape(newWidth: cint, newHeight: cint) =
   glViewport(0, 0, newWidth, newHeight)
 
-proc update*() =
+proc update*(app: Application) =
+  echo("PLATFORM UPDATE")
   # Handle SDL event
   while pollEvent(event):
 
     # Handle Quit Event
     if event.kind == sdl2.EventType.QuitEvent:
-      queueEvent(events.Quit)
+      queueEvent(types.EventType.Quit)
 
     if event.kind == sdl2.EventType.KeyDown:
       queueEvent(newInputEvent(event.key.keysym.scancode.toInput, true))
@@ -94,8 +93,18 @@ proc update*() =
         reshape(width, height)
         queueEvent(newResizeEvent(width, height))
 
-proc preRender*() =
+proc preRender*(app: Application) =
+  echo("PLATFORM PRE-RENDER: CLEAR")
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
-proc render*() =
-  window.glSwapWindow()
+proc render*(app: Application) =
+  echo("PLATFORM RENDER")
+  app.window.glSwapWindow()
+
+
+var PlatformLayer* = ApplicationLayer()
+
+PlatformLayer.init = init
+PlatformLayer.update = update
+PlatformLayer.preRender = preRender
+PlatformLayer.render = render

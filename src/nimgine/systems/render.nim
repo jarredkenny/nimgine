@@ -1,7 +1,6 @@
+import ../types
 import ../ecs
 import ../renderer
-from ../events import Update
-from ../components import Position, Dimensions, RenderBlock
 
 var renderSystem* = newSystem()
 renderSystem.subscribe(Update)
@@ -16,6 +15,8 @@ var elements: IndexBuffer
 var positions: VertexBuffer
 
 renderSystem.init = proc(world: World, system: System) =
+
+    echo("ECS renderer - init")
 
     shader = newShader(
         """

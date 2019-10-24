@@ -1,5 +1,9 @@
 import sdl2, opengl, imgui
 
+import types
+
+var UILayer* = ApplicationLayer()
+
 var
   gWindow: WindowPtr
   gMousePosX: float
@@ -33,10 +37,12 @@ proc setDisplaySize*(width, height: int) =
   io.displaySize = ImVec2(x: w, y: h)
   io.displayFramebufferScale = ImVec2(x: 1.float32, y: 1.float32)
 
-proc init*(window: WindowPtr) =
-  gWindow = window
+proc init*(app: Application) =
+  echo("UI INIT")
 
-  var (width, height) = sdl2.getSize(window)
+  gWindow = app.window
+
+  var (width, height) = sdl2.getSize(gWindow)
 
   igCreateContext()
 
@@ -349,7 +355,8 @@ proc igUpdateMousePosAndButtons() =
   io.mouseDown[2] = gMousePressed[2]
 
 
-proc update*() =
+proc update*(app: Application) =
+  echo("UI UPDATE")
   # New Frame
   igOpenGL3CreateDeviceObjects()
   igNewFrame()
@@ -360,6 +367,11 @@ proc update*() =
   igShowDemoWindow(show.addr)
 
 
-proc render*() =
+proc render*(app: Application) =
+  echo("UI RENDER")
   igRender()
   igOpenGL3RenderDrawData()
+
+UILayer.init = init
+UILayer.update = update
+UILayer.render = render
