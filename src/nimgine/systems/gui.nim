@@ -6,7 +6,7 @@ var guiSystem* = newSystem()
 
 guiSystem.subscribe(@[Resize, MouseMove])
 
-guiSystem.update = proc(world: World, system: System, event: Event, dt: float) =
+guiSystem.handle = proc(world: World, system: System, event: Event) =
   case event.kind:
     of Resize:
       ui.setDisplaySize(event.width, event.height)

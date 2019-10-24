@@ -18,7 +18,7 @@ type
     render*: proc(app: Application)
     destroy*: proc(app: Application)
 
-  EventType* = enum
+  EventType*{.pure.} = enum
 
     # Game Loop Events
     Update
@@ -67,7 +67,8 @@ type
     events*: set[EventType]
     components*: HashSet[string]
     init*: proc(world: World, system: System)
-    update*: proc(world: World, system: System, event: Event, dt: float)
+    handle*: proc(world: World, system: System, event: Event)
+    update*: proc(world: World, system: System, dt: float)
     preRender*: proc(scene: Scene, world: World)
     render*: proc(scene: Scene, world: World)
 
@@ -93,7 +94,7 @@ type
 
   InputState* = bool
 
-  InputType* = enum
+  InputType*{.pure.} = enum
 
     # Key Controls
     Up
@@ -102,12 +103,14 @@ type
     Right
     Jump
     Pause
-    # ZoomIn
-    # ZoomOut
-    # Quit
+    ZoomIn
+    ZoomOut
+    Quit
 
     MouseLeft
     MouseRight
+    MouseScrollUp
+    MouseScrollDown
 
     None
 

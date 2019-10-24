@@ -29,10 +29,15 @@ proc handleInputStateOff(input: InputType) =
             ui.setMouseDown(2, false)
         else: discard
 
-inputSystem.update = proc(world: World, system: System, event: Event, dt: float) =
+inputSystem.handle = proc(world: World, system: System, event: Event) =
 
-    # When an input event occurs, update that inputs state in our key map
+    # Handle input events
+    # Update active map events so that events which are fired for every frame
+    # an update in active can fire on subsequent update events.
+    # For events which spawn for every input event received, spawn them
     if event.kind == Input:
+
+        # When an input event occurs, update that inputs state in our key map
         if event.state:
             if not activeKeyMap.contains(event.input):
                 handleInputStateOn(event.input)
@@ -42,15 +47,26 @@ inputSystem.update = proc(world: World, system: System, event: Event, dt: float)
                 handleInputStateOff(event.input)
                 activeKeyMap.excl(event.input)
 
-    # Handle event that fire every frame if an input is active
-    if event.kind == Update:
-        for input in activeKeyMap:
-            case input:
-                of Up: queueEvent(MoveUp)
-                of Down: queueEvent(MoveDown)
-                of Left: queueEvent(MoveLeft)
-                of Right: queueEvent(MoveRight)
-                # of InputType.Quit: queueEvent(EventType.Quit)
-                # of InputType.ZoomIn: queueEvent(EventType.ZoomIn)
-                # of InputType.ZoomOut: queueEvent(EventType.ZoomOut)
-                else: discard
+        # Input Events based on events that occur within a frame
+        # and spawn new events only when received
+        case event.input:
+            of InputType.MouseScrollUp: queueEvent(EventType.ZoomIn)
+            of InputType.MouseScrollDown: queueEvent(EventType.ZoomOut)
+            else: discard
+
+
+
+inputSystem.update = proc(world: World, system: System, dt: float) =
+
+    # Input events based on active key map
+    # These are events that fire for every frame a key is held down
+    for input in activeKeyMap:
+        case input:
+            of Up: queueEvent(MoveUp)
+            of Down: queueEvent(MoveDown)
+            of Left: queueEvent(MoveLeft)
+            of Right: queueEvent(MoveRight)
+            of InputType.Quit: queueEvent(EventType.Quit)
+            else: discard
+
+

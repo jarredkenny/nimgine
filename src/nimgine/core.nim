@@ -33,6 +33,8 @@ proc init(app: Application) =
       layer.init(app)
 
 proc handle(app: Application, event: Event) =
+  if event.kind == EventType.Quit:
+    app.running = false
   for layer in app.layers:
     if layer.handle != nil:
       layer.handle(app, event)
@@ -43,18 +45,15 @@ proc loop(app: Application) =
   while app.running:
 
     # Update
-    queueEvent(Update)
-
     update(app.clock)
+
+    # Handle Events
+    for event in pollEvent():
+      app.handle(event)
 
     for layer in app.layers:
       if layer.update != nil:
         layer.update(app)
-
-    # Handle Events
-    for event in pollEvent():
-      echo(event)
-      app.handle(event)
 
     # Pre-Render
     for i in countdown(app.layers.len - 1, 0):

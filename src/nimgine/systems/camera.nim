@@ -10,7 +10,7 @@ cameraSystem.matchComponent(Position)
 
 cameraSystem.subscribe(Resize)
 
-cameraSystem.update = proc(world: World, system: System, event: Event, dt: float) =
+cameraSystem.handle = proc(world: World, system: System, event: Event) =
   aspect = event.width / event.height
 
 cameraSystem.preRender = proc(scene: Scene, world: World) =

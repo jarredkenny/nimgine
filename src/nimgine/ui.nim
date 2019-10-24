@@ -38,8 +38,6 @@ proc setDisplaySize*(width, height: int) =
   io.displayFramebufferScale = ImVec2(x: 1.float32, y: 1.float32)
 
 proc init*(app: Application) =
-  echo("UI INIT")
-
   gWindow = app.window
 
   var (width, height) = sdl2.getSize(gWindow)
@@ -356,11 +354,8 @@ proc igUpdateMousePosAndButtons() =
 
 
 proc update*(app: Application) =
-  echo("UI UPDATE")
-  # New Frame
   igOpenGL3CreateDeviceObjects()
   igNewFrame()
-
   igUpdateMousePosAndButtons()
 
   var show = true
@@ -368,7 +363,6 @@ proc update*(app: Application) =
 
 
 proc render*(app: Application) =
-  echo("UI RENDER")
   igRender()
   igOpenGL3RenderDrawData()
 

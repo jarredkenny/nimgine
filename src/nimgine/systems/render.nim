@@ -16,7 +16,6 @@ var positions: VertexBuffer
 
 renderSystem.init = proc(world: World, system: System) =
 
-    echo("ECS renderer - init")
 
     shader = newShader(
         """

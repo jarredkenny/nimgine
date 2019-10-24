@@ -20,6 +20,9 @@ proc newEvent*(kind: EventType): Event =
 proc newInputEvent*(input: InputType, state: bool): Event =
   result = Event(kind: Input, input: input, state: state)
 
+proc newInputEvent*(input: InputType): Event =
+  result = newInputEvent(input, true)
+
 proc newMouseMoveEvent*(x, y: int): Event =
   result = Event(kind: MouseMove, x: x, y: y)
 

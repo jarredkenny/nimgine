@@ -103,15 +103,20 @@ iterator entitiesForSystem*(world: World, system: System): Entity =
         s: string): bool = entity.components.hasKey(s)):
       yield entity
 
-proc update*(world: World, event: Event, dt: float) =
-  for system in world.systems:
-    if system.update != nil and event.kind in system.events:
-      system.update(world, system, event, dt)
+# proc update*(world: World, event: Event, dt: float) =
+#   for system in world.systems:
+#     if system.update != nil and event.kind in system.events:
+#       system.update(world, system, event, dt)
+
+proc update*(app: Application) =
+  for system in app.world.systems:
+    if system.update != nil:
+      system.update(app.world, system, app.clock.dt)
 
 proc handle*(app: Application, event: Event) =
   for system in app.world.systems:
-    if system.update != nil and event.kind in system.events:
-      system.update(app.world, system, event, app.clock.dt)
+    if system.handle != nil and event.kind in system.events:
+      system.handle(app.world, system, event)
 
 proc preRender*(scene: Scene, world: World) =
   for system in world.systems:
@@ -138,5 +143,6 @@ var WorldLayer* = ApplicationLayer()
 
 WorldLayer.init = init
 WorldLayer.handle = handle
+WorldLayer.update = update
 WorldLayer.preRender = preRender
 WorldLayer.render = render

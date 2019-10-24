@@ -16,13 +16,12 @@ proc toInput(key: Scancode): InputType =
   of SDL_SCANCODE_SPACE: InputType.Jump
   of SDL_SCANCODE_W: InputType.Up
   of SDL_SCANCODE_S: InputType.Down
-  # of SDL_SCANCODE_E: InputType.ZoomIn
-  # of SDL_SCANCODE_Q: InputType.ZoomOut
-  # of SDL_SCANCODE_ESCAPE: InputType.Quit
+  of SDL_SCANCODE_E: InputType.ZoomIn
+  of SDL_SCANCODE_Q: InputType.ZoomOut
+  of SDL_SCANCODE_ESCAPE: InputType.Quit
   else: InputType.None
 
 proc init*(app: Application) =
-  echo("PLATFORM INIT")
 
   # Init SDL
   discard sdl2.init(INIT_EVERYTHING)
@@ -56,7 +55,6 @@ proc reshape(newWidth: cint, newHeight: cint) =
   glViewport(0, 0, newWidth, newHeight)
 
 proc update*(app: Application) =
-  echo("PLATFORM UPDATE")
   # Handle SDL event
   while pollEvent(event):
 
@@ -82,6 +80,14 @@ proc update*(app: Application) =
         of 3: queueEvent(newInputEvent(MouseRight, state))
         else: discard
 
+    # Mouse Wheel Scrolling
+    if event.kind == MouseWheel:
+      var mouseWheelEvent = cast[MouseWheelEventPtr](event.addr)
+      case mouseWheelEvent.y:
+        of -1: queueEvent(newInputEvent(MouseScrollDown))
+        of 1: queueEvent(newInputEvent(MouseScrollUp))
+        else: discard
+
     # Handle Window Events
     if event.kind == WindowEvent:
       var windowEvent = cast[WindowEventPtr](addr(event))
@@ -94,11 +100,9 @@ proc update*(app: Application) =
         queueEvent(newResizeEvent(width, height))
 
 proc preRender*(app: Application) =
-  echo("PLATFORM PRE-RENDER: CLEAR")
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
 proc render*(app: Application) =
-  echo("PLATFORM RENDER")
   app.window.glSwapWindow()
 
 

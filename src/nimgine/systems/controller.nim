@@ -4,26 +4,26 @@ import ../ecs
 var controllerSystem* = newSystem()
 
 controllerSystem.subscribe(@[
-    MoveUp, MoveDown, MoveLeft, MoveRight, ZoomIn, ZoomOut
+    MoveUp, MoveDown, MoveLeft, MoveRight, EventType.ZoomIn, EventType.ZoomOut
 ])
 
 controllerSystem.matchComponent(Controllable)
 controllerSystem.matchComponent(Position)
 
-controllerSystem.update = proc(world: World, system: System, event: Event, dt: float) =
+controllerSystem.handle = proc(world: World, system: System, event: Event) =
     for entity in world.entitiesForSystem(controllerSystem):
         var position = entity.get(Position)
         case event.kind:
-            of MoveUp:
+            of EventType.MoveUp:
                 position.y += 0.5
-            of MoveDown:
+            of EventType.MoveDown:
                 position.y -= 0.5
-            of MoveLeft:
+            of EventType.MoveLeft:
                 position.x -= 0.5
-            of MoveRight:
+            of EventType.MoveRight:
                 position.x += 0.5
-            of ZoomIn:
-                position.z -= 0.5
-            of ZoomOut:
-                position.z += 0.5
+            of EventType.ZoomIn:
+                position.z -= 0.1
+            of EventType.ZoomOut:
+                position.z += 0.1
             else: discard
