@@ -346,16 +346,22 @@ proc handle(app: Application, event: types.Event) =
   if event.kind == MouseMove:
     io.mousePos = ImVec2(x: event.x.float32, y: event.y.float32)
 
-  if io.wantCaptureMouse:
-    if event.kind == types.EventType.Input:
-      if event.input == MouseLeft:
-        io.mouseDown[0] = event.state
-        if event.state:
-          event.markHandled()
-      if event.input == MouseRight:
-        io.mouseDown[1] = event.state
-        if event.state:
-          event.markHandled()
+  if not io.wantCaptureMouse:
+    return
+
+  if event.kind == types.EventType.Input:
+    if event.input == MouseLeft:
+      io.mouseDown[0] = event.state
+      if event.state: event.markHandled()
+    if event.input == MouseRight:
+      io.mouseDown[1] = event.state
+      if event.state: event.markHandled()
+    if event.input == MouseScrollUp:
+      io.mouseWheel += 0.5
+      event.markHandled()
+    if event.input == MouseScrollDown:
+      io.mouseWheel -= 0.5
+      event.markHandled()
 
 proc update*(app: Application) =
   let io = igGetIO()
