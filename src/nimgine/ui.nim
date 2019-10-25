@@ -275,7 +275,8 @@ proc igOpenGL3RenderDrawData*() =
       last_scissor_box[3])
 
 proc draw(window: UIWindow) =
-  discard
+  igBegin(window.name, window.open.addr)
+  igEnd()
 
 proc init*(app: Application) =
 
@@ -328,6 +329,9 @@ proc init*(app: Application) =
 
 proc handle(app: Application, event: types.Event) =
   var io = igGetIO()
+
+  if event.kind == Resize:
+    io.displaySize = ImVec2(x: event.width.float32, y: event.height.float32)
 
   if event.kind == MouseMove:
     io.mousePos = ImVec2(x: event.x.float32, y: event.y.float32)

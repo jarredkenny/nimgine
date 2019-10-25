@@ -5,6 +5,7 @@ import timing
 import events
 import ecs
 import renderer
+import debug
 
 import systems/[input, controller, render, camera]
 
@@ -14,6 +15,7 @@ proc newApplication*(): Application = Application(
   clock: newClock(),
   layers: @[
     PlatformLayer,
+    DebugLayer,
     UILayer,
     WorldLayer,
     RendererLayer
@@ -66,8 +68,13 @@ proc loop(app: Application) =
       if layer.render != nil:
         layer.render(app)
 
+proc destroy(app: Application) =
+  for layer in app.layers:
+    if layer.destroy != nil:
+      layer.destroy(app)
 
 proc start*(app: Application) =
   app.running = true
   app.init()
   app.loop()
+  app.destroy()

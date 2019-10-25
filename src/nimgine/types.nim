@@ -50,7 +50,7 @@ type
         x*, y*: int
       of Resize:
         width*, height*: int
-      else: discard
+      else: discard2
 
   EventQueue* = Deque[Event]
 
@@ -150,7 +150,9 @@ type
     elements*: seq[UIElement]
 
   UIELement* = ref object
-    kind: UIElementType
+    case kind*: UIElementType
+    of UIButton
 
   UIElementType* = enum
     UIButton
+    UIText
