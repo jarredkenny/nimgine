@@ -15,13 +15,13 @@ controllerSystem.handle = proc(world: World, system: System, event: Event) =
         var position = entity.get(Position)
         case event.kind:
             of EventType.MoveUp:
-                position.y += 0.5
+                position.y += 0.1
             of EventType.MoveDown:
-                position.y -= 0.5
+                position.y -= 0.1
             of EventType.MoveLeft:
-                position.x -= 0.5
+                position.x -= 0.1
             of EventType.MoveRight:
-                position.x += 0.5
+                position.x += 0.1
             of EventType.ZoomIn:
                 position.z -= 0.1
             of EventType.ZoomOut:

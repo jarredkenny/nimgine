@@ -1,6 +1,6 @@
 import sdl2, opengl, imgui
 
-import types
+import types, events
 
 var UILayer* = ApplicationLayer()
 
@@ -340,23 +340,29 @@ proc igOpenGL3RenderDrawData*() =
   glScissor(last_scissor_box[0], last_scissor_box[1], last_scissor_box[2],
       last_scissor_box[3])
 
-proc igUpdateMousePosAndButtons() =
+proc handle(app: Application, event: types.Event) =
   var io = igGetIO()
 
-  if io.wantSetMousePos:
-    warpMouseInWindow(gWindow, gMousePosX.cint, gMousePosY.cint)
-  else:
-    io.mousePos = ImVec2(x: gMousePosX.float32, y: gMousePosY.float32)
+  if event.kind == MouseMove:
+    io.mousePos = ImVec2(x: event.x.float32, y: event.y.float32)
 
-  io.mouseDown[0] = gMousePressed[0]
-  io.mouseDown[1] = gMousePressed[1]
-  io.mouseDown[2] = gMousePressed[2]
-
+  if io.wantCaptureMouse:
+    if event.kind == types.EventType.Input:
+      if event.input == MouseLeft:
+        io.mouseDown[0] = event.state
+        if event.state:
+          event.markHandled()
+      if event.input == MouseRight:
+        io.mouseDown[1] = event.state
+        if event.state:
+          event.markHandled()
 
 proc update*(app: Application) =
+  let io = igGetIO()
   igOpenGL3CreateDeviceObjects()
   igNewFrame()
-  igUpdateMousePosAndButtons()
+  if io.wantSetMousePos:
+    warpMouseInWindow(gWindow, gMousePosX.cint, gMousePosY.cint)
 
   var show = true
   igShowDemoWindow(show.addr)
@@ -367,5 +373,6 @@ proc render*(app: Application) =
   igOpenGL3RenderDrawData()
 
 UILayer.init = init
+UILayer.handle = handle
 UILayer.update = update
 UILayer.render = render

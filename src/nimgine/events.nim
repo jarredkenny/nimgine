@@ -37,3 +37,6 @@ proc queueEvent*(kind: EventType) =
 
 proc on*(kind: EventType, callback: proc(): void) =
   callback()
+
+proc markHandled*(event: Event) =
+  event.handled = true
