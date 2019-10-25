@@ -5,10 +5,6 @@ import types, events
 var UILayer* = ApplicationLayer()
 
 var
-  gWindow: WindowPtr
-  gMousePosX: float
-  gMousePosY: float
-  gMousePressed: array = [false, false, false]
   gMouseCursors: array[ImGuiMouseCursor.high.int32 + 1, CursorPtr]
   gFontTexture: uint32
   gShaderHandle: uint32
@@ -21,68 +17,6 @@ var
   gAttribLocationColor: int32
   gVboHandle: uint32
   gElementsHandle: uint32
-
-proc setMouseDown*(i: int, s: bool) =
-  gMousePressed[i - 1] = s
-
-proc setMousePosition*(x, y: int) =
-  gMousePosX = x.float
-  gMousePosY = y.float
-
-proc setDisplaySize*(width, height: int) =
-  var
-    io = igGetIO()
-    w = width.float32
-    h = height.float32
-  io.displaySize = ImVec2(x: w, y: h)
-  io.displayFramebufferScale = ImVec2(x: 1.float32, y: 1.float32)
-
-proc init*(app: Application) =
-  gWindow = app.window
-
-  var (width, height) = sdl2.getSize(gWindow)
-
-  igCreateContext()
-
-  setDisplaySize(width, height)
-
-  var io = igGetIO()
-  io.backendFlags = (io.backendFlags.int32 or
-      ImGuiBackendFlags.HasMouseCursors.int32).ImGuiBackendFlags
-  io.backendFlags = (io.backendFlags.int32 or
-      ImGuiBackendFlags.HasSetMousePos.int32).ImGuiBackendFlags
-
-  io.keyMap[ImGuiKey.Tab.int32] = SDL_SCANCODE_TAB.int32;
-  io.keyMap[ImGuiKey.LeftArrow.int32] = SDL_SCANCODE_LEFT.int32;
-  io.keyMap[ImGuiKey.RightArrow.int32] = SDL_SCANCODE_RIGHT.int32;
-  io.keyMap[ImGuiKey.UpArrow.int32] = SDL_SCANCODE_UP.int32;
-  io.keyMap[ImGuiKey.DownArrow.int32] = SDL_SCANCODE_DOWN.int32;
-  io.keyMap[ImGuiKey.PageUp.int32] = SDL_SCANCODE_PAGEUP.int32;
-  io.keyMap[ImGuiKey.PageDown.int32] = SDL_SCANCODE_PAGEDOWN.int32;
-  io.keyMap[ImGuiKey.Home.int32] = SDL_SCANCODE_HOME.int32;
-  io.keyMap[ImGuiKey.End.int32] = SDL_SCANCODE_END.int32;
-  io.keyMap[ImGuiKey.Insert.int32] = SDL_SCANCODE_INSERT.int32;
-  io.keyMap[ImGuiKey.Delete.int32] = SDL_SCANCODE_DELETE.int32;
-  io.keyMap[ImGuiKey.Backspace.int32] = SDL_SCANCODE_BACKSPACE.int32;
-  io.keyMap[ImGuiKey.Space.int32] = SDL_SCANCODE_SPACE.int32;
-  io.keyMap[ImGuiKey.Enter.int32] = SDL_SCANCODE_RETURN.int32;
-  io.keyMap[ImGuiKey.Escape.int32] = SDL_SCANCODE_ESCAPE.int32;
-  io.keyMap[ImGuiKey.KeyPadEnter.int32] = SDL_SCANCODE_RETURN2.int32;
-  io.keyMap[ImGuiKey.A.int32] = SDL_SCANCODE_A.int32
-  io.keyMap[ImGuiKey.C.int32] = SDL_SCANCODE_C.int32
-  io.keyMap[ImGuiKey.V.int32] = SDL_SCANCODE_V.int32
-  io.keyMap[ImGuiKey.X.int32] = SDL_SCANCODE_X.int32
-  io.keyMap[ImGuiKey.Y.int32] = SDL_SCANCODE_Y.int32
-  io.keyMap[ImGuiKey.Z.int32] = SDL_SCANCODE_Z.int32
-
-  gMouseCursors[ImGuiMouseCursor.Arrow.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_ARROW)
-  gMouseCursors[ImGuiMouseCursor.TextInput.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_IBEAM)
-  gMouseCursors[ImGuiMouseCursor.ResizeAll.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL)
-  gMouseCursors[ImGuiMouseCursor.ResizeNS.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_SIZENS)
-  gMouseCursors[ImGuiMouseCursor.ResizeEW.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE)
-  gMouseCursors[ImGuiMouseCursor.ResizeNESW.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW)
-  gMouseCursors[ImGuiMouseCursor.ResizeNWSE.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE)
-  gMouseCursors[ImGuiMouseCursor.Hand.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_HAND)
 
 proc igOpenGL3CheckProgram(handle: uint32, desc: string) =
   var status: int32
@@ -340,6 +274,58 @@ proc igOpenGL3RenderDrawData*() =
   glScissor(last_scissor_box[0], last_scissor_box[1], last_scissor_box[2],
       last_scissor_box[3])
 
+proc draw(window: UIWindow) =
+  discard
+
+proc init*(app: Application) =
+
+  var (width, height) = sdl2.getSize(app.window)
+
+  igCreateContext()
+
+  var io = igGetIO()
+
+  io.displaySize = ImVec2(x: width.float32, y: height.float32)
+  io.displayFramebufferScale = ImVec2(x: 1.float32, y: 1.float32)
+
+  io.backendFlags = (io.backendFlags.int32 or
+      ImGuiBackendFlags.HasMouseCursors.int32).ImGuiBackendFlags
+  io.backendFlags = (io.backendFlags.int32 or
+      ImGuiBackendFlags.HasSetMousePos.int32).ImGuiBackendFlags
+
+  io.keyMap[ImGuiKey.Tab.int32] = SDL_SCANCODE_TAB.int32;
+  io.keyMap[ImGuiKey.LeftArrow.int32] = SDL_SCANCODE_LEFT.int32;
+  io.keyMap[ImGuiKey.RightArrow.int32] = SDL_SCANCODE_RIGHT.int32;
+  io.keyMap[ImGuiKey.UpArrow.int32] = SDL_SCANCODE_UP.int32;
+  io.keyMap[ImGuiKey.DownArrow.int32] = SDL_SCANCODE_DOWN.int32;
+  io.keyMap[ImGuiKey.PageUp.int32] = SDL_SCANCODE_PAGEUP.int32;
+  io.keyMap[ImGuiKey.PageDown.int32] = SDL_SCANCODE_PAGEDOWN.int32;
+  io.keyMap[ImGuiKey.Home.int32] = SDL_SCANCODE_HOME.int32;
+  io.keyMap[ImGuiKey.End.int32] = SDL_SCANCODE_END.int32;
+  io.keyMap[ImGuiKey.Insert.int32] = SDL_SCANCODE_INSERT.int32;
+  io.keyMap[ImGuiKey.Delete.int32] = SDL_SCANCODE_DELETE.int32;
+  io.keyMap[ImGuiKey.Backspace.int32] = SDL_SCANCODE_BACKSPACE.int32;
+  io.keyMap[ImGuiKey.Space.int32] = SDL_SCANCODE_SPACE.int32;
+  io.keyMap[ImGuiKey.Enter.int32] = SDL_SCANCODE_RETURN.int32;
+  io.keyMap[ImGuiKey.Escape.int32] = SDL_SCANCODE_ESCAPE.int32;
+  io.keyMap[ImGuiKey.KeyPadEnter.int32] = SDL_SCANCODE_RETURN2.int32;
+  io.keyMap[ImGuiKey.A.int32] = SDL_SCANCODE_A.int32
+  io.keyMap[ImGuiKey.C.int32] = SDL_SCANCODE_C.int32
+  io.keyMap[ImGuiKey.V.int32] = SDL_SCANCODE_V.int32
+  io.keyMap[ImGuiKey.X.int32] = SDL_SCANCODE_X.int32
+  io.keyMap[ImGuiKey.Y.int32] = SDL_SCANCODE_Y.int32
+  io.keyMap[ImGuiKey.Z.int32] = SDL_SCANCODE_Z.int32
+
+  gMouseCursors[ImGuiMouseCursor.Arrow.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_ARROW)
+  gMouseCursors[ImGuiMouseCursor.TextInput.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_IBEAM)
+  gMouseCursors[ImGuiMouseCursor.ResizeAll.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL)
+  gMouseCursors[ImGuiMouseCursor.ResizeNS.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_SIZENS)
+  gMouseCursors[ImGuiMouseCursor.ResizeEW.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE)
+  gMouseCursors[ImGuiMouseCursor.ResizeNESW.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW)
+  gMouseCursors[ImGuiMouseCursor.ResizeNWSE.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE)
+  gMouseCursors[ImGuiMouseCursor.Hand.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_HAND)
+
+
 proc handle(app: Application, event: types.Event) =
   var io = igGetIO()
 
@@ -363,18 +349,17 @@ proc handle(app: Application, event: types.Event) =
       io.mouseWheel -= 0.5
       event.markHandled()
 
-proc update*(app: Application) =
+proc update(app: Application) =
   let io = igGetIO()
+  if io.wantSetMousePos:
+    queueEvent(types.Event(kind: MousePosition, x: io.mousePos.x.cint,
+        y: io.mousePos.y.cint))
   igOpenGL3CreateDeviceObjects()
   igNewFrame()
-  if io.wantSetMousePos:
-    warpMouseInWindow(gWindow, gMousePosX.cint, gMousePosY.cint)
+  for window in app.windows:
+    window.draw()
 
-  var show = true
-  igShowDemoWindow(show.addr)
-
-
-proc render*(app: Application) =
+proc render(app: Application) =
   igRender()
   igOpenGL3RenderDrawData()
 

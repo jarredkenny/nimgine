@@ -3,7 +3,6 @@ import ../ecs
 import ../renderer
 
 var renderSystem* = newSystem()
-renderSystem.subscribe(Update)
 renderSystem.matchComponent(Position)
 renderSystem.matchComponent(Dimensions)
 renderSystem.matchComponent(RenderBlock)

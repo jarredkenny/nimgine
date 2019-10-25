@@ -103,11 +103,6 @@ iterator entitiesForSystem*(world: World, system: System): Entity =
         s: string): bool = entity.components.hasKey(s)):
       yield entity
 
-# proc update*(world: World, event: Event, dt: float) =
-#   for system in world.systems:
-#     if system.update != nil and event.kind in system.events:
-#       system.update(world, system, event, dt)
-
 proc update*(app: Application) =
   for system in app.world.systems:
     if system.update != nil:
@@ -118,20 +113,10 @@ proc handle*(app: Application, event: Event) =
     if system.handle != nil and event.kind in system.events:
       system.handle(app.world, system, event)
 
-proc preRender*(scene: Scene, world: World) =
-  for system in world.systems:
-    if system.preRender != nil:
-      system.preRender(scene, world)
-
 proc preRender*(app: Application) =
   for system in app.world.systems:
     if system.preRender != nil:
       system.preRender(app.scene, app.world)
-
-proc render*(scene: Scene, world: World) =
-  for system in world.systems:
-    if system.render != nil:
-      system.render(scene, world)
 
 proc render*(app: Application) =
   for system in app.world.systems:

@@ -16,22 +16,6 @@ var lastMousePosY: int = 0
 
 inputSystem.subscribe(@[Input, MouseMove])
 
-proc handleInputStateOn(input: InputType) =
-    case input:
-        of MouseLeft:
-            ui.setMouseDown(1, true)
-        of MouseRight:
-            ui.setMouseDown(2, true)
-        else: discard
-
-proc handleInputStateOff(input: InputType) =
-    case input:
-        of MouseLeft:
-            ui.setMouseDown(1, false)
-        of MouseRight:
-            ui.setMouseDown(2, false)
-        else: discard
-
 # Handle input events
 # Update active map events so that events which are fired for every frame
 # an update in active can fire on subsequent update events.
@@ -65,11 +49,9 @@ inputSystem.handle = proc(world: World, system: System, event: Event) =
         # When an input event occurs, update that inputs state in our key map
         if event.state:
             if not activeKeyMap.contains(event.input):
-                handleInputStateOn(event.input)
                 activeKeyMap.incl(event.input)
         else:
             if activeKeyMap.contains(event.input):
-                handleInputStateOff(event.input)
                 activeKeyMap.excl(event.input)
 
         # Input Events based on events that occur within a frame

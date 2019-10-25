@@ -6,7 +6,7 @@ import events
 import ecs
 import renderer
 
-import systems/[input, controller, render, camera, gui]
+import systems/[input, controller, render, camera]
 
 proc newApplication*(): Application = Application(
   world: newWorld(),
@@ -22,7 +22,6 @@ proc newApplication*(): Application = Application(
 
 proc init(app: Application) =
   app.world.add(@[
-    guiSystem,
     cameraSystem,
     controllerSystem,
     inputSystem,

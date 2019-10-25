@@ -8,6 +8,7 @@ type
     scene*: Scene
     clock*: Clock
     window*: WindowPtr
+    windows*: seq[UIWindow]
     layers*: seq[ApplicationLayer]
 
   ApplicationLayer* = ref object of RootObj
@@ -20,11 +21,7 @@ type
 
   EventType*{.pure.} = enum
 
-    # Game Loop Events
-    Update
-    Render
-
-    # Input Type Events
+    # Input Type Evens
     Input
     MouseMove
 
@@ -40,18 +37,20 @@ type
     ZoomIn
     ZoomOut
 
+    # UI Events
+    MousePosition
+
   Event* = ref object
     handled*: bool
     case kind*: EventType
-    of Input:
-      input*: InputType
-      state*: bool
-    of MouseMove:
-      x*, y*: int
-    of Resize:
-      width*, height*: int
-    else:
-      discard
+      of Input:
+        input*: InputType
+        state*: bool
+      of MouseMove, MousePosition:
+        x*, y*: int
+      of Resize:
+        width*, height*: int
+      else: discard
 
   EventQueue* = Deque[Event]
 
@@ -144,3 +143,14 @@ type
   Scene* = ref object
     camera*: Camera
     drawQueue*: Deque[Mesh]
+
+  UIWindow* = ref object
+    name*: string
+    open*: bool
+    elements*: seq[UIElement]
+
+  UIELement* = ref object
+    kind: UIElementType
+
+  UIElementType* = enum
+    UIButton

@@ -54,7 +54,13 @@ proc init*(app: Application) =
 proc reshape(newWidth: cint, newHeight: cint) =
   glViewport(0, 0, newWidth, newHeight)
 
-proc update*(app: Application) =
+proc handle(app: Application, event: types.Event) =
+  case event.kind:
+    of types.EventType.MousePosition:
+      warpMouseInWindow(app.window, event.x.cint, event.y.cint)
+    else: discard
+
+proc update(app: Application) =
   # Handle SDL event
   while pollEvent(event):
 
@@ -109,6 +115,7 @@ proc render*(app: Application) =
 var PlatformLayer* = ApplicationLayer()
 
 PlatformLayer.init = init
+PlatformLayer.handle = handle
 PlatformLayer.update = update
 PlatformLayer.preRender = preRender
 PlatformLayer.render = render
