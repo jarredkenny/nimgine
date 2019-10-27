@@ -69,11 +69,11 @@ inputSystem.update = proc(world: World, system: System, dt: float) =
     # These are events that fire for every frame a key is held down
     for input in activeKeyMap:
         case input:
-            of Up: queueEvent(MoveUp)
-            of Down: queueEvent(MoveDown)
-            of Left: queueEvent(MoveLeft)
-            of Right: queueEvent(MoveRight)
-            of InputType.Quit: queueEvent(EventType.Quit)
+            of KeyW: queueEvent(MoveUp)
+            of KeyS: queueEvent(MoveDown)
+            of KeyA: queueEvent(MoveLeft)
+            of KeyD: queueEvent(MoveRight)
+            of KeyEscape: queueEvent(EventType.Quit)
             else: discard
 
 

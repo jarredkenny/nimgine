@@ -8,17 +8,38 @@ var screenWidth: cint = 640
 var screenHeight: cint = 480
 var context: GlContextPtr
 var event = defaultEvent
+var keyboardCharInput = false
 
 proc toInput(key: Scancode): InputType =
   case key
-  of SDL_SCANCODE_A: InputType.Left
-  of SDL_SCANCODE_D: InputType.Right
-  of SDL_SCANCODE_SPACE: InputType.Jump
-  of SDL_SCANCODE_W: InputType.Up
-  of SDL_SCANCODE_S: InputType.Down
-  of SDL_SCANCODE_E: InputType.ZoomIn
-  of SDL_SCANCODE_Q: InputType.ZoomOut
-  of SDL_SCANCODE_ESCAPE: InputType.Quit
+  of SDL_SCANCODE_A: InputType.KeyA
+  of SDL_SCANCODE_B: InputType.KeyB
+  of SDL_SCANCODE_C: InputType.KeyC
+  of SDL_SCANCODE_D: InputType.KeyD
+  of SDL_SCANCODE_E: InputType.KeyE
+  of SDL_SCANCODE_F: InputType.KeyF
+  of SDL_SCANCODE_G: InputType.KeyG
+  of SDL_SCANCODE_H: InputType.KeyH
+  of SDL_SCANCODE_I: InputType.KeyI
+  of SDL_SCANCODE_J: InputType.KeyJ
+  of SDL_SCANCODE_K: InputType.KeyK
+  of SDL_SCANCODE_L: InputType.KeyL
+  of SDL_SCANCODE_M: InputType.KeyM
+  of SDL_SCANCODE_N: InputType.KeyN
+  of SDL_SCANCODE_O: InputType.KeyO
+  of SDL_SCANCODE_P: InputType.KeyP
+  of SDL_SCANCODE_Q: InputType.KeyQ
+  of SDL_SCANCODE_R: InputType.KeyR
+  of SDL_SCANCODE_S: InputType.KeyS
+  of SDL_SCANCODE_T: InputType.KeyT
+  of SDL_SCANCODE_U: InputType.KeyU
+  of SDL_SCANCODE_V: InputType.KeyV
+  of SDL_SCANCODE_W: InputType.KeyW
+  of SDL_SCANCODE_X: InputType.KeyX
+  of SDL_SCANCODE_Y: InputType.KeyY
+  of SDL_SCANCODE_Z: InputType.KeyZ
+  of SDL_SCANCODE_SPACE: InputType.KeySpace
+  of SDL_SCANCODE_ESCAPE: InputType.KeyEscape
   else: InputType.None
 
 proc init*(app: Application) =
@@ -58,9 +79,17 @@ proc handle(app: Application, event: types.Event) =
   case event.kind:
     of types.EventType.MousePosition:
       warpMouseInWindow(app.window, event.x.cint, event.y.cint)
+    of types.EventType.LockKeyboardInput:
+      keyboardCharInput = true
+      echo("PLATFORM keyboard CHAR MODE")
+      startTextInput()
+    of types.EventType.UnlockKeyboardInput:
+      echo("PLATFORM keyboard INPUT MODE")
+      keyboardCharInput = false
+      stopTextInput()
     else: discard
 
-proc update(app: Application) =
+proc poll(app: Application) =
   # Handle SDL event
   while pollEvent(event):
 
@@ -68,11 +97,20 @@ proc update(app: Application) =
     if event.kind == sdl2.EventType.QuitEvent:
       queueEvent(types.EventType.Quit)
 
-    if event.kind == sdl2.EventType.KeyDown:
-      queueEvent(newInputEvent(event.key.keysym.scancode.toInput, true))
+    if not keyboardCharInput:
 
-    if event.kind == sdl2.EventType.KeyUp:
-      queueEvent(newInputEvent(event.key.keysym.scancode.toInput, false))
+      if event.kind == sdl2.EventType.KeyDown:
+        echo("Platform INPUT (KEYDOWN)")
+        queueEvent(newInputEvent(event.key.keysym.scancode.toInput, true))
+
+      if event.kind == sdl2.EventType.KeyUp:
+        queueEvent(newInputEvent(event.key.keysym.scancode.toInput, false))
+
+    else:
+      if event.kind == sdl2.EventType.TextInput:
+        var a = cast[TextInputEventPtr](event.text)
+        echo("Platform CHARECTER")
+        queueEvent(newCharEvent(a.text[0]))
 
     if event.kind == sdl2.EventType.MouseMotion:
       queueEvent(newMouseMoveEvent(event.motion.x, event.motion.y))
@@ -110,12 +148,14 @@ proc preRender*(app: Application) =
 
 proc render*(app: Application) =
   app.window.glSwapWindow()
+  if getTicks().float < 1000 / 60:
+    delay((1000 / 60 - getTicks().float).uint32)
 
 
 var PlatformLayer* = ApplicationLayer()
 
 PlatformLayer.init = init
 PlatformLayer.handle = handle
-PlatformLayer.update = update
+PlatformLayer.poll = poll
 PlatformLayer.preRender = preRender
 PlatformLayer.render = render

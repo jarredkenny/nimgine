@@ -1,6 +1,6 @@
+import deques, unicode
 import sdl2, opengl, imgui
-
-import types, events
+import types, events, input
 
 var UILayer* = ApplicationLayer()
 
@@ -274,9 +274,65 @@ proc igOpenGL3RenderDrawData*() =
   glScissor(last_scissor_box[0], last_scissor_box[1], last_scissor_box[2],
       last_scissor_box[3])
 
+proc push*(window: UIWindow, element: UIELement) =
+  window.elements.add(element)
+
+proc newUIText*(value: string): UIElement =
+  result = UIElement(kind: UIText, text: value)
+
+proc newUIButton*(label: string): UIELement =
+  result = UIElement(kind: UIButton, label: label)
+
+proc newUIInput*(): UIElement =
+  result = UIElement(kind: UIInput)
+
+proc newUIRow*(children: seq[UIElement]): UIElement =
+  result = UIElement(kind: UIRow, children: children)
+
+proc newUIConsole*(history: int): UIElement =
+  result = UIElement(
+    kind: UIConsole,
+    history: history,
+    lines: initDeque[string]()
+  )
+
+proc write*(elem: UIElement, line: string) =
+  assert elem.kind == UIConsole
+  if elem.lines.len > elem.history:
+    discard elem.lines.popLast()
+  elem.lines.addFirst(line)
+
+proc draw(element: UIElement) =
+  case element.kind:
+    of UIText:
+      igText(element.text)
+    of UIButton:
+      if igButton(element.label) and element.handler != nil:
+        element.handler()
+    of UIInput:
+      igInputText("input".cstring, element.buffer.cstring, (element.buffer.len *
+          sizeof(char)).uint + 1)
+    of UIRow:
+      for child in element.children:
+        draw(child)
+        if child != element.children[element.children.len - 1]:
+          igSameLine()
+    of UIConsole:
+      var footHeight = igGetStyle().itemSpacing.y +
+          igGetFrameHeightWithSpacing()
+      igBeginChild("console".cstring, ImVec2(x: 0, y: -footHeight), true, HorizontalScrollbar)
+      for line in element.lines:
+        igTextUnformatted(line)
+      igEndChild()
+    else: discard
+
 proc draw(window: UIWindow) =
   igBegin(window.name, window.open.addr)
+  for element in window.elements:
+    draw(element)
   igEnd()
+  igShowMetricsWindow()
+  window.elements = @[]
 
 proc init*(app: Application) =
 
@@ -310,12 +366,34 @@ proc init*(app: Application) =
   io.keyMap[ImGuiKey.Enter.int32] = SDL_SCANCODE_RETURN.int32;
   io.keyMap[ImGuiKey.Escape.int32] = SDL_SCANCODE_ESCAPE.int32;
   io.keyMap[ImGuiKey.KeyPadEnter.int32] = SDL_SCANCODE_RETURN2.int32;
-  io.keyMap[ImGuiKey.A.int32] = SDL_SCANCODE_A.int32
-  io.keyMap[ImGuiKey.C.int32] = SDL_SCANCODE_C.int32
-  io.keyMap[ImGuiKey.V.int32] = SDL_SCANCODE_V.int32
-  io.keyMap[ImGuiKey.X.int32] = SDL_SCANCODE_X.int32
-  io.keyMap[ImGuiKey.Y.int32] = SDL_SCANCODE_Y.int32
-  io.keyMap[ImGuiKey.Z.int32] = SDL_SCANCODE_Z.int32
+
+
+  # io.keyMap[ImGuiKey.A.int32] = InputType.KeyA.int32
+  # io.keyMap[ImGuiKey.B.int32] = InputType.KeyB.int32
+  # io.keyMap[ImGuiKey.C.int32] = InputType.KeyC.int32
+  # io.keyMap[ImGuiKey.D.int32] = InputType.KeyD.int32
+  # io.keyMap[ImGuiKey.E.int32] = InputType.KeyE.int32
+  # io.keyMap[ImGuiKey.F.int32] = InputType.KeyF.int32
+  # io.keyMap[ImGuiKey.G.int32] = InputType.KeyG.int32
+  # io.keyMap[ImGuiKey.H.int32] = InputType.KeyH.int32
+  # io.keyMap[ImGuiKey.I.int32] = InputType.KeyI.int32
+  # io.keyMap[ImGuiKey.J.int32] = InputType.KeyJ.int32
+  # io.keyMap[ImGuiKey.K.int32] = InputType.KeyK.int32
+  # io.keyMap[ImGuiKey.L.int32] = InputType.KeyL.int32
+  # io.keyMap[ImGuiKey.M.int32] = InputType.KeyM.int32
+  # io.keyMap[ImGuiKey.N.int32] = InputType.KeyN.int32
+  # io.keyMap[ImGuiKey.O.int32] = InputType.KeyO.int32
+  # io.keyMap[ImGuiKey.P.int32] = InputType.KeyP.int32
+  # io.keyMap[ImGuiKey.Q.int32] = InputType.KeyQ.int32
+  # io.keyMap[ImGuiKey.R.int32] = InputType.KeyR.int32
+  # io.keyMap[ImGuiKey.S.int32] = InputType.KeyS.int32
+  # io.keyMap[ImGuiKey.T.int32] = InputType.KeyT.int32
+  # io.keyMap[ImGuiKey.U.int32] = InputType.KeyU.int32
+  # io.keyMap[ImGuiKey.V.int32] = InputType.KeyV.int32
+  # io.keyMap[ImGuiKey.W.int32] = InputType.KeyW.int32
+  # io.keyMap[ImGuiKey.X.int32] = InputType.KeyX.int32
+  # io.keyMap[ImGuiKey.Y.int32] = InputType.KeyY.int32
+  # io.keyMap[ImGuiKey.Z.int32] = InputType.KeyZ.int32
 
   gMouseCursors[ImGuiMouseCursor.Arrow.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_ARROW)
   gMouseCursors[ImGuiMouseCursor.TextInput.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_IBEAM)
@@ -326,6 +404,18 @@ proc init*(app: Application) =
   gMouseCursors[ImGuiMouseCursor.ResizeNWSE.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE)
   gMouseCursors[ImGuiMouseCursor.Hand.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_HAND)
 
+proc poll(app: Application) =
+  let io = igGetIO()
+  if io.wantSetMousePos:
+    queueEvent(types.Event(kind: MousePosition, x: io.mousePos.x.cint,
+        y: io.mousePos.y.cint))
+  if io.wantCaptureKeyboard:
+    queueEvent(types.Event(kind: LockKeyboardInput))
+  else:
+    queueEvent(types.Event(kind: UnlockKeyboardInput))
+  igOpenGL3CreateDeviceObjects()
+  echo("UI newFrame")
+  igNewFrame()
 
 proc handle(app: Application, event: types.Event) =
   var io = igGetIO()
@@ -336,38 +426,50 @@ proc handle(app: Application, event: types.Event) =
   if event.kind == MouseMove:
     io.mousePos = ImVec2(x: event.x.float32, y: event.y.float32)
 
-  if not io.wantCaptureMouse:
-    return
+  if event.kind == Charecter:
+    echo("UI charecter event: " & event.charecter & "/" &
+        $event.charecter.uint32)
+    io.addInputCharacter(event.charecter.uint32)
+    event.markHandled()
 
   if event.kind == types.EventType.Input:
-    if event.input == MouseLeft:
-      io.mouseDown[0] = event.state
-      if event.state: event.markHandled()
-    if event.input == MouseRight:
-      io.mouseDown[1] = event.state
-      if event.state: event.markHandled()
-    if event.input == MouseScrollUp:
-      io.mouseWheel += 0.5
-      event.markHandled()
-    if event.input == MouseScrollDown:
-      io.mouseWheel -= 0.5
-      event.markHandled()
+
+    # Handle Key Inputs
+    if event.input in input.KeyEvents and event.state:
+      io.keysDown[event.input.ord] = event.state
+
+    if not io.wantCaptureMouse:
+      return
+
+    # Handle Mouse Inputs
+    case event.input:
+      of MouseLeft:
+        io.mouseDown[0] = event.state
+        if event.state: event.markHandled()
+      of MouseRight:
+        io.mouseDown[1] = event.state
+        if event.state: event.markHandled()
+      of MouseScrollUp:
+        io.mouseWheel += 0.5
+        event.markHandled()
+      of MouseScrollDown:
+        io.mouseWheel -= 0.5
+        event.markHandled()
+      else: discard
 
 proc update(app: Application) =
-  let io = igGetIO()
-  if io.wantSetMousePos:
-    queueEvent(types.Event(kind: MousePosition, x: io.mousePos.x.cint,
-        y: io.mousePos.y.cint))
-  igOpenGL3CreateDeviceObjects()
-  igNewFrame()
   for window in app.windows:
     window.draw()
 
 proc render(app: Application) =
+  var show = true
+  igShowDemoWindow(show.addr)
+  echo("UI Render")
   igRender()
   igOpenGL3RenderDrawData()
 
 UILayer.init = init
+UILayer.poll = poll
 UILayer.handle = handle
 UILayer.update = update
 UILayer.render = render

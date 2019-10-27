@@ -7,21 +7,24 @@ type
     world*: World
     scene*: Scene
     clock*: Clock
+    bus*: EventQueue
     window*: WindowPtr
     windows*: seq[UIWindow]
     layers*: seq[ApplicationLayer]
 
   ApplicationLayer* = ref object of RootObj
     init*: proc(app: Application)
-    update*: proc(app: Application)
+    poll*: proc(app: Application)
     handle*: proc(app: Application, event: Event)
+    update*: proc(app: Application)
     preRender*: proc(app: Application)
     render*: proc(app: Application)
     destroy*: proc(app: Application)
 
   EventType*{.pure.} = enum
 
-    # Input Type Evens
+    # Input Type Events
+    Charecter
     Input
     MouseMove
 
@@ -40,19 +43,32 @@ type
     # UI Events
     MousePosition
 
+    # System Events
+    Log
+
+    LockKeyboardInput
+    UnlockKeyboardInput
+
   Event* = ref object
     handled*: bool
     case kind*: EventType
+      of Log:
+        line*: string
       of Input:
         input*: InputType
         state*: bool
+        unicode*: uint32
+      of Charecter:
+        charecter*: char
       of MouseMove, MousePosition:
         x*, y*: int
       of Resize:
         width*, height*: int
-      else: discard2
+      else: discard
 
-  EventQueue* = Deque[Event]
+  EventQueue* = ref object
+    queue*: Deque[Event]
+    handlers*: Table[EventType, seq[proc(e: Event)]]
 
   Component* = ref object of RootObj
     id*: int
@@ -94,23 +110,49 @@ type
   InputState* = bool
 
   InputType*{.pure.} = enum
-
-    # Key Controls
-    Up
-    Down
-    Left
-    Right
-    Jump
-    Pause
-    ZoomIn
-    ZoomOut
-    Quit
-
+    Key1
+    Key2
+    Key3
+    Key4
+    Key5
+    Key6
+    Key7
+    Key8
+    Key9
+    KeyA
+    KeyB
+    KeyC
+    KeyD
+    KeyE
+    KeyF
+    KeyG
+    KeyH
+    KeyI
+    KeyJ
+    KeyK
+    KeyL
+    KeyM
+    KeyN
+    KeyO
+    KeyP
+    KeyQ
+    KeyR
+    KeyS
+    KeyT
+    KeyU
+    KeyV
+    KeyW
+    KeyX
+    KeyY
+    KeyZ
+    KeySpace
+    KeyEscape
+    KeySlash
     MouseLeft
     MouseRight
     MouseScrollUp
     MouseScrollDown
-
+    Char
     None
 
   VertexBuffer* = ref object
@@ -149,10 +191,26 @@ type
     open*: bool
     elements*: seq[UIElement]
 
-  UIELement* = ref object
-    case kind*: UIElementType
-    of UIButton
-
   UIElementType* = enum
     UIButton
     UIText
+    UISlider
+    UIInput
+    UIRow
+    UIConsole
+
+  UIELement* = ref object
+    case kind*: UIElementType
+    of UIText:
+      text*: string
+    of UIButton:
+      label*: string
+      handler*: proc()
+    of UIInput:
+      buffer*: string
+    of UIRow:
+      children*: seq[UIELement]
+    of UIConsole:
+      history*: int
+      lines*: Deque[string]
+    else: discard

@@ -2,7 +2,6 @@ import tables, typetraits, sugar, sets, sequtils
 
 import types
 
-
 # Id counters
 var entityCount: int = 0
 var componentCount: int = 0

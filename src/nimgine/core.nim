@@ -13,6 +13,7 @@ proc newApplication*(): Application = Application(
   world: newWorld(),
   scene: newScene(),
   clock: newClock(),
+  bus: newEventQueue(),
   layers: @[
     PlatformLayer,
     DebugLayer,
@@ -45,13 +46,21 @@ proc handle(app: Application, event: Event) =
 proc loop(app: Application) =
   while app.running:
 
-    # Update
-    update(app.clock)
+
+    # Poll Events
+    for i in countdown(app.layers.len - 1, 0):
+      let layer = app.layers[i]
+      if layer.poll != nil:
+        layer.poll(app)
 
     # Handle Events
     for event in pollEvent():
       app.handle(event)
 
+    # Update
+    update(app.clock)
+
+    # Update layer state
     for layer in app.layers:
       if layer.update != nil:
         layer.update(app)
@@ -78,3 +87,6 @@ proc start*(app: Application) =
   app.init()
   app.loop()
   app.destroy()
+
+# proc on*(app: Application, eventType: EventType, handler: proc(e: Event)) =
+#   app.bus.on(eventType, handler)

@@ -6,13 +6,16 @@ proc `$`*(e: Event): string =
   result = "<Event kind=" & $e.kind & ">"
 
 proc newEventQueue*(): EventQueue =
-  result = initDeque[Event]()
+  result = EventQueue(queue: initDeque[Event]())
 
 var queue = newEventQueue()
 
+proc emit*(q: var EventQueue, e: Event) =
+  q.queue.addLast(e)
+
 iterator pollEvent*(): Event =
-  while queue.len > 0:
-    yield queue.popFirst()
+  while queue.queue.len > 0:
+    yield queue.queue.popFirst()
 
 proc newEvent*(kind: EventType): Event =
   result = Event(kind: kind)
@@ -20,8 +23,11 @@ proc newEvent*(kind: EventType): Event =
 proc newInputEvent*(input: InputType, state: bool): Event =
   result = Event(kind: Input, input: input, state: state)
 
+proc newInputEvent*(input: InputType, state: bool, unicode: uint32): Event =
+  result = Event(kind: Input, input: input, state: state, unicode: unicode)
+
 proc newInputEvent*(input: InputType): Event =
-  result = newInputEvent(input, true)
+  result = Event(kind: Input, input: input)
 
 proc newMouseMoveEvent*(x, y: int): Event =
   result = Event(kind: MouseMove, x: x, y: y)
@@ -29,8 +35,11 @@ proc newMouseMoveEvent*(x, y: int): Event =
 proc newResizeEvent*(width, height: int): Event =
   result = Event(kind: Resize, width: width, height: height)
 
+proc newCharEvent*(charecter: char): Event =
+  result = Event(kind: EventType.Charecter, charecter: charecter)
+
 proc queueEvent*(evt: Event) =
-  queue.addLast(evt)
+  queue.emit(evt)
 
 proc queueEvent*(kind: EventType) =
   queueEvent(newEvent(kind))
@@ -39,4 +48,5 @@ proc on*(kind: EventType, callback: proc(): void) =
   callback()
 
 proc markHandled*(event: Event) =
+  echo("HANDLED " & $event.kind)
   event.handled = true
