@@ -313,8 +313,11 @@ proc draw(element: UIElement) =
       if igButton(element.label) and element.handler != nil:
         element.handler()
     of UIInput:
-      igInputText("input".cstring, element.buffer.cstring, (element.buffer.len *
-          sizeof(char) + 1).uint)
+      if igInputText("input".cstring, element.buffer.cstring, (
+          element.buffer.len * sizeof(char) + 1).uint,
+              ImGuiInputTextFlags.EnterReturnsTrue):
+        # element.handleEnter()
+        echo("Input entered")
     of UIRow:
       for child in element.children:
         draw(child)
@@ -352,22 +355,22 @@ proc init*(app: Application) =
   io.backendFlags = (io.backendFlags.int32 or
       ImGuiBackendFlags.HasSetMousePos.int32).ImGuiBackendFlags
 
-  io.keyMap[ImGuiKey.Tab.int32] = SDL_SCANCODE_TAB.int32;
-  io.keyMap[ImGuiKey.LeftArrow.int32] = SDL_SCANCODE_LEFT.int32;
-  io.keyMap[ImGuiKey.RightArrow.int32] = SDL_SCANCODE_RIGHT.int32;
-  io.keyMap[ImGuiKey.UpArrow.int32] = SDL_SCANCODE_UP.int32;
-  io.keyMap[ImGuiKey.DownArrow.int32] = SDL_SCANCODE_DOWN.int32;
-  io.keyMap[ImGuiKey.PageUp.int32] = SDL_SCANCODE_PAGEUP.int32;
-  io.keyMap[ImGuiKey.PageDown.int32] = SDL_SCANCODE_PAGEDOWN.int32;
-  io.keyMap[ImGuiKey.Home.int32] = SDL_SCANCODE_HOME.int32;
-  io.keyMap[ImGuiKey.End.int32] = SDL_SCANCODE_END.int32;
-  io.keyMap[ImGuiKey.Insert.int32] = SDL_SCANCODE_INSERT.int32;
-  io.keyMap[ImGuiKey.Delete.int32] = SDL_SCANCODE_DELETE.int32;
-  io.keyMap[ImGuiKey.Backspace.int32] = SDL_SCANCODE_BACKSPACE.int32;
-  io.keyMap[ImGuiKey.Space.int32] = SDL_SCANCODE_SPACE.int32;
-  io.keyMap[ImGuiKey.Enter.int32] = SDL_SCANCODE_RETURN.int32;
-  io.keyMap[ImGuiKey.Escape.int32] = SDL_SCANCODE_ESCAPE.int32;
-  io.keyMap[ImGuiKey.KeyPadEnter.int32] = SDL_SCANCODE_RETURN2.int32;
+  io.keyMap[ImGuiKey.Tab.ord] = InputType.KeyTab.ord;
+  io.keyMap[ImGuiKey.LeftArrow.int32] = InputType.KeyArrowLeft.ord;
+  io.keyMap[ImGuiKey.RightArrow.int32] = InputType.KeyArrowRight.ord;
+  io.keyMap[ImGuiKey.UpArrow.int32] = InputType.KeyArrowUp.ord;
+  io.keyMap[ImGuiKey.DownArrow.int32] = InputType.KeyArrowDown.ord;
+  io.keyMap[ImGuiKey.PageUp.int32] = InputType.KeyPageUp.ord;
+  io.keyMap[ImGuiKey.PageDown.int32] = InputType.KeyPageDown.ord;
+  io.keyMap[ImGuiKey.Home.int32] = InputType.KeyHome.ord;
+  io.keyMap[ImGuiKey.End.int32] = InputType.KeyEnd.ord;
+  io.keyMap[ImGuiKey.Insert.int32] = InputType.KeyInsert.ord;
+  io.keyMap[ImGuiKey.Delete.int32] = InputType.KeyDelete.ord;
+  io.keyMap[ImGuiKey.Backspace.ord] = InputType.KeyBackspace.ord;
+  io.keyMap[ImGuiKey.Space.int32] = InputType.KeySpace.ord;
+  io.keyMap[ImGuiKey.Enter.int32] = InputType.KeyEnter.ord;
+  io.keyMap[ImGuiKey.Escape.int32] = InputType.KeyEscape.ord;
+  io.keyMap[ImGuiKey.KeyPadEnter.int32] = InputType.KeyKPEnter.ord;
 
   gMouseCursors[ImGuiMouseCursor.Arrow.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_ARROW)
   gMouseCursors[ImGuiMouseCursor.TextInput.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_IBEAM)
@@ -414,7 +417,7 @@ proc handle(app: Application, event: types.Event) =
   if event.kind == types.EventType.Input:
 
     # Handle Key Inputs
-    if event.input in input.KeyEvents and event.state:
+    if event.input in input.KeyEvents:
       io.keysDown[event.input.ord] = event.state
 
     if not io.wantCaptureMouse:

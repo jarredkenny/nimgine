@@ -73,7 +73,4 @@ inputSystem.update = proc(world: World, system: System, dt: float) =
             of KeyS: queueEvent(MoveDown)
             of KeyA: queueEvent(MoveLeft)
             of KeyD: queueEvent(MoveRight)
-            of KeyEscape: queueEvent(EventType.Quit)
             else: discard
-
-

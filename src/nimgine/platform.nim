@@ -12,34 +12,47 @@ var keyboardCharInput = false
 
 proc toInput(key: Scancode): InputType =
   case key
-  of SDL_SCANCODE_A: InputType.KeyA
-  of SDL_SCANCODE_B: InputType.KeyB
-  of SDL_SCANCODE_C: InputType.KeyC
-  of SDL_SCANCODE_D: InputType.KeyD
-  of SDL_SCANCODE_E: InputType.KeyE
-  of SDL_SCANCODE_F: InputType.KeyF
-  of SDL_SCANCODE_G: InputType.KeyG
-  of SDL_SCANCODE_H: InputType.KeyH
-  of SDL_SCANCODE_I: InputType.KeyI
-  of SDL_SCANCODE_J: InputType.KeyJ
-  of SDL_SCANCODE_K: InputType.KeyK
-  of SDL_SCANCODE_L: InputType.KeyL
-  of SDL_SCANCODE_M: InputType.KeyM
-  of SDL_SCANCODE_N: InputType.KeyN
-  of SDL_SCANCODE_O: InputType.KeyO
-  of SDL_SCANCODE_P: InputType.KeyP
-  of SDL_SCANCODE_Q: InputType.KeyQ
-  of SDL_SCANCODE_R: InputType.KeyR
-  of SDL_SCANCODE_S: InputType.KeyS
-  of SDL_SCANCODE_T: InputType.KeyT
-  of SDL_SCANCODE_U: InputType.KeyU
-  of SDL_SCANCODE_V: InputType.KeyV
-  of SDL_SCANCODE_W: InputType.KeyW
-  of SDL_SCANCODE_X: InputType.KeyX
-  of SDL_SCANCODE_Y: InputType.KeyY
-  of SDL_SCANCODE_Z: InputType.KeyZ
-  of SDL_SCANCODE_SPACE: InputType.KeySpace
-  of SDL_SCANCODE_ESCAPE: InputType.KeyEscape
+  of SDL_SCANCODE_A: KeyA
+  of SDL_SCANCODE_B: KeyB
+  of SDL_SCANCODE_C: KeyC
+  of SDL_SCANCODE_D: KeyD
+  of SDL_SCANCODE_E: KeyE
+  of SDL_SCANCODE_F: KeyF
+  of SDL_SCANCODE_G: KeyG
+  of SDL_SCANCODE_H: KeyH
+  of SDL_SCANCODE_I: KeyI
+  of SDL_SCANCODE_J: KeyJ
+  of SDL_SCANCODE_K: KeyK
+  of SDL_SCANCODE_L: KeyL
+  of SDL_SCANCODE_M: KeyM
+  of SDL_SCANCODE_N: KeyN
+  of SDL_SCANCODE_O: KeyO
+  of SDL_SCANCODE_P: KeyP
+  of SDL_SCANCODE_Q: KeyQ
+  of SDL_SCANCODE_R: KeyR
+  of SDL_SCANCODE_S: KeyS
+  of SDL_SCANCODE_T: KeyT
+  of SDL_SCANCODE_U: KeyU
+  of SDL_SCANCODE_V: KeyV
+  of SDL_SCANCODE_W: KeyW
+  of SDL_SCANCODE_X: KeyX
+  of SDL_SCANCODE_Y: KeyY
+  of SDL_SCANCODE_Z: KeyZ
+  of SDL_SCANCODE_SPACE: KeySpace
+  of SDL_SCANCODE_ESCAPE: KeyEscape
+  of SDL_SCANCODE_BACKSPACE: KeyBackspace
+  of SDL_SCANCODE_KP_ENTER: KeyKPEnter
+  of SDL_SCANCODE_RETURN: KeyEnter
+  of SDL_SCANCODE_LEFT: KeyArrowLeft
+  of SDL_SCANCODE_RIGHT: KeyArrowRight
+  of SDL_SCANCODE_UP: KeyArrowUp
+  of SDL_SCANCODE_DOWN: KeyArrowDown
+  of SDL_SCANCODE_DELETE: KeyDelete
+  of SDL_SCANCODE_INSERT: KeyInsert
+  of SDL_SCANCODE_END: KeyEnd
+  of SDL_SCANCODE_HOME: KeyHome
+  of SDL_SCANCODE_PAGEUP: KeyPageUp
+  of SDL_SCANCODE_PAGEDOWN: KeyPageDown
   else: InputType.None
 
 proc init*(app: Application) =
@@ -84,18 +97,15 @@ proc poll(app: Application) =
     if event.kind == sdl2.EventType.QuitEvent:
       queueEvent(types.EventType.Quit)
 
-    if not keyboardCharInput:
+    if event.kind == sdl2.EventType.KeyDown:
+      queueEvent(newInputEvent(event.key.keysym.scancode.toInput, true))
 
-      if event.kind == sdl2.EventType.KeyDown:
-        queueEvent(newInputEvent(event.key.keysym.scancode.toInput, true))
+    if event.kind == sdl2.EventType.KeyUp:
+      queueEvent(newInputEvent(event.key.keysym.scancode.toInput, false))
 
-      if event.kind == sdl2.EventType.KeyUp:
-        queueEvent(newInputEvent(event.key.keysym.scancode.toInput, false))
-
-    else:
-      if event.kind == sdl2.EventType.TextInput:
-        var a = cast[TextInputEventPtr](event.text)
-        queueEvent(newCharEvent(a.text[0]))
+    if event.kind == sdl2.EventType.TextInput:
+      var a = cast[TextInputEventPtr](event.text)
+      queueEvent(newCharEvent(a.text[0]))
 
     if event.kind == sdl2.EventType.MouseMotion:
       queueEvent(newMouseMoveEvent(event.motion.x, event.motion.y))

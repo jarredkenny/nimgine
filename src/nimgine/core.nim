@@ -86,6 +86,3 @@ proc start*(app: Application) =
   app.init()
   app.loop()
   app.destroy()
-
-# proc on*(app: Application, eventType: EventType, handler: proc(e: Event)) =
-#   app.bus.on(eventType, handler)

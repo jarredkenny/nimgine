@@ -110,6 +110,7 @@ type
   InputState* = bool
 
   InputType*{.pure.} = enum
+
     Key1
     Key2
     Key3
@@ -119,6 +120,7 @@ type
     Key7
     Key8
     Key9
+
     KeyA
     KeyB
     KeyC
@@ -145,14 +147,33 @@ type
     KeyX
     KeyY
     KeyZ
+
+    KeyTab
+    KeyEnter
+    KeyKPEnter
+    KeyDelete
+    KeyInsert
+    KeyEnd
+    KeyHome
+    KeyPageUp
+    KeyPageDown
     KeySpace
     KeyEscape
     KeySlash
+    KeyBackspace
+
+    KeyArrowUp
+    KeyArrowDown
+    KeyArrowLeft
+    KeyArrowRight
+
     MouseLeft
     MouseRight
     MouseScrollUp
     MouseScrollDown
+
     Char
+
     None
 
   VertexBuffer* = ref object
@@ -208,6 +229,7 @@ type
       handler*: proc()
     of UIInput:
       buffer*: string
+      handleEnter*: proc()
     of UIRow:
       children*: seq[UIELement]
     of UIConsole:
