@@ -48,5 +48,4 @@ proc on*(kind: EventType, callback: proc(): void) =
   callback()
 
 proc markHandled*(event: Event) =
-  echo("HANDLED " & $event.kind)
   event.handled = true

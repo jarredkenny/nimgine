@@ -1,4 +1,4 @@
-import deques, unicode
+import deques
 import sdl2, opengl, imgui
 import types, events, input
 
@@ -17,6 +17,7 @@ var
   gAttribLocationColor: int32
   gVboHandle: uint32
   gElementsHandle: uint32
+  gKeyboardCharInputLock: bool
 
 proc igOpenGL3CheckProgram(handle: uint32, desc: string) =
   var status: int32
@@ -199,7 +200,7 @@ proc igOpenGL3RenderDrawData*() =
     [2.0f/(R-L), 0.0f, 0.0f, 0.0f],
     [0.0f, 2.0f/(T-B), 0.0f, 0.0f],
     [0.0f, 0.0f, -1.0f, 0.0f],
-    [ (R+L)/(L-R), (T+B)/(B-T), 0.0f, 1.0f],
+    [(R+L)/(L-R), (T+B)/(B-T), 0.0f, 1.0f],
   ]
   glUseProgram(gShaderHandle)
   glUniform1i(gAttribLocationTex, 0)
@@ -284,7 +285,9 @@ proc newUIButton*(label: string): UIELement =
   result = UIElement(kind: UIButton, label: label)
 
 proc newUIInput*(): UIElement =
-  result = UIElement(kind: UIInput)
+  let element = UIElement(kind: UIInput, buffer: "")
+  element.buffer.setLen(100)
+  result = element
 
 proc newUIRow*(children: seq[UIElement]): UIElement =
   result = UIElement(kind: UIRow, children: children)
@@ -311,7 +314,7 @@ proc draw(element: UIElement) =
         element.handler()
     of UIInput:
       igInputText("input".cstring, element.buffer.cstring, (element.buffer.len *
-          sizeof(char)).uint + 1)
+          sizeof(char) + 1).uint)
     of UIRow:
       for child in element.children:
         draw(child)
@@ -335,7 +338,6 @@ proc draw(window: UIWindow) =
   window.elements = @[]
 
 proc init*(app: Application) =
-
   var (width, height) = sdl2.getSize(app.window)
 
   igCreateContext()
@@ -367,34 +369,6 @@ proc init*(app: Application) =
   io.keyMap[ImGuiKey.Escape.int32] = SDL_SCANCODE_ESCAPE.int32;
   io.keyMap[ImGuiKey.KeyPadEnter.int32] = SDL_SCANCODE_RETURN2.int32;
 
-
-  # io.keyMap[ImGuiKey.A.int32] = InputType.KeyA.int32
-  # io.keyMap[ImGuiKey.B.int32] = InputType.KeyB.int32
-  # io.keyMap[ImGuiKey.C.int32] = InputType.KeyC.int32
-  # io.keyMap[ImGuiKey.D.int32] = InputType.KeyD.int32
-  # io.keyMap[ImGuiKey.E.int32] = InputType.KeyE.int32
-  # io.keyMap[ImGuiKey.F.int32] = InputType.KeyF.int32
-  # io.keyMap[ImGuiKey.G.int32] = InputType.KeyG.int32
-  # io.keyMap[ImGuiKey.H.int32] = InputType.KeyH.int32
-  # io.keyMap[ImGuiKey.I.int32] = InputType.KeyI.int32
-  # io.keyMap[ImGuiKey.J.int32] = InputType.KeyJ.int32
-  # io.keyMap[ImGuiKey.K.int32] = InputType.KeyK.int32
-  # io.keyMap[ImGuiKey.L.int32] = InputType.KeyL.int32
-  # io.keyMap[ImGuiKey.M.int32] = InputType.KeyM.int32
-  # io.keyMap[ImGuiKey.N.int32] = InputType.KeyN.int32
-  # io.keyMap[ImGuiKey.O.int32] = InputType.KeyO.int32
-  # io.keyMap[ImGuiKey.P.int32] = InputType.KeyP.int32
-  # io.keyMap[ImGuiKey.Q.int32] = InputType.KeyQ.int32
-  # io.keyMap[ImGuiKey.R.int32] = InputType.KeyR.int32
-  # io.keyMap[ImGuiKey.S.int32] = InputType.KeyS.int32
-  # io.keyMap[ImGuiKey.T.int32] = InputType.KeyT.int32
-  # io.keyMap[ImGuiKey.U.int32] = InputType.KeyU.int32
-  # io.keyMap[ImGuiKey.V.int32] = InputType.KeyV.int32
-  # io.keyMap[ImGuiKey.W.int32] = InputType.KeyW.int32
-  # io.keyMap[ImGuiKey.X.int32] = InputType.KeyX.int32
-  # io.keyMap[ImGuiKey.Y.int32] = InputType.KeyY.int32
-  # io.keyMap[ImGuiKey.Z.int32] = InputType.KeyZ.int32
-
   gMouseCursors[ImGuiMouseCursor.Arrow.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_ARROW)
   gMouseCursors[ImGuiMouseCursor.TextInput.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_IBEAM)
   gMouseCursors[ImGuiMouseCursor.ResizeAll.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL)
@@ -405,19 +379,26 @@ proc init*(app: Application) =
   gMouseCursors[ImGuiMouseCursor.Hand.int32] = createSystemCursor(SDL_SYSTEM_CURSOR_HAND)
 
 proc poll(app: Application) =
+
   let io = igGetIO()
+
+  # Generate MousePosition event if imgui wants to set a mouse position
   if io.wantSetMousePos:
     queueEvent(types.Event(kind: MousePosition, x: io.mousePos.x.cint,
         y: io.mousePos.y.cint))
-  if io.wantCaptureKeyboard:
+
+  # Generate LockKeyboardInput and UnlockKeyboardInput events
+  # when io.wantCapturekeyboard changes
+  if io.wantCaptureKeyboard and not gKeyboardCharInputLock:
     queueEvent(types.Event(kind: LockKeyboardInput))
-  else:
+    gKeyboardCharInputLock = true
+
+  elif not io.wantCaptureKeyboard and gKeyboardCharInputLock:
     queueEvent(types.Event(kind: UnlockKeyboardInput))
-  igOpenGL3CreateDeviceObjects()
-  echo("UI newFrame")
-  igNewFrame()
+    gKeyboardCharInputLock = false
 
 proc handle(app: Application, event: types.Event) =
+
   var io = igGetIO()
 
   if event.kind == Resize:
@@ -427,8 +408,6 @@ proc handle(app: Application, event: types.Event) =
     io.mousePos = ImVec2(x: event.x.float32, y: event.y.float32)
 
   if event.kind == Charecter:
-    echo("UI charecter event: " & event.charecter & "/" &
-        $event.charecter.uint32)
     io.addInputCharacter(event.charecter.uint32)
     event.markHandled()
 
@@ -457,19 +436,17 @@ proc handle(app: Application, event: types.Event) =
         event.markHandled()
       else: discard
 
-proc update(app: Application) =
-  for window in app.windows:
-    window.draw()
-
 proc render(app: Application) =
   var show = true
+  igOpenGL3CreateDeviceObjects()
+  igNewFrame()
   igShowDemoWindow(show.addr)
-  echo("UI Render")
+  for window in app.windows:
+    window.draw()
   igRender()
   igOpenGL3RenderDrawData()
 
 UILayer.init = init
 UILayer.poll = poll
 UILayer.handle = handle
-UILayer.update = update
 UILayer.render = render

@@ -46,7 +46,6 @@ proc handle(app: Application, event: Event) =
 proc loop(app: Application) =
   while app.running:
 
-
     # Poll Events
     for i in countdown(app.layers.len - 1, 0):
       let layer = app.layers[i]

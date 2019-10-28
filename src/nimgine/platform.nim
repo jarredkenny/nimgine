@@ -75,21 +75,8 @@ proc init*(app: Application) =
 proc reshape(newWidth: cint, newHeight: cint) =
   glViewport(0, 0, newWidth, newHeight)
 
-proc handle(app: Application, event: types.Event) =
-  case event.kind:
-    of types.EventType.MousePosition:
-      warpMouseInWindow(app.window, event.x.cint, event.y.cint)
-    of types.EventType.LockKeyboardInput:
-      keyboardCharInput = true
-      echo("PLATFORM keyboard CHAR MODE")
-      startTextInput()
-    of types.EventType.UnlockKeyboardInput:
-      echo("PLATFORM keyboard INPUT MODE")
-      keyboardCharInput = false
-      stopTextInput()
-    else: discard
-
 proc poll(app: Application) =
+
   # Handle SDL event
   while pollEvent(event):
 
@@ -100,7 +87,6 @@ proc poll(app: Application) =
     if not keyboardCharInput:
 
       if event.kind == sdl2.EventType.KeyDown:
-        echo("Platform INPUT (KEYDOWN)")
         queueEvent(newInputEvent(event.key.keysym.scancode.toInput, true))
 
       if event.kind == sdl2.EventType.KeyUp:
@@ -109,7 +95,6 @@ proc poll(app: Application) =
     else:
       if event.kind == sdl2.EventType.TextInput:
         var a = cast[TextInputEventPtr](event.text)
-        echo("Platform CHARECTER")
         queueEvent(newCharEvent(a.text[0]))
 
     if event.kind == sdl2.EventType.MouseMotion:
@@ -143,6 +128,18 @@ proc poll(app: Application) =
         reshape(width, height)
         queueEvent(newResizeEvent(width, height))
 
+proc handle(app: Application, event: types.Event) =
+  case event.kind:
+    of types.EventType.MousePosition:
+      warpMouseInWindow(app.window, event.x.cint, event.y.cint)
+    of types.EventType.LockKeyboardInput:
+      keyboardCharInput = true
+      startTextInput()
+    of types.EventType.UnlockKeyboardInput:
+      keyboardCharInput = false
+      stopTextInput()
+    else: discard
+
 proc preRender*(app: Application) =
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
@@ -155,7 +152,7 @@ proc render*(app: Application) =
 var PlatformLayer* = ApplicationLayer()
 
 PlatformLayer.init = init
-PlatformLayer.handle = handle
 PlatformLayer.poll = poll
+PlatformLayer.handle = handle
 PlatformLayer.preRender = preRender
 PlatformLayer.render = render
