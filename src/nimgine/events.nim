@@ -44,8 +44,5 @@ proc queueEvent*(evt: Event) =
 proc queueEvent*(kind: EventType) =
   queueEvent(newEvent(kind))
 
-proc on*(kind: EventType, callback: proc(): void) =
-  callback()
-
 proc markHandled*(event: Event) =
   event.handled = true

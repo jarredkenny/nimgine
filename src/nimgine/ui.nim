@@ -278,6 +278,12 @@ proc igOpenGL3RenderDrawData*() =
 proc push*(window: UIWindow, element: UIELement) =
   window.elements.add(element)
 
+proc newUIWindow*(name: string, open: bool = true): UIWindow =
+  result = UIWindow()
+
+proc add*(window: UIWindow, element: UIElement) =
+  window.elements.add(element)
+
 proc newUIText*(value: string): UIElement =
   result = UIElement(kind: UIText, text: value)
 
