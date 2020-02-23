@@ -95,36 +95,36 @@ proc poll(app: Application) =
 
     # Handle Quit Event
     if event.kind == sdl2.EventType.QuitEvent:
-      queueEvent(types.EventType.Quit)
+      app.bus.queueEvent(types.EventType.Quit)
 
     if event.kind == sdl2.EventType.KeyDown:
-      queueEvent(newInputEvent(event.key.keysym.scancode.toInput, true))
+      app.bus.queueEvent(newInputEvent(event.key.keysym.scancode.toInput, true))
 
     if event.kind == sdl2.EventType.KeyUp:
-      queueEvent(newInputEvent(event.key.keysym.scancode.toInput, false))
+      app.bus.queueEvent(newInputEvent(event.key.keysym.scancode.toInput, false))
 
     if event.kind == sdl2.EventType.TextInput:
       var a = cast[TextInputEventPtr](event.text)
-      queueEvent(newCharEvent(a.text[0]))
+      app.bus.queueEvent(newCharEvent(a.text[0]))
 
     if event.kind == sdl2.EventType.MouseMotion:
-      queueEvent(newMouseMoveEvent(event.motion.x, event.motion.y))
+      app.bus.queueEvent(newMouseMoveEvent(event.motion.x, event.motion.y))
 
     # Mouse Buttons
     if event.kind == MouseButtonDown or event.kind == MouseButtonUp:
       var mouseButtonEvent = cast[MouseButtonEventPtr](event.addr)
       var state = cast[bool](mouseButtonEvent.state)
       case mouseButtonEvent.button:
-        of 1: queueEvent(newInputEvent(MouseLeft, state))
-        of 3: queueEvent(newInputEvent(MouseRight, state))
+        of 1: app.bus.queueEvent(newInputEvent(MouseLeft, state))
+        of 3: app.bus.queueEvent(newInputEvent(MouseRight, state))
         else: discard
 
     # Mouse Wheel Scrolling
     if event.kind == MouseWheel:
       var mouseWheelEvent = cast[MouseWheelEventPtr](event.addr)
       case mouseWheelEvent.y:
-        of -1: queueEvent(newInputEvent(MouseScrollDown))
-        of 1: queueEvent(newInputEvent(MouseScrollUp))
+        of -1: app.bus.queueEvent(newInputEvent(MouseScrollDown))
+        of 1: app.bus.queueEvent(newInputEvent(MouseScrollUp))
         else: discard
 
     # Handle Window Events
@@ -136,7 +136,7 @@ proc poll(app: Application) =
         let width = windowEvent.data1
         let height = windowEvent.data2
         reshape(width, height)
-        queueEvent(newResizeEvent(width, height))
+        app.bus.queueEvent(newResizeEvent(width, height))
 
 proc handle(app: Application, event: types.Event) =
   case event.kind:

@@ -10,8 +10,8 @@ controllerSystem.subscribe(@[
 controllerSystem.matchComponent(Controllable)
 controllerSystem.matchComponent(Position)
 
-controllerSystem.handle = proc(world: World, system: System, event: Event) =
-    for entity in world.entitiesForSystem(controllerSystem):
+controllerSystem.handle = proc(app: Application, system: System, event: Event) =
+    for entity in app.world.entitiesForSystem(controllerSystem):
         var position = entity.get(Position)
         case event.kind:
             of EventType.MoveUp:

@@ -8,12 +8,10 @@ proc `$`*(e: Event): string =
 proc newEventQueue*(): EventQueue =
   result = EventQueue(queue: initDeque[Event]())
 
-var queue = newEventQueue()
-
 proc emit*(q: var EventQueue, e: Event) =
   q.queue.addLast(e)
 
-iterator pollEvent*(): Event =
+iterator pollEvent*(queue: EventQueue): Event =
   while queue.queue.len > 0:
     yield queue.queue.popFirst()
 
@@ -38,11 +36,11 @@ proc newResizeEvent*(width, height: int): Event =
 proc newCharEvent*(charecter: char): Event =
   result = Event(kind: EventType.Charecter, charecter: charecter)
 
-proc queueEvent*(evt: Event) =
+proc queueEvent*(queue: var EventQueue, evt: Event) =
   queue.emit(evt)
 
-proc queueEvent*(kind: EventType) =
-  queueEvent(newEvent(kind))
+proc queueEvent*(queue: var EventQueue, kind: EventType) =
+  queue.queueEvent(newEvent(kind))
 
 proc markHandled*(event: Event) =
   event.handled = true

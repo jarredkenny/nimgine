@@ -20,7 +20,7 @@ inputSystem.subscribe(@[Input, MouseMove])
 # Update active map events so that events which are fired for every frame
 # an update in active can fire on subsequent update events.
 # For events which spawn for every input event received, spawn them
-inputSystem.handle = proc(world: World, system: System, event: Event) =
+inputSystem.handle = proc(app: Application, system: System, event: Event) =
 
     if event.kind == MouseMove:
 
@@ -29,14 +29,14 @@ inputSystem.handle = proc(world: World, system: System, event: Event) =
             let diffX = event.x - lastMousePosX
             let diffY = event.y - lastMousePosY
             if diffX > 0:
-                queueEvent(newEvent(MoveLeft))
+                app.bus.queueEvent(newEvent(MoveLeft))
             elif diffX < 0:
-                queueEvent(newEvent(MoveRight))
+                app.bus.queueEvent(newEvent(MoveRight))
 
             if diffY > 0:
-                queueEvent(newEvent(MoveUp))
+                app.bus.queueEvent(newEvent(MoveUp))
             elif diffY < 0:
-                queueEvent(newEvent(MoveDown))
+                app.bus.queueEvent(newEvent(MoveDown))
 
         # Update stored mouve position
         if event.kind == MouseMove:
@@ -59,18 +59,18 @@ inputSystem.handle = proc(world: World, system: System, event: Event) =
 
         # Handle Mouse Wheel Zooming
         case event.input:
-            of InputType.MouseScrollUp: queueEvent(EventType.ZoomIn)
-            of InputType.MouseScrollDown: queueEvent(EventType.ZoomOut)
+            of InputType.MouseScrollUp: app.bus.queueEvent(EventType.ZoomIn)
+            of InputType.MouseScrollDown: app.bus.queueEvent(EventType.ZoomOut)
             else: discard
 
-inputSystem.update = proc(world: World, system: System, dt: float) =
+inputSystem.update = proc(app: Application, system: System, dt: float) =
 
     # Input events based on active key map
     # These are events that fire for every frame a key is held down
     for input in activeKeyMap:
         case input:
-            of KeyW: queueEvent(MoveUp)
-            of KeyS: queueEvent(MoveDown)
-            of KeyA: queueEvent(MoveLeft)
-            of KeyD: queueEvent(MoveRight)
+            of KeyW: app.bus.queueEvent(MoveUp)
+            of KeyS: app.bus.queueEvent(MoveDown)
+            of KeyA: app.bus.queueEvent(MoveLeft)
+            of KeyD: app.bus.queueEvent(MoveRight)
             else: discard

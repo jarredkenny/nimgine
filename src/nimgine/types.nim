@@ -82,8 +82,8 @@ type
     events*: set[EventType]
     components*: HashSet[string]
     init*: proc(world: World, system: System)
-    handle*: proc(world: World, system: System, event: Event)
-    update*: proc(world: World, system: System, dt: float)
+    handle*: proc(app: Application, system: System, event: Event)
+    update*: proc(app: Application, system: System, dt: float)
     preRender*: proc(scene: Scene, world: World)
     render*: proc(scene: Scene, world: World)
 

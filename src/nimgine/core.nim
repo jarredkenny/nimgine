@@ -52,7 +52,7 @@ proc loop(app: Application) =
         layer.poll(app)
 
     # Handle Events
-    for event in pollEvent():
+    for event in app.bus.pollEvent():
       app.handle(event)
 
     # Update

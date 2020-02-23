@@ -393,17 +393,17 @@ proc poll(app: Application) =
 
   # Generate MousePosition event if imgui wants to set a mouse position
   if io.wantSetMousePos:
-    queueEvent(types.Event(kind: MousePosition, x: io.mousePos.x.cint,
+    app.bus.queueEvent(types.Event(kind: MousePosition, x: io.mousePos.x.cint,
         y: io.mousePos.y.cint))
 
   # Generate LockKeyboardInput and UnlockKeyboardInput events
   # when io.wantCapturekeyboard changes
   if io.wantCaptureKeyboard and not gKeyboardCharInputLock:
-    queueEvent(types.Event(kind: LockKeyboardInput))
+    app.bus.queueEvent(types.Event(kind: LockKeyboardInput))
     gKeyboardCharInputLock = true
 
   elif not io.wantCaptureKeyboard and gKeyboardCharInputLock:
-    queueEvent(types.Event(kind: UnlockKeyboardInput))
+    app.bus.queueEvent(types.Event(kind: UnlockKeyboardInput))
     gKeyboardCharInputLock = false
 
 proc handle(app: Application, event: types.Event) =

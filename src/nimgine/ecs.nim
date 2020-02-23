@@ -105,12 +105,12 @@ iterator entitiesForSystem*(world: World, system: System): Entity =
 proc update*(app: Application) =
   for system in app.world.systems:
     if system.update != nil:
-      system.update(app.world, system, app.clock.dt)
+      system.update(app, system, app.clock.dt)
 
 proc handle*(app: Application, event: Event) =
   for system in app.world.systems:
     if system.handle != nil and event.kind in system.events:
-      system.handle(app.world, system, event)
+      system.handle(app, system, event)
 
 proc preRender*(app: Application) =
   for system in app.world.systems:
