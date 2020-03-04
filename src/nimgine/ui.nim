@@ -18,6 +18,8 @@ var
   gVboHandle: uint32
   gElementsHandle: uint32
   gKeyboardCharInputLock: bool
+  gWindowWidth: int32
+  gWindowHeight: int32
 
 proc igOpenGL3CheckProgram(handle: uint32, desc: string) =
   var status: int32

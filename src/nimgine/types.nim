@@ -195,13 +195,24 @@ type
 
   Mesh* = ref object
     vao*: uint
+    model*: Mat4[GLfloat]
     buffers*: seq[VertexBuffer]
     elements*: IndexBuffer
     shader*: Shader
 
   Camera* = ref object
+    yaw: float
+    pitch: float
+    speed: float
+    sensitivity: float
+    zoom: float
+
+    # position: Vec3
+    # normal: Vec3 # 0 1 0
+
     projection*: Mat4[GLfloat]
     view*: Mat4[GLfloat]
+    model*: Mat4[GLfloat]
 
   Scene* = ref object
     camera*: Camera

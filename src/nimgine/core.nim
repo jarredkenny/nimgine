@@ -16,7 +16,6 @@ proc newApplication*(): Application = Application(
   bus: newEventQueue(),
   layers: @[
     PlatformLayer,
-    UILayer,
     WorldLayer,
     RendererLayer
   ]

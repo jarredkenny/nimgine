@@ -1,4 +1,4 @@
-import nimgine/[types, core, ecs, events]
+import nimgine/[types, core, ecs]
 
 let app: Application = newApplication()
 

@@ -84,6 +84,7 @@ proc init*(app: Application) =
   glEnable(GL_DEPTH_TEST)
   glDepthFunc(GL_LEQUAL)
   glViewport(0, 0, screenWidth, screenHeight)
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
 proc reshape(newWidth: cint, newHeight: cint) =
   glViewport(0, 0, newWidth, newHeight)

@@ -89,8 +89,6 @@ renderSystem.init = proc(world: World, system: System) =
 
     mesh = newMesh(@[positions, colors], elements, shader)
 
-    mesh.init()
-
 renderSystem.render = proc(scene: Scene, world: World) =
     for entity in world.entitiesForSystem(renderSystem):
         scene.submit(mesh)
