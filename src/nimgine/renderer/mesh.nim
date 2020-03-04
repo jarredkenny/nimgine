@@ -57,7 +57,6 @@ proc newMesh*(buffers: seq[VertexBuffer], elements: IndexBuffer,
   mesh.init()
   result = mesh
 
-
 proc uniform*(mesh: Mesh, name: string, matrix: var Mat4) =
   var index: GLint = glGetUniformLocation(mesh.shader.id.GLuint, name)
   glUniformMatrix4fv(index, 1.GLsizei, GL_FALSE, matrix.caddr)

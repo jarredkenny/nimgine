@@ -15,8 +15,6 @@ import ../types
 #         normal: Vec3(0.0, 1.0, 0.1)
 #     )
 
-# https://github.com/tomdalling/opengl-series/blob/master/source/04_camera/source/tdogl/Camera.cpp
-
 
 proc orientation*(): Mat4[GLfloat] =
     result = rotate(result, radians(0.0).GLfloat, vec3(1.0.GLfloat, 0.0.GLfloat, 0.0.GLfloat))
@@ -28,11 +26,10 @@ proc newCamera*(width, height: float): Camera =
     proj = perspective(radians(45.0).GLfloat, (width / height).GLfloat,
         0.1.GLfloat, 100.0.GLfloat)
 
-    view = orientation() * translate()
+    view = lookAt(
+        vec3(0.GLfloat, 0.GLfloat, 10.GLfloat),
+        vec3(0.GLfloat, 0.GLfloat, 0.GLfloat),
+        vec3(0.GLfloat, 1.GLfloat, 0.GLfloat)
+    )
 
-
-    model = rotate(model, (1 * 1.0).GLfloat, vec3(0.0.GLfloat, (getTicks(
-            ).float *
-        1.0).GLfloat, 0.0.GLfloat))
-
-    result = Camera(view: view, projection: proj, model: model)
+    result = Camera(view: view, projection: proj)
