@@ -5,7 +5,6 @@ import timing
 import events
 import ecs
 import renderer
-import debug
 
 import systems/[input, controller, render, camera]
 
@@ -17,7 +16,7 @@ proc newApplication*(): Application = Application(
   layers: @[
     PlatformLayer,
     WorldLayer,
-    RendererLayer
+    RendererLayer,
   ]
 )
 

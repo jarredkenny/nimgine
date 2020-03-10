@@ -17,5 +17,4 @@ proc preRender*(scene: Scene) =
   discard
 
 proc setCameraPosition*(scene: Scene, width, height: float) =
-  echo "setCameraPosition"
   scene.camera = newCamera(width, height)
