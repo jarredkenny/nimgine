@@ -21,10 +21,10 @@ proc render*(app: Application) =
 
   var model: Mat4[GLfloat] = mat4(1.GLfloat)
 
-  var view: Mat4[GLfloat] = lookAt(camera.position, vec3(0.GLfloat, 0.GLfloat,
-      0.GLfloat), vec3(0.GLfloat, 1.GLfloat, 0.GLfloat))
+  # var view: Mat4[GLfloat] = lookAt(camera.position, vec3(0.GLfloat, 0.GLfloat,
+  #     0.GLfloat), vec3(0.GLfloat, 1.GLfloat, 0.GLfloat))
 
-  var mvp = camera.projection * view * model
+  var mvp = camera.projection * camera.view * model
 
   for mesh in app.scene.drawQueue.items:
     app.scene.drawQueue.popFirst()

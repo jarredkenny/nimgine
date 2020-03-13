@@ -201,9 +201,12 @@ type
     shader*: Shader
 
   Camera* = ref object
+    pitch*: GLfloat
+    angle*: GLfloat
+    zoom*: GLfloat
     position*: Vec3[GLfloat]
-    zoom*: Vec3[GLfloat]
     projection*: Mat4[GLfloat]
+    view*: Mat4[GLfloat]
 
   Scene* = ref object
     camera*: Camera

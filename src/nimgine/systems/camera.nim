@@ -1,3 +1,4 @@
+import math
 import strformat
 import opengl
 import glm
@@ -8,45 +9,59 @@ import ../renderer
 
 var cameraSystem* = newSystem()
 var width, height: float
+var lastMouseX, lastMouseY: int
+
+const speed = 20.0
 
 cameraSystem.matchComponent(Position)
 cameraSystem.matchComponent(ControlledCamera)
 
-cameraSystem.subscribe(@[Resize, MoveUp, MoveDown, MoveLeft, MoveRight,
+cameraSystem.subscribe(@[Resize, MouseMove,
     EventType.ZoomIn, EventType.ZoomOut])
 
 cameraSystem.handle = proc(app: Application, system: System, event: Event, dt: float) =
+  var camera = app.scene.camera
 
-  if event.kind == Resize:
-    width = event.width.float
-    height = event.height.float
-    app.scene.setCameraPosition(width, height)
-    return
+  case event.kind:
+    of Resize:
+      width = event.width.float
+      height = event.height.float
+      app.scene.setCameraPosition(width, height)
+    of ZoomIn:
+      camera.zoom += dt * speed
+    of ZoomOut:
+      camera.zoom -= dt * speed
+    of MouseMove:
+      let dx = lastMouseX - event.x
+      let dy = lastMousey - event.y
+      camera.pitch -= dy.float * dt * speed
+      camera.angle -= dx.float * dt * speed
+      lastMouseX = event.x
+      lastMouseY = event.y
+    else:
+      discard
 
-  for entity in app.world.entitiesForSystem(cameraSystem):
-    var position = entity.get(Position)
-    var speed_move = 15.0
-    var speed_zoom = 20.0
-    case event.kind:
-      of MoveUp:
-        position.y += speed_move * dt
-      of MoveDown:
-        position.y -= speed_move * dt
-      of MoveLeft:
-        position.x -= speed_move * dt
-      of MoveRight:
-        position.x += speed_move * dt
-      of ZoomIn:
-        position.z += speed_zoom * dt
-      of ZoomOut:
-        position.z -= speed_zoom * dt
-      else:
-        discard
+cameraSystem.update = proc(app: Application, system: System, dt: float) =
+  var camera = app.scene.camera
 
-    app.scene.camera.position = vec3(
-      position.x.GLfloat,
-      position.y.GLfloat,
-      position.z.GLfloat
-    )
+  let dh = camera.zoom * cos(radians(camera.pitch))
+  let dv = camera.zoom * sin(radians(camera.pitch))
 
-    echo fmt"x: {position.x} y: {position.y} z: {position.z}"
+  let theta = camera.angle # * target.rotation
+  let offsetX = dh * sin(radians(theta))
+  let offsetZ = dh * cos(radians(theta))
+
+  let x = offsetX # + target.position.x
+  let y = dv # + target.position.y
+  let z = offsetZ # + target.position.z
+
+
+  camera.view = rotate(
+    lookAt(
+      vec3(x, y, z),
+      vec3(0.GLfloat, 0, 0),
+      vec3(0.GLfloat, 1, 0)
+    ),
+    radians(180 - theta),
+    vec3(0.GLfloat, 1, 0)
+  )
