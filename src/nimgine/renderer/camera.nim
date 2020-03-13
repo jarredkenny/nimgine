@@ -1,35 +1,16 @@
 import glm
 import opengl
-import sdl2
 
 import ../types
-
-# proc newCamera*(): Camera =
-#     Camera(
-#         yaw: -90.0,
-#         pitch: 0.0,
-#         speed: 6.0,
-#         sensitivity: 0.25,
-#         zoom: 45.0
-#         position: Vec3(0.0, 0.0, 0.0),
-#         normal: Vec3(0.0, 1.0, 0.1)
-#     )
-
 
 proc orientation*(): Mat4[GLfloat] =
     result = rotate(result, radians(0.0).GLfloat, vec3(1.0.GLfloat, 0.0.GLfloat, 0.0.GLfloat))
     result = rotate(result, radians(0.0).GLfloat, vec3(0.GLfloat, 1.GLfloat, 0.GLfloat))
 
 proc newCamera*(width, height: float): Camera =
-    var proj, model, view: Mat4[GLfloat]
+    var proj: Mat4[GLfloat]
 
     proj = perspective(radians(45.0).GLfloat, (width / height).GLfloat,
         0.1.GLfloat, 100.0.GLfloat)
 
-    view = lookAt(
-        vec3(0.GLfloat, 0.GLfloat, 10.GLfloat),
-        vec3(0.GLfloat, 0.GLfloat, 0.GLfloat),
-        vec3(0.GLfloat, 1.GLfloat, 0.GLfloat)
-    )
-
-    result = Camera(view: view, projection: proj)
+    result = Camera(projection: proj)

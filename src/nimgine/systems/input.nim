@@ -20,7 +20,7 @@ inputSystem.subscribe(@[Input, MouseMove])
 # Update active map events so that events which are fired for every frame
 # an update in active can fire on subsequent update events.
 # For events which spawn for every input event received, spawn them
-inputSystem.handle = proc(app: Application, system: System, event: Event) =
+inputSystem.handle = proc(app: Application, system: System, event: Event, dt: float) =
 
     if event.kind == MouseMove:
 

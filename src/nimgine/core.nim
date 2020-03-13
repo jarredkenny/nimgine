@@ -6,7 +6,7 @@ import events
 import ecs
 import renderer
 
-import systems/[input, controller, render, camera]
+import systems/[input, render, camera]
 
 proc newApplication*(): Application = Application(
   world: newWorld(),
@@ -23,7 +23,6 @@ proc newApplication*(): Application = Application(
 proc init(app: Application) =
   app.world.add(@[
     cameraSystem,
-    controllerSystem,
     inputSystem,
     renderSystem
   ])
@@ -31,7 +30,7 @@ proc init(app: Application) =
     if layer.init != nil:
       layer.init(app)
 
-proc handle(app: Application, event: Event) =
+proc handle(app: Application, event: Event, dt: float) =
   if event.kind == EventType.Quit:
     app.running = false
   for layer in app.layers:

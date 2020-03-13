@@ -1,4 +1,4 @@
-import tables, typetraits, sugar, sets, sequtils
+import tables, typetraits, sugar, sets, sequtils, strformat
 
 import types
 
@@ -96,11 +96,18 @@ proc init*(app: Application) =
     if system.init != nil:
       system.init(app.world, system)
 
-iterator entitiesForSystem*(world: World, system: System): Entity =
-  for entity in world.entities:
+iterator entitiesForSystem*(world: World, system: System,
+    limit: int = 0): Entity =
+  for i, entity in world.entities:
+    if limit > 0 and i > limit:
+      break
     if all(toSeq(system.components), proc(
         s: string): bool = entity.components.hasKey(s)):
       yield entity
+
+proc entityForSystem*(world: World, system: System): Entity =
+  for entity in world.entitiesForSystem(system, 1):
+    return entity
 
 proc update*(app: Application) =
   for system in app.world.systems:
@@ -110,7 +117,7 @@ proc update*(app: Application) =
 proc handle*(app: Application, event: Event) =
   for system in app.world.systems:
     if system.handle != nil and event.kind in system.events:
-      system.handle(app, system, event)
+      system.handle(app, system, event, app.clock.dt)
 
 proc preRender*(app: Application) =
   for system in app.world.systems:

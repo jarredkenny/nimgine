@@ -82,7 +82,7 @@ type
     events*: set[EventType]
     components*: HashSet[string]
     init*: proc(world: World, system: System)
-    handle*: proc(app: Application, system: System, event: Event)
+    handle*: proc(app: Application, system: System, event: Event, dt: float)
     update*: proc(app: Application, system: System, dt: float)
     preRender*: proc(scene: Scene, world: World)
     render*: proc(scene: Scene, world: World)
@@ -201,18 +201,9 @@ type
     shader*: Shader
 
   Camera* = ref object
-    yaw: float
-    pitch: float
-    speed: float
-    sensitivity: float
-    zoom: float
-
-    # position: Vec3
-    # normal: Vec3 # 0 1 0
-
+    position*: Vec3[GLfloat]
+    zoom*: Vec3[GLfloat]
     projection*: Mat4[GLfloat]
-    view*: Mat4[GLfloat]
-    model*: Mat4[GLfloat]
 
   Scene* = ref object
     camera*: Camera
