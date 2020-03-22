@@ -193,12 +193,35 @@ type
     id*: uint
     attributes*: Table[string, AttributeLayout]
 
+  # New Mesh Types
+  Vertex* = ref object
+    position*: Vec3[float32]
+    normal*: Vec3[float32]
+    texCoord*: Vec2[float32]
+
+  Index* = uint
+
+  Texture* = ref object
+    id*: uint
+    kind*: string # TODO: use an enum for texture type?
+    path8: string
+
   Mesh* = ref object
-    vao*: uint
+
+    # Old Attributes
+    # vao*: uint
     model*: Mat4[GLfloat]
-    buffers*: seq[VertexBuffer]
-    elements*: IndexBuffer
     shader*: Shader
+
+    # New Attributes
+    vao*: uint
+    vbo*: uint
+    ebo*: uint
+    vertices*: seq[Vertex]
+    indices*: seq[GLuint]
+    textures*: seq[Texture]
+
+
 
   Camera* = ref object
     pitch*: GLfloat

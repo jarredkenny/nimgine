@@ -30,7 +30,7 @@ cameraSystem.handle = proc(app: Application, system: System, event: Event, dt: f
     of ZoomIn:
       camera.zoom += dt * speed
     of ZoomOut:
-      camera.zoom -= dt * speed
+      camera.zoom -= dt * speed * 10.0
     of MouseMove:
       let dx = lastMouseX - event.x
       let dy = lastMousey - event.y

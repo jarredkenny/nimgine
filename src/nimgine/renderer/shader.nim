@@ -1,3 +1,4 @@
+import strformat
 import opengl
 import ../types
 
@@ -30,4 +31,5 @@ proc newShader*(vertexShader, fragmentShader: string): Shader =
   result = Shader(id: id)
 
 proc use*(shader: Shader) =
+  # echo fmt"binding shader: {shader.id}"
   glUseProgram(shader.id.GLuint)

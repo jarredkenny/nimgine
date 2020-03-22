@@ -12,5 +12,4 @@ camera.add(Position(x: 0, y: 0, z: 0))
 camera.add(ControlledCamera())
 
 app.world.add(@[camera, cube])
-
 app.start()

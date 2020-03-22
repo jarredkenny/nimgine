@@ -1,3 +1,5 @@
+import glm, opengl
+
 import ../types
 import ../ecs
 import ../renderer
@@ -9,42 +11,28 @@ renderSystem.matchComponent(RenderBlock)
 
 var floor, cube: Mesh
 
-renderSystem.init = proc(world: World, system: System) =
+proc genVertex(px, py, pz, nx, ny, nz, tx, ty: float): Vertex =
+    Vertex(
+        position: vec3(px.float32, py, pz),
+        normal: vec3(nx.float32, ny, nz),
+        texCoord: vec2(tx.float32, ty)
+    )
 
+renderSystem.init = proc(world: World, system: System) =
 
     cube = newMesh(
         @[
-            newVertexBuffer(
-                "position",
-                @[
-                    -1.0, -1.0, 1.0,
-                    1.0, -1.0, 1.0,
-                    1.0, 1.0, 1.0,
-                    -1.0, 1.0, 1.0,
-                    -1.0, -1.0, -1.0,
-                    1.0, -1.0, -1.0,
-                    1.0, 1.0, -1.0,
-                    -1.0, 1.0, -1.0
+            genVertex(-1.0, -1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0),
+            genVertex(1.0, -1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0),
+            genVertex(1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0),
+            genVertex(-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0),
+            genVertex(-1.0, -1.0, -1.0, 1.0, 0.0, 0.0, 0.0, 0.0),
+            genVertex(1.0, -1.0, -1.0, 0.0, 1.0, 0.0, 0.0, 0.0),
+            genVertex(1.0, 1.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0),
+            genVertex(-1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 0.0, 0.0)
         ],
-        3, 3, 0
-    ),
-            newVertexBuffer(
-                "color",
-                @[
-                    1.0, 0.0, 0.0,
-                    0.0, 1.0, 0.0,
-                    0.0, 0.0, 1.0,
-                    1.0, 1.0, 1.0,
-                    1.0, 0.0, 0.0,
-                    0.0, 1.0, 0.0,
-                    0.0, 0.0, 1.0,
-                    1.0, 1.0, 1.0
-        ],
-        3, 3, 0
-    )
-        ],
-        newIndexBuffer(@[
-            0, 1, 2,
+        @[
+            0.GLuint, 1, 2,
             2, 3, 0,
             1, 5, 6,
             6, 2, 1,
@@ -56,36 +44,11 @@ renderSystem.init = proc(world: World, system: System) =
             1, 0, 4,
             3, 2, 6,
             6, 7, 3
-        ]),
-        newShader(
-            """
-            #version 440 core
-
-            in vec3 position;
-            in vec3 color;
-
-            out vec3 fragmentColor;
-
-            uniform mat4 MVP;
-
-            void main() {
-                fragmentColor = color;
-                gl_Position = MVP * vec4(position, 1.0);
-            }
-            """,
-            """
-            #version 440 core
-            in vec3 fragmentColor;
-            out vec4 color;
-            void main() {
-                color = vec4(fragmentColor, 1.0);
-            }
-            """
-        )
+        ],
+        newSeq[Texture](),
     )
 
 
 renderSystem.render = proc(scene: Scene, world: World) =
     for entity in world.entitiesForSystem(renderSystem):
-        scene.submit(cube)
         scene.submit(cube)
