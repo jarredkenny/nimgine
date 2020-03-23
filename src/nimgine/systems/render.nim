@@ -1,3 +1,4 @@
+import strformat
 import glm, opengl
 
 import ../types
@@ -9,7 +10,7 @@ renderSystem.matchComponent(Position)
 renderSystem.matchComponent(Dimensions)
 renderSystem.matchComponent(RenderBlock)
 
-var floor, cube: Mesh
+var human, cube: Mesh
 
 proc genVertex(px, py, pz, nx, ny, nz, tx, ty: float): Vertex =
     Vertex(
@@ -48,7 +49,10 @@ renderSystem.init = proc(world: World, system: System) =
         newSeq[Texture](),
     )
 
+    human = loadModel("models/HUMAN.blend")
+
 
 renderSystem.render = proc(scene: Scene, world: World) =
     for entity in world.entitiesForSystem(renderSystem):
         scene.submit(cube)
+        # scene.submit(human)

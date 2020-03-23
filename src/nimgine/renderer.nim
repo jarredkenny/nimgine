@@ -11,6 +11,7 @@ export newShader
 export newVertexBuffer
 export newIndexBuffer
 export newMesh
+export loadModel
 export newCamera
 export newScene
 export submit

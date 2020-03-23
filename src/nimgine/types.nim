@@ -194,7 +194,7 @@ type
     attributes*: Table[string, AttributeLayout]
 
   # New Mesh Types
-  Vertex* = ref object
+  Vertex* = object
     position*: Vec3[float32]
     normal*: Vec3[float32]
     texCoord*: Vec2[float32]
@@ -207,21 +207,14 @@ type
     path8: string
 
   Mesh* = ref object
-
-    # Old Attributes
-    # vao*: uint
     model*: Mat4[GLfloat]
     shader*: Shader
-
-    # New Attributes
     vao*: uint
     vbo*: uint
     ebo*: uint
     vertices*: seq[Vertex]
     indices*: seq[GLuint]
     textures*: seq[Texture]
-
-
 
   Camera* = ref object
     pitch*: GLfloat

@@ -22,24 +22,12 @@ proc init*(mesh: Mesh) =
   glBindBuffer(GL_ARRAY_BUFFER, vbo)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
 
-  echo fmt"vert size: {(sizeof(mesh.vertices[0][]))}"
-
-  echo fmt"passed Index buffer size: {sizeof(GLuint) * mesh.indices.len} ({mesh.indices.len} @ {sizeof(GLuint)} each)"
-  echo fmt"actual Index buffer size: {sizeof(mesh.indices[0]) * mesh.indices.len} ({mesh.indices.len} @ {sizeof(mesh.indices[0])} each)"
-
-
-
-  glBufferData(GL_ARRAY_BUFFER, (sizeof(mesh.vertices[0][]) *
+  glBufferData(GL_ARRAY_BUFFER, (sizeof(mesh.vertices[0]) *
       mesh.vertices.len).GLsizeiptr, mesh.vertices[0].addr, GL_STATIC_DRAW)
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sizeof(GLuint) *
       mesh.indices.len).GLsizeiptr, mesh.indices[0].addr, GL_STATIC_DRAW)
 
-  let stride: GLsizei = sizeof(mesh.vertices[0][]).GLsizei
-
-  echo fmt"stride: {stride}"
-  echo fmt"pos offset: {repr(offsetOf(Vertex, position))}"
-  echo fmt"norm offset: {repr(offsetOf(Vertex, normal))}"
-  echo fmt"texCoord offset: {repr(offsetOf(Vertex, texCoord))}"
+  let stride: GLsizei = sizeof(mesh.vertices[0]).GLsizei
 
   let posAttr: GLuint = glGetAttribLocation(mesh.shader.id.GLuint,
       "position".cstring).GLuint
@@ -47,9 +35,6 @@ proc init*(mesh: Mesh) =
       "tc".cstring).GLuint
   let normAttr: GLuint = glGetAttribLocation(mesh.shader.id.GLuint,
       "normal".cstring).GLuint
-
-
-  echo fmt"posAttr: {posAttr} - normAttr: {normAttr} - tc: {tcAttr}"
 
   # Position
   glVertexAttribPointer(posAttr, 3.GLint, cGL_FLOAT, GL_FALSE, stride, cast[
@@ -73,16 +58,12 @@ proc newMesh*(verticies: seq[Vertex], indices: seq[GLuint], textures: seq[
   mesh.shader = newShader(
     """
     #version 440 core
-
     in vec3 position;
     in vec3 normal;
     in vec2 tc;
-
     out vec3 fragmentColor;
     out vec2 textureCoord;
-
     uniform mat4 MVP;
-
     void main() {
         fragmentColor = normal;
         textureCoord = tc * vec2(1.0, 1.0);
@@ -119,9 +100,20 @@ proc draw*(mesh: Mesh) =
       0])).GLsizei, GL_UNSIGNED_INT, nil)
   glBindVertexArray(0)
 
+var nodeCount: int = 0;
+
+proc processMesh(scene: PScene, node: PNode, mesh: PMesh) =
+  echo "Processing mesh!"
+  # TODO: continue here
+
+proc processNode(scene: PScene, node: PNode) =
+  for i in 0..<node.meshCount:
+    processMesh(scene, node, scene.meshes[node.meshes[i]])
+  for i in 0..<node.childrenCount:
+    processNode(scene, node.children[i])
 
 proc loadModel*(file: string): Mesh =
-  let modelScene = assimp.aiImportFile(file,
+  let scene = assimp.aiImportFile(file,
     aiProcess_MakeLeftHanded or
     aiProcess_FlipWindingOrder or
     aiProcess_FlipUVs or
@@ -133,9 +125,17 @@ proc loadModel*(file: string): Mesh =
     aiProcess_ValidateDataStructure or 0
   )
 
-  if isNil modelScene:
+  if isNil scene:
     echo fmt"Failed to load model: {file}"
   else:
     echo fmt"Sucessfully loaded file {file}"
 
-  return result
+  echo fmt"Scene: {scene.meshCount} meshes"
+  echo fmt"Animations: {scene.animationCount > 0}"
+
+  # TODO: process animations
+
+  # start processing the model
+  processNode(scene, scene.rootNode);
+
+  return Mesh()
