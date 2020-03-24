@@ -101,6 +101,16 @@ proc draw*(mesh: Mesh) =
   glBindVertexArray(0)
 
 
+proc loadMaterialTextures(scene: PScene, mat: PMaterial, kind: TTextureType,
+    name: string): seq[Texture] =
+
+  echo "loadMaterialTextures"
+  echo fmt"scene.textureCount: {scene.textureCount}"
+  for i in 0..<scene.textureCount:
+    var str: AIString
+    discard mat.getTexture(kind, i, addr(str))
+    echo fmt"str: {str}"
+
 proc processMesh(scene: PScene, node: PNode, mesh: PMesh, myMesh: var Mesh) =
   let vertices = cast[ptr UncheckedArray[TVector3d]](mesh.vertices)
   let normals = cast[ptr UncheckedArray[TVector3d]](mesh.normals)
@@ -118,6 +128,21 @@ proc processMesh(scene: PScene, node: PNode, mesh: PMesh, myMesh: var Mesh) =
     let face = mesh.faces[i]
     for k in 0..2:
       myMesh.indices.add(face.indices[k].GLuint)
+
+  echo fmt"mesh.materialIndex: {mesh.materialIndex}"
+  if mesh.materialIndex >= 0:
+    echo "load a mesh textures"
+    var mat: PMaterial = scene.materials[mesh.materialIndex]
+
+    var props: TMaterialProperty = cast[TMaterialProperty](mat.properties)
+
+    echo fmt"mat: {repr(props)}"
+
+  # if scene.materialCount > 0:
+  #   let mat: PMaterial = scene.materials[mesh.materialIndex]
+  #   var path: AIstring
+  #   let tex = mat.getTexture(TexDiffuse, 0.cint, addr(path))
+  #   echo repr(tex)
 
 
 proc processNode(scene: PScene, node: PNode, mesh: var Mesh) =
