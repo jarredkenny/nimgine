@@ -20,7 +20,8 @@ export setCameraPosition
 proc render*(app: Application) =
   var camera = app.scene.camera
 
-  var model: Mat4[GLfloat] = mat4(1.GLfloat)
+  var model: Mat4[GLfloat] = rotate(mat4(1.GLfloat), (radians(0.1 * getTicks(
+    ).float).GLfloat), vec3(1.0.GLfloat, 1.0, 1.0))
 
   var mvp = camera.projection * camera.view * model
 
@@ -33,5 +34,3 @@ proc render*(app: Application) =
 var RendererLayer* = ApplicationLayer()
 
 RendererLayer.render = render
-
-# discard loadModel("/home/jarred/Code/nimgine/models/HUMAN.blend")

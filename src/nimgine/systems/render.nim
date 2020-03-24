@@ -54,5 +54,5 @@ renderSystem.init = proc(world: World, system: System) =
 
 renderSystem.render = proc(scene: Scene, world: World) =
     for entity in world.entitiesForSystem(renderSystem):
-        scene.submit(cube)
-        # scene.submit(human)
+        # scene.submit(cube)
+        scene.submit(human)

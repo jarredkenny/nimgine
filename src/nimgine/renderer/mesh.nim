@@ -100,19 +100,64 @@ proc draw*(mesh: Mesh) =
       0])).GLsizei, GL_UNSIGNED_INT, nil)
   glBindVertexArray(0)
 
-var nodeCount: int = 0;
 
-proc processMesh(scene: PScene, node: PNode, mesh: PMesh) =
-  echo "Processing mesh!"
-  # TODO: continue here
+proc processMesh(scene: PScene, node: PNode, mesh: PMesh, myMesh: var Mesh) =
+  let vertices = cast[ptr UncheckedArray[TVector3d]](mesh.vertices)
+  let normals = cast[ptr UncheckedArray[TVector3d]](mesh.normals)
 
-proc processNode(scene: PScene, node: PNode) =
+  for i in 0..<mesh.vertexCount:
+    let pos = vertices[i]
+    let norm = normals[i]
+    let vertex = Vertex(
+      position: vec3(pos.x, pos.y, pos.z),
+      normal: vec3(norm.x, norm.y, norm.z)
+    )
+    myMesh.vertices.add(vertex)
+
+  for i in 0..<mesh.faceCount:
+    let face = mesh.faces[i]
+    for k in 0..2:
+      myMesh.indices.add(face.indices[k].GLuint)
+
+
+proc processNode(scene: PScene, node: PNode, mesh: var Mesh) =
   for i in 0..<node.meshCount:
-    processMesh(scene, node, scene.meshes[node.meshes[i]])
+    processMesh(scene, node, scene.meshes[node.meshes[i]], mesh)
   for i in 0..<node.childrenCount:
-    processNode(scene, node.children[i])
+    processNode(scene, node.children[i], mesh)
 
 proc loadModel*(file: string): Mesh =
+  var mesh = Mesh()
+
+  mesh.shader = newShader(
+    """
+    #version 440 core
+    in vec3 position;
+    in vec3 normal;
+    in vec2 tc;
+    out vec3 fragmentColor;
+    out vec2 textureCoord;
+    uniform mat4 MVP;
+    void main() {
+        fragmentColor = normal;
+        textureCoord = tc * vec2(1.0, 1.0);
+        gl_Position = MVP * vec4(position, 1.0);
+    }
+    """,
+    """
+    #version 440 core
+    in vec3 fragmentColor;
+    in vec2 textureCoord;
+    out vec4 color;
+    out vec2 textCoordOut;
+    void main() {
+      color = vec4(fragmentColor, 1.0);
+      textCoordOut = textureCoord;
+    }
+    """
+    )
+
+
   let scene = assimp.aiImportFile(file,
     aiProcess_MakeLeftHanded or
     aiProcess_FlipWindingOrder or
@@ -136,6 +181,8 @@ proc loadModel*(file: string): Mesh =
   # TODO: process animations
 
   # start processing the model
-  processNode(scene, scene.rootNode);
+  processNode(scene, scene.rootNode, mesh);
 
-  return Mesh()
+  mesh.init()
+
+  result = mesh
