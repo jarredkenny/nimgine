@@ -134,15 +134,7 @@ proc processMesh(scene: PScene, node: PNode, mesh: PMesh, myMesh: var Mesh) =
     echo "load a mesh textures"
     var mat: PMaterial = scene.materials[mesh.materialIndex]
 
-    var props: TMaterialProperty = cast[TMaterialProperty](mat.properties)
-
-    echo fmt"mat: {repr(props)}"
-
-  # if scene.materialCount > 0:
-  #   let mat: PMaterial = scene.materials[mesh.materialIndex]
-  #   var path: AIstring
-  #   let tex = mat.getTexture(TexDiffuse, 0.cint, addr(path))
-  #   echo repr(tex)
+    echo repr(mat)
 
 
 proc processNode(scene: PScene, node: PNode, mesh: var Mesh) =
