@@ -1,4 +1,3 @@
-import strformat
 import opengl
 import ../types
 

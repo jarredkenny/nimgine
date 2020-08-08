@@ -15,6 +15,7 @@ proc newApplication*(): Application = Application(
   bus: newEventQueue(),
   layers: @[
     PlatformLayer,
+    UILayer,
     WorldLayer,
     RendererLayer,
   ]
@@ -30,7 +31,7 @@ proc init(app: Application) =
     if layer.init != nil:
       layer.init(app)
 
-proc handle(app: Application, event: Event, dt: float) =
+proc handle(app: Application, event: Event) =
   if event.kind == EventType.Quit:
     app.running = false
   for layer in app.layers:

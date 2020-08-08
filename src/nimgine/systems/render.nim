@@ -8,13 +8,23 @@ import ../renderer
 var renderSystem* = newSystem()
 renderSystem.matchComponent(Position)
 renderSystem.matchComponent(Dimensions)
-renderSystem.matchComponent(RenderBlock)
-
-var human: Mesh
+renderSystem.matchComponent(Mesh)
 
 renderSystem.init = proc(world: World, system: System) =
-    human = loadModel("models/airboat.obj")
+    for entity in world.entitiesForSystem(renderSystem):
+        var mesh: Mesh = entity.get(Mesh)
+        mesh.init()
+
+renderSystem.update = proc(app: Application, system: System, dt: float) =
+    for entity in app.world.entitiesForSystem(renderSystem):
+        let position: Position = entity.get(Position)
+        let mesh: Mesh = entity.get(Mesh)
+        if mesh.initialized:
+            mesh.model = translate(mat4(1.Glfloat), vec3(position.x.GLfloat, position.y, position.z))
 
 renderSystem.render = proc(scene: Scene, world: World) =
     for entity in world.entitiesForSystem(renderSystem):
-        scene.submit(human)
+        let mesh = entity.get(Mesh)
+        if mesh.initialized:
+            echo fmt"renderer mesh: {mesh.id} {mesh.model}"
+            scene.submit(mesh)

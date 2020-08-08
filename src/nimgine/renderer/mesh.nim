@@ -1,90 +1,9 @@
-import strformat
+import strformat, strutils
 
 import opengl, glm, assimp
 
 import ../types
 import shader
-
-proc init*(mesh: Mesh) =
-
-  var vao: GLuint
-  glGenVertexArrays(1, vao.addr)
-  glBindVertexArray(vao)
-  mesh.vao = vao
-
-  var vbo: GLuint
-  glGenBuffers(1, vbo.addr)
-
-  var ebo: Gluint
-  glGenBuffers(1, ebo.addr)
-  mesh.ebo = ebo
-
-  glBindBuffer(GL_ARRAY_BUFFER, vbo)
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
-
-  glBufferData(GL_ARRAY_BUFFER, (sizeof(mesh.vertices[0]) *
-      mesh.vertices.len).GLsizeiptr, mesh.vertices[0].addr, GL_STATIC_DRAW)
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sizeof(GLuint) *
-      mesh.indices.len).GLsizeiptr, mesh.indices[0].addr, GL_STATIC_DRAW)
-
-  let stride: GLsizei = sizeof(mesh.vertices[0]).GLsizei
-
-  let posAttr: GLuint = glGetAttribLocation(mesh.shader.id.GLuint,
-      "position".cstring).GLuint
-  let tcAttr: Gluint = glGetAttribLocation(mesh.shader.id.GLuint,
-      "tc".cstring).GLuint
-  let normAttr: GLuint = glGetAttribLocation(mesh.shader.id.GLuint,
-      "normal".cstring).GLuint
-
-  # Position
-  glVertexAttribPointer(posAttr, 3.GLint, cGL_FLOAT, GL_FALSE, stride, cast[
-      pointer](offsetOf(Vertex, position)))
-  glEnableVertexAttribArray(posAttr)
-
-  # Normal
-  glVertexAttribPointer(normAttr, 3.GLint, cGL_FLOAT, GL_FALSE, stride, cast[
-      pointer](offsetOf(Vertex, normal)))
-  glEnableVertexAttribArray(normAttr)
-
-  # Texture Coordinates
-  glVertexAttribPointer(tcAttr, 2.GLint, cGL_FLOAT, GL_FALSE, stride,
-      cast[pointer](offsetOf(Vertex, texCoord)))
-  glEnableVertexAttribArray(tcAttr)
-
-
-proc newMesh*(verticies: seq[Vertex], indices: seq[GLuint], textures: seq[
-    Texture]): Mesh =
-  var mesh = Mesh(vertices: verticies, indices: indices, textures: textures)
-  mesh.shader = newShader(
-    """
-    #version 440 core
-    in vec3 position;
-    in vec3 normal;
-    in vec2 tc;
-    out vec3 fragmentColor;
-    out vec2 textureCoord;
-    uniform mat4 MVP;
-    void main() {
-        fragmentColor = normal;
-        textureCoord = tc * vec2(1.0, 1.0);
-        gl_Position = MVP * vec4(position, 1.0);
-    }
-    """,
-    """
-    #version 440 core
-    in vec3 fragmentColor;
-    in vec2 textureCoord;
-    out vec4 color;
-    out vec2 textCoordOut;
-    void main() {
-      color = vec4(fragmentColor, 1.0);
-      textCoordOut = textureCoord;
-    }
-    """
-    )
-  mesh.init()
-  result = mesh
-
 
 proc uniform*(mesh: Mesh, name: string, matrix: var Mat4) =
   var index: GLint = glGetUniformLocation(mesh.shader.id.GLuint, name)
@@ -134,7 +53,6 @@ proc processMesh(scene: PScene, node: PNode, mesh: PMesh, myMesh: var Mesh) =
     echo "load a mesh textures"
     var mat: PMaterial = scene.materials[mesh.materialIndex]
 
-    echo repr(mat)
 
 
 proc processNode(scene: PScene, node: PNode, mesh: var Mesh) =
@@ -143,9 +61,42 @@ proc processNode(scene: PScene, node: PNode, mesh: var Mesh) =
   for i in 0..<node.childrenCount:
     processNode(scene, node.children[i], mesh)
 
-proc loadModel*(file: string): Mesh =
-  var mesh = Mesh()
+proc loadModel*(file: string, mesh: var Mesh) =
+  echo fmt"loading model for mesh: {repr(mesh)}"
 
+  let scene = assimp.aiImportFile(file,
+    aiProcess_MakeLeftHanded or
+    aiProcess_FlipWindingOrder or
+    aiProcess_FlipUVs or
+    aiProcess_PreTransformVertices or
+    aiProcess_GenSmoothNormals or
+    aiProcess_Triangulate or
+    aiProcess_FixInfacingNormals or
+    aiProcess_FindInvalidData or
+    aiProcess_ValidateDataStructure or 0
+  )
+
+  if isNil scene:
+    echo fmt"Failed to load model: {file}"
+  else:
+    echo fmt"Sucessfully loaded file {file}"
+
+  echo fmt"Scene: {scene.meshCount} meshes"
+  echo fmt"Animations: {scene.animationCount > 0}"
+
+  # start processing the model
+  processNode(scene, scene.rootNode, mesh);
+
+proc init*(mesh: var Mesh) =
+
+  if mesh.initialized:
+    raise newException(Exception, "mesh is already initialized")
+
+  if mesh.file.len == 0:
+    return
+
+  loadModel(mesh.file, mesh)
+  mesh.model = mat4(1.GLfloat)
   mesh.shader = newShader(
     """
     #version 440 core
@@ -175,31 +126,48 @@ proc loadModel*(file: string): Mesh =
     )
 
 
-  let scene = assimp.aiImportFile(file,
-    aiProcess_MakeLeftHanded or
-    aiProcess_FlipWindingOrder or
-    aiProcess_FlipUVs or
-    aiProcess_PreTransformVertices or
-    aiProcess_GenSmoothNormals or
-    aiProcess_Triangulate or
-    aiProcess_FixInfacingNormals or
-    aiProcess_FindInvalidData or
-    aiProcess_ValidateDataStructure or 0
-  )
+  var vao: GLuint
+  glGenVertexArrays(1, vao.addr)
+  glBindVertexArray(vao)
+  mesh.vao = vao
 
-  if isNil scene:
-    echo fmt"Failed to load model: {file}"
-  else:
-    echo fmt"Sucessfully loaded file {file}"
+  var vbo: GLuint
+  glGenBuffers(1, vbo.addr)
 
-  echo fmt"Scene: {scene.meshCount} meshes"
-  echo fmt"Animations: {scene.animationCount > 0}"
+  var ebo: Gluint
+  glGenBuffers(1, ebo.addr)
+  mesh.ebo = ebo
 
-  # TODO: process animations
+  glBindBuffer(GL_ARRAY_BUFFER, vbo)
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
 
-  # start processing the model
-  processNode(scene, scene.rootNode, mesh);
+  glBufferData(GL_ARRAY_BUFFER, (sizeof(mesh.vertices[0]) *
+      mesh.vertices.len).GLsizeiptr, mesh.vertices[0].addr, GL_STATIC_DRAW)
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sizeof(GLuint) *
+      mesh.indices.len).GLsizeiptr, mesh.indices[0].addr, GL_STATIC_DRAW)
 
-  mesh.init()
+  let stride: GLsizei = sizeof(mesh.vertices[0]).GLsizei
 
-  result = mesh
+  let posAttr: GLuint = glGetAttribLocation(mesh.shader.id.GLuint,
+      "position".cstring).GLuint
+  let tcAttr: Gluint = glGetAttribLocation(mesh.shader.id.GLuint,
+      "tc".cstring).GLuint
+  let normAttr: GLuint = glGetAttribLocation(mesh.shader.id.GLuint,
+      "normal".cstring).GLuint
+
+  # Position
+  glVertexAttribPointer(posAttr, 3.GLint, cGL_FLOAT, GL_FALSE, stride, cast[
+      pointer](offsetOf(Vertex, position)))
+  glEnableVertexAttribArray(posAttr)
+
+  # Normal
+  glVertexAttribPointer(normAttr, 3.GLint, cGL_FLOAT, GL_FALSE, stride, cast[
+      pointer](offsetOf(Vertex, normal)))
+  glEnableVertexAttribArray(normAttr)
+
+  # Texture Coordinates
+  glVertexAttribPointer(tcAttr, 2.GLint, cGL_FLOAT, GL_FALSE, stride,
+      cast[pointer](offsetOf(Vertex, texCoord)))
+  glEnableVertexAttribArray(tcAttr)
+
+  mesh.initialized = true

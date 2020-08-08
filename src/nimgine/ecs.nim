@@ -11,9 +11,23 @@ var systemCount: int = 0
 proc `$`*(c: Component): string =
   result = "<Component id=" & $c.id & ">"
 
-proc newComponent*(): Component =
+proc newComponent*(T: typedesc): T =
   inc(componentCount)
-  result = Component(id: componentCount)
+  result = T(id: componentCount)
+
+proc newPosition*(x, y, z: float): Position =
+  var position: Position = newComponent(Position)
+  position.x = x
+  position.y = y
+  position.z = z
+  result = position
+
+proc newMesh*(file: string): Mesh =
+  var mesh: Mesh = newComponent(Mesh)
+  mesh.initialized = false
+  mesh.file = file
+  result = mesh
+
 
 # Entity Functions
 proc `$`*(entity: Entity): string =

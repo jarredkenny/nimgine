@@ -98,7 +98,6 @@ type
 
   ControlledCamera* = ref object of Component
   Controllable* = ref object of Component
-  RenderBlock* = ref object of Component
 
   Clock* = object
     dt*: float
@@ -206,7 +205,9 @@ type
     kind*: string # TODO: use an enum for texture type?
     path8: string
 
-  Mesh* = ref object
+  Mesh* = ref object of Component
+    initialized*: bool
+    file*: string
     model*: Mat4[GLfloat]
     shader*: Shader
     vao*: uint

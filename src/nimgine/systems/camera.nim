@@ -28,14 +28,14 @@ cameraSystem.handle = proc(app: Application, system: System, event: Event, dt: f
       height = event.height.float
       app.scene.setCameraPosition(width, height)
     of ZoomIn:
-      camera.zoom += dt * speed
+      camera.zoom += dt * speed * 10
     of ZoomOut:
-      camera.zoom -= dt * speed * 10.0
+      camera.zoom -= dt * speed * 10
     of MouseMove:
       let dx = lastMouseX - event.x
       let dy = lastMousey - event.y
-      camera.pitch -= dy.float * dt * speed
-      camera.angle -= dx.float * dt * speed
+      camera.pitch -= dy.float * dt * speed * 3
+      camera.angle -= dx.float * dt * speed * 3
       lastMouseX = event.x
       lastMouseY = event.y
     else:
@@ -47,7 +47,7 @@ cameraSystem.update = proc(app: Application, system: System, dt: float) =
   let dh = camera.zoom * cos(radians(camera.pitch))
   let dv = camera.zoom * sin(radians(camera.pitch))
 
-  let theta = camera.angle # * target.rotation
+  let theta = camera.angle
   let offsetX = dh * sin(radians(theta))
   let offsetZ = dh * cos(radians(theta))
 
