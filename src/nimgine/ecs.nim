@@ -28,7 +28,6 @@ proc newMesh*(file: string): Mesh =
   mesh.file = file
   result = mesh
 
-
 # Entity Functions
 proc `$`*(entity: Entity): string =
   result = "<Entity id=" & $entity.id & ">"
@@ -144,10 +143,10 @@ proc render*(app: Application) =
       system.render(app.scene, app.world)
 
 
-var WorldLayer* = ApplicationLayer()
-
-WorldLayer.init = init
-WorldLayer.handle = handle
-WorldLayer.update = update
-WorldLayer.preRender = preRender
-WorldLayer.render = render
+var WorldLayer* = ApplicationLayer(
+  init: init,
+  handle: handle,
+  update: update,
+  preRender: preRender,
+  render: render
+)

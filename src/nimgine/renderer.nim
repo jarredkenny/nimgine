@@ -26,6 +26,4 @@ proc render*(app: Application) =
     mesh.uniform("MVP", mvp)
     mesh.draw()
 
-var RendererLayer* = ApplicationLayer()
-
-RendererLayer.render = render
+var RendererLayer* = ApplicationLayer(render: render)

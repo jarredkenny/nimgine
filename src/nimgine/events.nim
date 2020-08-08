@@ -36,6 +36,9 @@ proc newResizeEvent*(width, height: int): Event =
 proc newCharEvent*(charecter: char): Event =
   result = Event(kind: EventType.Charecter, charecter: charecter)
 
+proc newLogEvent*(lvl: LogLevel, line: string): Event =
+  result = Event(kind: EventType.Log, line: line)
+
 proc queueEvent*(queue: var EventQueue, evt: Event) =
   queue.emit(evt)
 

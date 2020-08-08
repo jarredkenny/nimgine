@@ -160,10 +160,10 @@ proc render*(app: Application) =
     delay((1000 / 60 - getTicks().float).uint32)
 
 
-var PlatformLayer* = ApplicationLayer()
-
-PlatformLayer.init = init
-PlatformLayer.poll = poll
-PlatformLayer.handle = handle
-PlatformLayer.preRender = preRender
-PlatformLayer.render = render
+var PlatformLayer* = ApplicationLayer(
+  init: init,
+  poll: poll,
+  handle: handle,
+  preRender: preRender,
+  render: render
+)

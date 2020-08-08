@@ -51,9 +51,9 @@ cameraSystem.update = proc(app: Application, system: System, dt: float) =
   let offsetX = dh * sin(radians(theta))
   let offsetZ = dh * cos(radians(theta))
 
-  let x = offsetX # + target.position.x
-  let y = dv # + target.position.y
-  let z = offsetZ # + target.position.z
+  let x = offsetX
+  let y = dv
+  let z = offsetZ
 
 
   camera.view = rotate(

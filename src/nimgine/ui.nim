@@ -1,4 +1,4 @@
-import deques
+import deques, strformat
 import sdl2, opengl, imgui
 import types, events, input
 
@@ -292,8 +292,8 @@ proc newUIText*(value: string): UIElement =
 proc newUIButton*(label: string): UIELement =
   result = UIElement(kind: UIButton, label: label)
 
-proc newUIInput*(): UIElement =
-  let element = UIElement(kind: UIInput, buffer: "")
+proc newUIInput*(onEnter: proc(e: UIElement) ): UIElement =
+  let element = UIElement(kind: UIInput, buffer: "", onEnter: onEnter)
   element.buffer.setLen(100)
   result = element
 
@@ -304,14 +304,15 @@ proc newUIConsole*(history: int): UIElement =
   result = UIElement(
     kind: UIConsole,
     history: history,
-    lines: initDeque[string]()
+    lines: initDeque[string](),
+    scrollToBottom: true
   )
 
 proc write*(elem: UIElement, line: string) =
   assert elem.kind == UIConsole
   if elem.lines.len > elem.history:
-    discard elem.lines.popLast()
-  elem.lines.addFirst(line)
+    discard elem.lines.popFirst()
+  elem.lines.addLast(line)
 
 proc draw(element: UIElement) =
   case element.kind:
@@ -324,8 +325,8 @@ proc draw(element: UIElement) =
       if igInputText("input".cstring, element.buffer.cstring, (
           element.buffer.len * sizeof(char) + 1).uint,
               ImGuiInputTextFlags.EnterReturnsTrue):
-        # element.handleEnter()
-        echo("Input entered")
+        element.onEnter(element)
+        igSetKeyboardFocusHere()
     of UIRow:
       for child in element.children:
         draw(child)
@@ -337,6 +338,8 @@ proc draw(element: UIElement) =
       igBeginChild("console".cstring, ImVec2(x: 0, y: -footHeight), true, HorizontalScrollbar)
       for line in element.lines:
         igTextUnformatted(line)
+      if igGetScrollY() == igGetScrollMaxY():
+        igSetScrollHereY(1.0.float32)
       igEndChild()
     else: discard
 
@@ -345,7 +348,7 @@ proc draw(window: UIWindow) =
   for element in window.elements:
     draw(element)
   igEnd()
-  igShowMetricsWindow()
+  # igShowMetricsWindow()
   window.elements = @[]
 
 proc init*(app: Application) =
@@ -448,10 +451,8 @@ proc handle(app: Application, event: types.Event) =
       else: discard
 
 proc render(app: Application) =
-  var show = true
   igOpenGL3CreateDeviceObjects()
   igNewFrame()
-  igShowDemoWindow(show.addr)
   for window in app.windows:
     window.draw()
   igRender()

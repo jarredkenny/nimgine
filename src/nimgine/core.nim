@@ -1,10 +1,14 @@
+import strformat
+
 import types
+import logger
 import platform
 import ui
 import timing
 import events
 import ecs
 import renderer
+import debug
 
 import systems/[input, render, camera]
 
@@ -13,15 +17,18 @@ proc newApplication*(): Application = Application(
   scene: newScene(),
   clock: newClock(),
   bus: newEventQueue(),
+  logger: newLogger(LogLevel.Info),
   layers: @[
     PlatformLayer,
     UILayer,
     WorldLayer,
     RendererLayer,
+    DebugLayer,
   ]
 )
 
 proc init(app: Application) =
+  app.logger.log("Initialization application")
   app.world.add(@[
     cameraSystem,
     inputSystem,
@@ -32,6 +39,7 @@ proc init(app: Application) =
       layer.init(app)
 
 proc handle(app: Application, event: Event) =
+  app.logger.log(fmt"Handling event: {event}")
   if event.kind == EventType.Quit:
     app.running = false
   for layer in app.layers:

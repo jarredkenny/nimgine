@@ -25,5 +25,4 @@ renderSystem.render = proc(scene: Scene, world: World) =
     for entity in world.entitiesForSystem(renderSystem):
         let mesh = entity.get(Mesh)
         if mesh.initialized:
-            echo fmt"renderer mesh: {mesh.id} {mesh.model}"
             scene.submit(mesh)

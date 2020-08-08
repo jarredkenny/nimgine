@@ -1,4 +1,6 @@
-import types, ui
+import strformat, deques
+
+import types, ui, logger, events
 
 var DebugLayer* = ApplicationLayer()
 
@@ -18,22 +20,29 @@ DebugLayer.init = proc(app: Application) =
   app.windows.add(debugWindow)
   app.windows.add(consoleWindow)
 
-DebugLayer.handle = proc(app: Application, event: Event) =
-
-  # Handle Log Event
-  if event.kind == EventType.Log:
-    consoleElement.write(event.line)
+DebugLayer.poll = proc(app: Application) =
+  debugWindow.push(newUIText(fmt"App event queue: {len(app.bus.queue)}"))
+  debugWindow.push(newUIText(fmt"Log event queue: {len(app.logger.queue)}"))
 
 DebugLayer.update = proc(app: Application) =
 
   # Construct debug window
-  debugWindow.push(newUIText("FPS: " & $app.clock.fps.int))
+  debugWindow.push(newUIText(fmt"FPS: {app.clock.fps.int}"))
 
   # Construct console window
   consoleWindow.push(consoleElement)
 
+  for line in app.logger.drain():
+    consoleElement.write(line)
+
   var footer = newUIRow(@[
-    newUIInput(),
+    newUIInput(proc (e: UIElement) =
+      case e.kind:
+        of UIInput:
+          consoleElement.write(fmt"> {e.buffer}")
+        else:
+          discard
+    ),
     newUIButton("Clear"),
     newUIButton("Other")
   ])

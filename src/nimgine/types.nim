@@ -8,6 +8,7 @@ type
     scene*: Scene
     clock*: Clock
     bus*: EventQueue
+    logger*: Logger
     window*: WindowPtr
     windows*: seq[UIWindow]
     layers*: seq[ApplicationLayer]
@@ -20,6 +21,16 @@ type
     preRender*: proc(app: Application)
     render*: proc(app: Application)
     destroy*: proc(app: Application)
+
+  Logger* = ref object
+    level*: LogLevel
+    queue*: Deque[string]
+
+  LogLevel*{.pure.} = enum
+    Debug,
+    Info,
+    Warn,
+    Error
 
   EventType*{.pure.} = enum
 
@@ -249,10 +260,11 @@ type
       handler*: proc()
     of UIInput:
       buffer*: string
-      handleEnter*: proc()
+      onEnter*: proc(e: UIElement)
     of UIRow:
       children*: seq[UIELement]
     of UIConsole:
       history*: int
       lines*: Deque[string]
+      scrollToBottom*: bool
     else: discard
