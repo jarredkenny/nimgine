@@ -7,7 +7,6 @@ import ../renderer
 
 var renderSystem* = newSystem()
 renderSystem.matchComponent(Position)
-renderSystem.matchComponent(Dimensions)
 renderSystem.matchComponent(Mesh)
 
 renderSystem.init = proc(world: World, system: System) =
