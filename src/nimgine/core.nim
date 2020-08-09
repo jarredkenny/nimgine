@@ -39,7 +39,6 @@ proc init(app: Application) =
       layer.init(app)
 
 proc handle(app: Application, event: Event) =
-  app.logger.log(fmt"Handling event: {event}")
   if event.kind == EventType.Quit:
     app.running = false
   for layer in app.layers:

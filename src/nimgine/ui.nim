@@ -1,6 +1,6 @@
 import deques, strformat
 import sdl2, opengl, imgui
-import types, events, input
+import types, events, input, logger
 
 var UILayer* = ApplicationLayer()
 
@@ -354,6 +354,8 @@ proc draw(window: UIWindow) =
 proc init*(app: Application) =
   var (width, height) = sdl2.getSize(app.window)
 
+  app.logger.log(fmt"imgui v{igGetVersion()}")
+
   igCreateContext()
 
   var io = igGetIO()
@@ -431,8 +433,8 @@ proc handle(app: Application, event: types.Event) =
     if event.input in input.KeyEvents:
       io.keysDown[event.input.ord] = event.state
 
-    if not io.wantCaptureMouse:
-      return
+    # if not io.wantCaptureMouse:
+      # return
 
     # Handle Mouse Inputs
     case event.input:
