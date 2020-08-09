@@ -21,7 +21,7 @@ renderSystem.update = proc(app: Application, system: System, dt: float) =
         if mesh.initialized:
             mesh.model = translate(mat4(1.Glfloat), vec3(position.x.GLfloat, position.y, position.z))
 
-renderSystem.render = proc(scene: Scene, world: World) =
+renderSystem.preRender = proc(scene: Scene, world: World) =
     for entity in world.entitiesForSystem(renderSystem):
         let mesh = entity.get(Mesh)
         if mesh.initialized:

@@ -2,7 +2,7 @@ import strformat, deques
 
 import types, ui, logger, events
 
-var DebugLayer* = ApplicationLayer()
+var DebugLayer* = ApplicationLayer(syncToFrame: true)
 
 var
   debugWindow: UIWindow
@@ -33,6 +33,7 @@ DebugLayer.update = proc(app: Application) =
   consoleWindow.push(consoleElement)
 
   for line in app.logger.drain():
+
     consoleElement.write(line)
 
   var footer = newUIRow(@[

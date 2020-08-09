@@ -1,5 +1,7 @@
 import tables, typetraits, sugar, sets, sequtils, strformat
 
+import glm, opengl
+
 import types
 
 # Id counters
@@ -125,12 +127,12 @@ proc entityForSystem*(world: World, system: System): Entity =
 proc update*(app: Application) =
   for system in app.world.systems:
     if system.update != nil:
-      system.update(app, system, app.clock.dt)
+      system.update(app, system, app.clock.dtUpdate)
 
 proc handle*(app: Application, event: Event) =
   for system in app.world.systems:
     if system.handle != nil and event.kind in system.events:
-      system.handle(app, system, event, app.clock.dt)
+      system.handle(app, system, event, app.clock.dtUpdate)
 
 proc preRender*(app: Application) =
   for system in app.world.systems:

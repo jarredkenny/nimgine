@@ -1,4 +1,4 @@
-import strformat
+import strformat, os, sequtils
 
 import types
 import logger
@@ -20,8 +20,8 @@ proc newApplication*(): Application = Application(
   logger: newLogger(LogLevel.Info),
   layers: @[
     PlatformLayer,
-    UILayer,
     WorldLayer,
+    UILayer,
     RendererLayer,
     DebugLayer,
   ]
@@ -49,25 +49,27 @@ proc handle(app: Application, event: Event) =
         break
 
 proc loop(app: Application) =
+
   while app.running:
 
-    # Poll Events
-    for i in countdown(app.layers.len - 1, 0):
-      let layer = app.layers[i]
-      if layer.poll != nil:
-        layer.poll(app)
+    while app.clock.isFirstInFrame or app.clock.dtRender < 1.0/60.0:
 
-    # Handle Events
-    for event in app.bus.pollEvent():
-      app.handle(event)
+      # Poll Events
+      for i in countdown(app.layers.len - 1, 0):
+        let layer = app.layers[i]
+        if layer.poll != nil and layer.syncToFrame == app.clock.isFirstInFrame:
+          layer.poll(app)
 
-    # Update
-    update(app.clock)
+      # Handle Events
+      for event in app.bus.pollEvent():
+        app.handle(event)
 
-    # Update layer state
-    for layer in app.layers:
-      if layer.update != nil:
-        layer.update(app)
+      # Update layer state
+      for layer in app.layers:
+        if layer.update != nil and layer.syncToFrame == app.clock.isFirstInFrame:
+          layer.update(app)
+
+      update(app.clock)
 
     # Pre-Render
     for i in countdown(app.layers.len - 1, 0):
@@ -80,6 +82,9 @@ proc loop(app: Application) =
       let layer = app.layers[i]
       if layer.render != nil:
         layer.render(app)
+
+    render(app.clock)
+
 
 proc destroy(app: Application) =
   for layer in app.layers:

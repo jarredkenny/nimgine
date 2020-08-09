@@ -21,6 +21,7 @@ type
     preRender*: proc(app: Application)
     render*: proc(app: Application)
     destroy*: proc(app: Application)
+    syncToFrame*: bool
 
   Logger* = ref object
     level*: LogLevel
@@ -84,6 +85,8 @@ type
   Component* = ref object of RootObj
     id*: int
 
+  CameraComponent* = ref object of Component
+
   Entity* = ref object
     id*: int
     components*: Table[string, Component]
@@ -105,15 +108,13 @@ type
   Position* = ref object of Component
     x*, y*, z*: float
 
-  ControlledCamera* = ref object of Component
   Controllable* = ref object of Component
+  Camera* = ref object of Component
 
   Clock* = object
-    dt*: float
-    fps*: float
-    timer*: float
-    ticks*: int
-    last*: float
+    ticks*, fps*: int
+    dtUpdate*, dtRender*, lastRender*: float
+    isFirstInFrame*: bool
 
   InputState* = bool
 
@@ -226,16 +227,15 @@ type
     indices*: seq[GLuint]
     textures*: seq[Texture]
 
-  Camera* = ref object
-    pitch*: GLfloat
-    angle*: GLfloat
-    zoom*: GLfloat
+  SceneCamera* = ref object
+    width*, height*: int
     position*: Vec3[GLfloat]
-    projection*: Mat4[GLfloat]
+    target*: Vec3[GLfloat]
     view*: Mat4[GLfloat]
+    projection*: Mat4[GLfloat]
 
   Scene* = ref object
-    camera*: Camera
+    camera*: SceneCamera
     drawQueue*: Deque[Mesh]
 
   UIWindow* = ref object

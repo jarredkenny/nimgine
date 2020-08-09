@@ -462,3 +462,4 @@ UILayer.init = init
 UILayer.poll = poll
 UILayer.handle = handle
 UILayer.render = render
+UILayer.syncToFrame = true

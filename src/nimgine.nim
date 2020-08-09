@@ -2,11 +2,10 @@ import nimgine/[types, core, ecs]
 
 let app: Application = newApplication()
 
-let camera: Entity = newEntity()
-camera.add(Position(x: 0, y: 0, z: 0))
-camera.add(ControlledCamera())
-
-app.world.add(@[camera])
+var camera = newEntity()
+camera.add(Camera())
+camera.add(newPosition(1.float, 2.float, 25.float))
+app.world.add(camera)
 
 for i in 0..5:
   var e = newEntity()

@@ -11,19 +11,24 @@ export newShader
 export newVertexBuffer
 export newIndexBuffer
 export init
-export newCamera
+export newSceneCamera
 export newScene
 export submit
 export setCameraPosition
+export setCameraDimensions
+export setCameraTargetPosition
+
+proc preRender(app: Application) =
+  app.scene.preRender()
 
 proc render*(app: Application) =
-  var camera = app.scene.camera
 
   for mesh in app.scene.drawQueue.items:
     app.scene.drawQueue.popFirst()
-    var mvp = camera.projection * camera.view * mesh.model
+    var mvp = app.scene.calcMVPForMesh(mesh)
+
     mesh.use()
     mesh.uniform("MVP", mvp)
     mesh.draw()
 
-var RendererLayer* = ApplicationLayer(render: render)
+var RendererLayer* = ApplicationLayer(preRender: preRender, render: render)
