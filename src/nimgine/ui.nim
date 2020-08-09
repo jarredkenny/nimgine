@@ -433,8 +433,8 @@ proc handle(app: Application, event: types.Event) =
     if event.input in input.KeyEvents:
       io.keysDown[event.input.ord] = event.state
 
-    # if not io.wantCaptureMouse:
-      # return
+    if not io.wantCaptureMouse:
+      return
 
     # Handle Mouse Inputs
     case event.input:

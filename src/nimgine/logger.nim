@@ -15,4 +15,4 @@ proc log*(logger: Logger, line: string) =
 
 iterator drain*(logger: Logger): string =
   while len(logger.queue) > 0:
-    yield logger.queue.popFirst()
+    yield logger.queue.popLast()
