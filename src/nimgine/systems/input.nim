@@ -29,14 +29,14 @@ inputSystem.handle = proc(app: Application, system: System, event: Event, dt: fl
             let diffX = event.x - lastMousePosX
             let diffY = event.y - lastMousePosY
             if diffX > 0:
-                app.bus.queueEvent(newEvent(MoveLeft))
+                app.bus.queueEvent(newEvent(PanLeft))
             elif diffX < 0:
-                app.bus.queueEvent(newEvent(MoveRight))
+                app.bus.queueEvent(newEvent(PanRight))
 
             if diffY > 0:
-                app.bus.queueEvent(newEvent(MoveUp))
+                app.bus.queueEvent(newEvent(PanUp))
             elif diffY < 0:
-                app.bus.queueEvent(newEvent(MoveDown))
+                app.bus.queueEvent(newEvent(PanDown))
 
         # Update stored mouve position
         if event.kind == MouseMove:
@@ -69,8 +69,8 @@ inputSystem.update = proc(app: Application, system: System, dt: float) =
     # These are events that fire for every frame a key is held down
     for input in activeKeyMap:
         case input:
-            of KeyW: app.bus.queueEvent(MoveUp)
-            of KeyS: app.bus.queueEvent(MoveDown)
+            of KeyW: app.bus.queueEvent(MoveForward)
+            of KeyS: app.bus.queueEvent(MoveBackward)
             of KeyA: app.bus.queueEvent(MoveLeft)
             of KeyD: app.bus.queueEvent(MoveRight)
             else: discard
