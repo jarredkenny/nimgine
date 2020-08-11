@@ -4,7 +4,7 @@ let app: Application = newApplication()
 
 var camera = newEntity()
 camera.add(Camera())
-camera.add(newPosition(1.float, 2.float, 25.float))
+camera.add(newPosition(1.float, 2.float, 55.float))
 app.world.add(camera)
 
 for i in 0..5:

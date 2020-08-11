@@ -85,8 +85,6 @@ type
   Component* = ref object of RootObj
     id*: int
 
-  CameraComponent* = ref object of Component
-
   Entity* = ref object
     id*: int
     components*: Table[string, Component]
@@ -108,8 +106,12 @@ type
   Position* = ref object of Component
     x*, y*, z*: float
 
-  Controllable* = ref object of Component
+  Orientation* = ref object of Component
+    yaw*, pitch*, roll*: float
+
   Camera* = ref object of Component
+
+  Controllable* = ref object of Component
 
   Clock* = object
     ticks*, fps*: int

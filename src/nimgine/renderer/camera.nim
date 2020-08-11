@@ -16,6 +16,6 @@ proc calcProjection*(camera: var SceneCamera) =
 proc calcView*(camera: var SceneCamera) =
     camera.view = lookAt(
         camera.position,
-        vec3(0.GLfloat, 0, 0),
+        camera.position + camera.target,
         vec3(0.GLfloat, 1 , 0)
     )
