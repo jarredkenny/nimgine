@@ -45,18 +45,12 @@ type
     Resize
 
     # Control Intents
-    MoveForward
-    MoveBackward
+    MoveUp
+    MoveDown
     MoveLeft
     MoveRight
-
     ZoomIn
     ZoomOut
-
-    PanUp
-    PanDown
-    PanLeft
-    PanRight
 
     # UI Events
     MousePosition
@@ -116,10 +110,6 @@ type
     yaw*, pitch*, roll*: float
 
   Camera* = ref object of Component
-    width*, height*: int
-    zoom*: float
-    position*, front*, right*, up*, worldUp*: Vec3[GLfloat]
-    view*, projection*: Mat4[GLfloat]
 
   Controllable* = ref object of Component
 
@@ -225,7 +215,7 @@ type
   Texture* = ref object
     id*: uint
     kind*: string # TODO: use an enum for texture type?
-    path: string
+    path8: string
 
   Mesh* = ref object of Component
     initialized*: bool
@@ -239,8 +229,15 @@ type
     indices*: seq[GLuint]
     textures*: seq[Texture]
 
+  SceneCamera* = ref object
+    width*, height*: int
+    position*: Vec3[GLfloat]
+    target*: Vec3[GLfloat]
+    view*: Mat4[GLfloat]
+    projection*: Mat4[GLfloat]
+
   Scene* = ref object
-    camera*: Camera
+    camera*: SceneCamera
     drawQueue*: Deque[Mesh]
 
   UIWindow* = ref object

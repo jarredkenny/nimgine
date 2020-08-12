@@ -11,13 +11,12 @@ export newShader
 export newVertexBuffer
 export newIndexBuffer
 export init
+export newSceneCamera
 export newScene
 export submit
-export setCamera
 export setCameraPosition
-export setCameraZoom
 export setCameraDimensions
-export setCameraOrientation
+export setCameraTargetPosition
 
 proc preRender(app: Application) =
   app.scene.preRender()

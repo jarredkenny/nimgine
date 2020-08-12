@@ -10,7 +10,7 @@ import ecs
 import renderer
 import debug
 
-import systems/[input, render, camera, controller]
+import systems/[input, render, camera]
 
 proc newApplication*(): Application = Application(
   world: newWorld(),
@@ -32,7 +32,6 @@ proc init(app: Application) =
   app.world.add(@[
     cameraSystem,
     inputSystem,
-    controllerSystem,
     renderSystem
   ])
   for layer in app.layers:

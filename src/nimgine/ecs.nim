@@ -1,5 +1,3 @@
-import glm, opengl
-
 import types
 import ecs/[entity, component, system, world]
 
@@ -12,17 +10,19 @@ export get
 export newWorld
 export add
 export newEntity
-export newPosition
-export newMesh
 
+proc newPosition*(x, y, z: float): Position =
+  var position: Position = newComponent(Position)
+  position.x = x
+  position.y = y
+  position.z = z
+  result = position
 
-proc newCamera*(): Entity =
-  result = newEntity()
-  result.add(newOrientation())
-  result.add(Camera(
-    position: vec3(0.GLfloat, 0, 0),
-    worldUp: vec3(0.GLfloat, 1, 0),
-  ))
+proc newMesh*(file: string): Mesh =
+  var mesh: Mesh = newComponent(Mesh)
+  mesh.initialized = false
+  mesh.file = file
+  result = mesh
 
 
 var WorldLayer* = ApplicationLayer(
