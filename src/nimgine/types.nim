@@ -103,15 +103,14 @@ type
     entities*: seq[Entity]
     systems*: seq[System]
 
-  Position* = ref object of Component
-    x*, y*, z*: float
-
-  Orientation* = ref object of Component
-    yaw*, pitch*, roll*: float
-
   Camera* = ref object of Component
 
   Controllable* = ref object of Component
+
+  Transform* = ref object of Component
+    translation*: Vec3[float32]
+    rotation*: Vec3[float32]
+    scale*: Vec3[float32]
 
   Clock* = object
     ticks*, fps*: int
@@ -229,16 +228,16 @@ type
     indices*: seq[GLuint]
     textures*: seq[Texture]
 
+  Scene* = ref object
+    camera*: SceneCamera
+    drawQueue*: Deque[Mesh]
+
   SceneCamera* = ref object
     width*, height*: int
     position*: Vec3[GLfloat]
     target*: Vec3[GLfloat]
     view*: Mat4[GLfloat]
     projection*: Mat4[GLfloat]
-
-  Scene* = ref object
-    camera*: SceneCamera
-    drawQueue*: Deque[Mesh]
 
   UIWindow* = ref object
     name*: string

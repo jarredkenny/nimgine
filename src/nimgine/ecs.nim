@@ -1,4 +1,5 @@
 import types
+import glm
 import ecs/[entity, component, system, world]
 
 export newSystem
@@ -11,12 +12,12 @@ export newWorld
 export add
 export newEntity
 
-proc newPosition*(x, y, z: float): Position =
-  var position: Position = newComponent(Position)
-  position.x = x
-  position.y = y
-  position.z = z
-  result = position
+proc newTransform*(x, y, z: float32): Transform =
+  result = Transform(
+    translation: vec3(x, y, z),
+    rotation: vec3(0.float32, 0, 1),
+    scale: vec3(0.float32, 0, 0)
+  )
 
 proc newMesh*(file: string): Mesh =
   var mesh: Mesh = newComponent(Mesh)

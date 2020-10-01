@@ -11,8 +11,8 @@ export newShader
 export newVertexBuffer
 export newIndexBuffer
 export init
-export newSceneCamera
 export newScene
+export newSceneCamera
 export submit
 export setCameraPosition
 export setCameraDimensions

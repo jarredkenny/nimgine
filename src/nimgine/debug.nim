@@ -45,12 +45,12 @@ DebugLayer.update = proc(app: Application) =
 
   var footer = newUIRow(@[
     newUIInput(proc (e: UIElement) =
-      case e.kind:
-        of UIInput:
-          consoleElement.write(fmt"> {e.buffer}")
-        else:
-          discard
-    ),
+    case e.kind:
+      of UIInput:
+        consoleElement.write(fmt"> {e.buffer}")
+      else:
+        discard
+  ),
     newUIButton("Clear"),
     newUIButton("Other")
   ])

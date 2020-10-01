@@ -1,6 +1,8 @@
 import ../types
 import ../ecs
 
+import glm
+
 var controllerSystem* = newSystem()
 
 controllerSystem.subscribe(@[
@@ -8,23 +10,25 @@ controllerSystem.subscribe(@[
 ])
 
 controllerSystem.matchComponent(Controllable)
-controllerSystem.matchComponent(Position)
+controllerSystem.matchComponent(Transform)
 
-controllerSystem.handle = proc(app: Application, system: System, event: Event) =
+controllerSystem.handle = proc(app: Application, system: System, event: Event, dt: float) =
     echo "controller system event: " & $event.kind
     for entity in app.world.entitiesForSystem(controllerSystem):
-        var position = entity.get(Position)
+        var transform = entity.get(Transform)
         case event.kind:
             of EventType.MoveUp:
-                position.y += 0.1
+                discard
             of EventType.MoveDown:
-                position.y -= 0.1
+                discard
             of EventType.MoveLeft:
-                position.x -= 0.1
+                discard
             of EventType.MoveRight:
-                position.x += 0.1
+                discard
             of EventType.ZoomIn:
-                position.z -= 0.1
+                transform.translation += transform.rotation
+                discard
             of EventType.ZoomOut:
-                position.z += 0.1
-            else: discard
+                discard
+            else:
+                discard

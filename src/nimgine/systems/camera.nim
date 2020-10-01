@@ -10,7 +10,7 @@ import ../logger
 
 var cameraSystem* = newSystem()
 
-cameraSystem.matchComponent(Position)
+cameraSystem.matchComponent(Transform)
 cameraSystem.matchComponent(Camera)
 
 cameraSystem.subscribe(@[Resize, MouseMove,
@@ -25,9 +25,10 @@ cameraSystem.handle = proc(app: Application, system: System, event: Event, dt: f
 
 cameraSystem.preRender = proc(scene: Scene, world: World) =
   let entity = world.entityForSystem(cameraSystem)
-  let position: Position = entity.get(Position)
+  let transform: Transform = entity.get(Transform)
 
-  echo fmt"camera position is {position.x},{position.y},{position.z}"
+  echo fmt"camera position is {transform.translation.x},{transform.translation.y},{transform.translation.z}"
 
-  scene.setCameraPosition(vec3(position.x.GLfloat, position.y, position.z))
-  scene.setCameraTargetPosition(vec3(0.GLfloat, 0, 1))
+  scene.setCameraPosition(vec3(transform.translation.x.GLfloat,
+      transform.translation.y, transform.translation.z))
+  scene.setCameraTargetPosition(vec3(0.1.GLfloat, 0.1, 0.1))
