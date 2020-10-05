@@ -430,8 +430,9 @@ proc handle(app: Application, event: types.Event) =
   if event.kind == types.EventType.Input:
 
     # Handle Key Inputs
-    if event.input in input.KeyEvents:
+    if event.input in input.KeyEvents and io.wantCaptureKeyboard:
       io.keysDown[event.input.ord] = event.state
+      event.markHandled()
 
     if not io.wantCaptureMouse:
       return

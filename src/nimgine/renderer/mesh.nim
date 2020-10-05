@@ -20,9 +20,8 @@ proc draw*(mesh: Mesh) =
   glBindVertexArray(0)
 
 
-proc loadMaterialTextures(scene: PScene, mat: PMaterial, kind: TTextureType,
+proc loadMaterialTextures*(scene: PScene, mat: PMaterial, kind: TTextureType,
     name: string): seq[Texture] =
-
   echo "loadMaterialTextures"
   echo fmt"scene.textureCount: {scene.textureCount}"
   for i in 0..<scene.textureCount:

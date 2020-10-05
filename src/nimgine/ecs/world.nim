@@ -1,5 +1,7 @@
 import sequtils, tables, sets
 
+import glm
+
 import ../types
 
 var systemCount: int = 0
@@ -9,7 +11,7 @@ proc `$`*(w: World): string =
       w.systems) & ">"
 
 proc newWorld*(): World =
-  result = World()
+  result = World(up: vec3(0.0.Point, 1.0, 0))
 
 proc add*(world: World, system: System) =
   world.systems.add(system)

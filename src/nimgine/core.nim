@@ -20,8 +20,8 @@ proc newApplication*(): Application = Application(
   logger: newLogger(LogLevel.Info),
   layers: @[
     PlatformLayer,
-    WorldLayer,
     UILayer,
+    WorldLayer,
     RendererLayer,
     DebugLayer,
   ]

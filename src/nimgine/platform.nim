@@ -165,5 +165,6 @@ var PlatformLayer* = ApplicationLayer(
   poll: poll,
   handle: handle,
   preRender: preRender,
-  render: render
+  render: render,
+  syncToFrame: true,
 )

@@ -10,7 +10,7 @@ app.world.add(camera)
 
 for i in 0..5:
   var e = newEntity()
-  e.add(newTransform(0.float, (-10 + (i * 5)).float, 0.float))
+  e.add(newTransform(-1.float, (-10 + (i * 8)).float, 0.float))
   e.add(newMesh("models/airboat.obj"))
   app.world.add(e)
 

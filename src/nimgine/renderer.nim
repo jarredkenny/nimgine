@@ -16,7 +16,6 @@ export newSceneCamera
 export submit
 export setCameraPosition
 export setCameraDimensions
-export setCameraTargetPosition
 
 proc preRender(app: Application) =
   app.scene.preRender()

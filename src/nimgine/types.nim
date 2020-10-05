@@ -1,7 +1,8 @@
 import tables, deques, sets
-import glm, opengl, sdl2
+import glm, sdl2
 
 type
+
   Application* = ref object
     running*: bool
     world*: World
@@ -38,8 +39,8 @@ type
     # Input Type Events
     Charecter
     Input
-    MouseMove
 
+    MouseMove
     # Platform State Events
     Quit
     Resize
@@ -99,18 +100,21 @@ type
     preRender*: proc(scene: Scene, world: World)
     render*: proc(scene: Scene, world: World)
 
+  Point* = float32
+
   World* = ref object
     entities*: seq[Entity]
     systems*: seq[System]
+    up*: Vec3[Point]
 
   Camera* = ref object of Component
 
   Controllable* = ref object of Component
 
   Transform* = ref object of Component
-    translation*: Vec3[float32]
-    rotation*: Vec3[float32]
-    scale*: Vec3[float32]
+    translation*: Vec3[Point]
+    rotation*: Vec3[Point]
+    scale*: Vec3[Point]
 
   Clock* = object
     ticks*, fps*: int
@@ -205,9 +209,9 @@ type
 
   # New Mesh Types
   Vertex* = object
-    position*: Vec3[float32]
-    normal*: Vec3[float32]
-    texCoord*: Vec2[float32]
+    position*: Vec3[Point]
+    normal*: Vec3[Point]
+    texCoord*: Vec2[Point]
 
   Index* = uint
 
@@ -219,13 +223,13 @@ type
   Mesh* = ref object of Component
     initialized*: bool
     file*: string
-    model*: Mat4[GLfloat]
+    model*: Mat4[Point]
     shader*: Shader
     vao*: uint
     vbo*: uint
     ebo*: uint
     vertices*: seq[Vertex]
-    indices*: seq[GLuint]
+    indices*: seq[uint32]
     textures*: seq[Texture]
 
   Scene* = ref object
@@ -234,10 +238,10 @@ type
 
   SceneCamera* = ref object
     width*, height*: int
-    position*: Vec3[GLfloat]
-    target*: Vec3[GLfloat]
-    view*: Mat4[GLfloat]
-    projection*: Mat4[GLfloat]
+    position*: Vec3[Point]
+    front*: Vec3[Point]
+    view*: Mat4[Point]
+    projection*: Mat4[Point]
 
   UIWindow* = ref object
     name*: string
