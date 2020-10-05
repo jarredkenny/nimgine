@@ -28,6 +28,7 @@ DebugLayer.init = proc(app: Application) =
 DebugLayer.poll = proc(app: Application) =
   debugWindow.push(newUIText(fmt"App event queue: {len(app.bus.queue)}"))
   debugWindow.push(newUIText(fmt"Log event queue: {len(app.logger.queue)}"))
+  debugWindow.push(newUIText(fmt"Entities: {len(app.world.entities)}"))
 
 DebugLayer.update = proc(app: Application) =
 

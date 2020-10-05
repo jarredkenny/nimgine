@@ -9,11 +9,11 @@ import ../types
 proc newScene*(): Scene =
   let scene = Scene()
   scene.camera = newSceneCamera(0, 0)
-  scene.drawQueue = initDeque[Mesh]()
+  scene.drawQueue = initDeque[(Mesh, Transform)]()
   result = scene
 
-proc submit*(scene: Scene, mesh: Mesh) =
-  scene.drawQueue.addLast(mesh)
+proc submit*(scene: Scene, mesh: Mesh, transform: Transform) =
+  scene.drawQueue.addLast((mesh, transform))
 
 proc preRender*(scene: Scene) =
   scene.camera.calcProjection()
@@ -31,5 +31,7 @@ proc setCameraPosition*(scene: Scene, transform: Transform) =
     sin(radians(transform.rotation.x)) * cos(radians(transform.rotation.y))
   ))
 
-proc calcMVPForMesh*(scene: Scene, mesh: Mesh): Mat4[GLfloat] =
-  result = scene.camera.projection * scene.camera.view * mesh.model
+proc calcMVPForMesh*(scene: Scene, mesh: Mesh, transform: Transform): Mat4[GLfloat] =
+  result = scene.camera.projection * scene.camera.view * translate(mat4(1.Glfloat), vec3(
+                    transform.translation.x.GLfloat, transform.translation.y,
+                    transform.translation.z))

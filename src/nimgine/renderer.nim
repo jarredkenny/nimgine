@@ -22,9 +22,9 @@ proc preRender(app: Application) =
 
 proc render*(app: Application) =
 
-  for mesh in app.scene.drawQueue.items:
+  for (mesh, transform) in app.scene.drawQueue.items:
     app.scene.drawQueue.popFirst()
-    var mvp = app.scene.calcMVPForMesh(mesh)
+    var mvp = app.scene.calcMVPForMesh(mesh, transform)
 
     mesh.use()
     mesh.uniform("MVP", mvp)

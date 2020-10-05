@@ -1,9 +1,11 @@
-import strformat, strutils
+import strformat, strutils, tables
 
 import opengl, glm, assimp
 
 import ../types
 import shader
+
+var loadedMeshes = initTable[string, Mesh]()
 
 proc uniform*(mesh: Mesh, name: string, matrix: var Mat4) =
   var index: GLint = glGetUniformLocation(mesh.shader.id.GLuint, name)
@@ -60,6 +62,7 @@ proc processNode(scene: PScene, node: PNode, mesh: var Mesh) =
   for i in 0..<node.childrenCount:
     processNode(scene, node.children[i], mesh)
 
+
 proc loadModel*(file: string, mesh: var Mesh) =
   echo fmt"loading model for mesh: {repr(mesh)}"
 
@@ -77,14 +80,9 @@ proc loadModel*(file: string, mesh: var Mesh) =
 
   if isNil scene:
     echo fmt"Failed to load model: {file}"
-  else:
-    echo fmt"Sucessfully loaded file {file}"
 
-  echo fmt"Scene: {scene.meshCount} meshes"
-  echo fmt"Animations: {scene.animationCount > 0}"
-
-  # start processing the model
   processNode(scene, scene.rootNode, mesh);
+    
 
 proc init*(mesh: var Mesh) =
 
@@ -95,7 +93,7 @@ proc init*(mesh: var Mesh) =
     return
 
   loadModel(mesh.file, mesh)
-  mesh.model = mat4(1.GLfloat)
+
   mesh.shader = newShader(
     """
     #version 440 core

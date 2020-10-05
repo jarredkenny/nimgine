@@ -223,7 +223,6 @@ type
   Mesh* = ref object of Component
     initialized*: bool
     file*: string
-    model*: Mat4[Point]
     shader*: Shader
     vao*: uint
     vbo*: uint
@@ -234,7 +233,7 @@ type
 
   Scene* = ref object
     camera*: SceneCamera
-    drawQueue*: Deque[Mesh]
+    drawQueue*: Deque[(Mesh, Transform)]
 
   SceneCamera* = ref object
     width*, height*: int

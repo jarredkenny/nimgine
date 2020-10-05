@@ -7,8 +7,7 @@ var cameraSystem* = newSystem()
 cameraSystem.matchComponent(Transform)
 cameraSystem.matchComponent(Camera)
 
-cameraSystem.subscribe(@[Resize, MouseMove,
-    EventType.ZoomIn, EventType.ZoomOut])
+cameraSystem.subscribe(Resize)
 
 cameraSystem.handle = proc(app: Application, system: System, event: Event, dt: float) =
   case event.kind:
