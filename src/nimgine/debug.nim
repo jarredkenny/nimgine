@@ -1,6 +1,8 @@
 import strformat, deques
 
-import types, ui, logger, events
+import types, ui, logger
+
+import renderer/mesh 
 
 var DebugLayer* = ApplicationLayer(syncToFrame: true)
 
@@ -29,6 +31,8 @@ DebugLayer.poll = proc(app: Application) =
   debugWindow.push(newUIText(fmt"App event queue: {len(app.bus.queue)}"))
   debugWindow.push(newUIText(fmt"Log event queue: {len(app.logger.queue)}"))
   debugWindow.push(newUIText(fmt"Entities: {len(app.world.entities)}"))
+  debugWindow.push(newUIText(fmt"Meshes: {meshCount}"))
+  debugWindow.push(newUIText(fmt"Draw Calls: {drawCalls}"))
 
 DebugLayer.update = proc(app: Application) =
 

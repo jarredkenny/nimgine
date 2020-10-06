@@ -12,7 +12,8 @@ renderSystem.matchComponent(Mesh)
 renderSystem.init = proc(world: World, system: System) =
     for entity in world.entitiesForSystem(renderSystem):
         var mesh: Mesh = entity.get(Mesh)
-        mesh.init()
+        if not mesh.initialized:
+            mesh.init()
 
 renderSystem.preRender = proc(scene: Scene, world: World) =
     for entity in world.entitiesForSystem(renderSystem):

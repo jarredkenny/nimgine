@@ -1,6 +1,8 @@
-import types
+import types, tables
 import glm
 import ecs/[entity, component, system, world]
+
+import renderer/mesh
 
 export newSystem
 export subscribe
@@ -20,9 +22,14 @@ proc newTransform*(x, y, z: float32): Transform =
   )
 
 proc newMesh*(file: string): Mesh =
-  var mesh: Mesh = newComponent(Mesh)
-  mesh.initialized = false
-  mesh.file = file
+  var mesh: Mesh
+  if loadedMeshes.hasKey(file):
+    mesh = loadedMeshes[file]
+  else: 
+    mesh = newComponent(Mesh)
+    mesh.file = file
+    loadedMeshes.add(file, mesh)
+ 
   result = mesh
 
 

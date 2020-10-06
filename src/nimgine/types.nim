@@ -215,14 +215,20 @@ type
 
   Index* = uint
 
+  TextureType* {.pure.} = enum
+    TextureDiffuse,
+    TextureSpecular,
+    TextureNormal,
+    TextureHeight
+
   Texture* = ref object
     id*: uint
-    kind*: string # TODO: use an enum for texture type?
-    path8: string
+    kind*: TextureType
+    path: string
 
   Mesh* = ref object of Component
-    initialized*: bool
     file*: string
+    initialized*: bool
     shader*: Shader
     vao*: uint
     vbo*: uint
@@ -230,7 +236,7 @@ type
     vertices*: seq[Vertex]
     indices*: seq[uint32]
     textures*: seq[Texture]
-
+    
   Scene* = ref object
     camera*: SceneCamera
     drawQueue*: Deque[(Mesh, Transform)]
@@ -241,7 +247,8 @@ type
     front*: Vec3[Point]
     view*: Mat4[Point]
     projection*: Mat4[Point]
-
+  
+  
   UIWindow* = ref object
     name*: string
     open*: bool

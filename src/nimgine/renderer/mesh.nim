@@ -5,7 +5,10 @@ import opengl, glm, assimp
 import ../types
 import shader
 
-var loadedMeshes = initTable[string, Mesh]()
+var loadedMeshes* = initTable[string, Mesh]()
+
+var meshCount*: uint = 0
+var drawCalls*: uint = 0
 
 proc uniform*(mesh: Mesh, name: string, matrix: var Mat4) =
   var index: GLint = glGetUniformLocation(mesh.shader.id.GLuint, name)
@@ -17,44 +20,57 @@ proc use*(mesh: Mesh) =
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo.GLuint)
 
 proc draw*(mesh: Mesh) =
+  drawCalls += 1
   glDrawElements(GL_TRIANGLES, (mesh.indices.len * sizeof(mesh.indices[
       0])).GLsizei, GL_UNSIGNED_INT, nil)
   glBindVertexArray(0)
 
 
-proc loadMaterialTextures*(scene: PScene, mat: PMaterial, kind: TTextureType,
-    name: string): seq[Texture] =
+proc loadMaterialTextures*(scene: PScene, mat: PMaterial, kind: TTextureType): seq[Texture] =
   echo "loadMaterialTextures"
   echo fmt"scene.textureCount: {scene.textureCount}"
-  for i in 0..<scene.textureCount:
-    var str: AIString
-    discard mat.getTexture(kind, i, addr(str))
-    echo fmt"str: {str}"
+  # for i in 0..<scene.textureCount:
+  var str: AIString
+  discard mat.getTexture(kind, 0, addr(str))
+  echo fmt"str: {str}"
 
 proc processMesh(scene: PScene, node: PNode, mesh: PMesh, myMesh: var Mesh) =
   let vertices = cast[ptr UncheckedArray[TVector3d]](mesh.vertices)
   let normals = cast[ptr UncheckedArray[TVector3d]](mesh.normals)
-
+  
+  # Vertices
   for i in 0..<mesh.vertexCount:
     let pos = vertices[i]
     let norm = normals[i]
+
+    var tc: Vec2[Point] = vec2(0.0.Point, 0.0)
+
+    if mesh.texCoords[0] != nil:
+      var m = cast[ptr UncheckedArray[TVector3d]](mesh.texCoords[0])
+      tc.x = m[i].x
+      tc.y = m[i].y
+
     let vertex = Vertex(
       position: vec3(pos.x, pos.y, pos.z),
-      normal: vec3(norm.x, norm.y, norm.z)
+      normal: vec3(norm.x, norm.y, norm.z),
+      texCoord: vec2(tc.x, tc.y)
     )
+
     myMesh.vertices.add(vertex)
 
+  # Indices
   for i in 0..<mesh.faceCount:
     let face = mesh.faces[i]
     for k in 0..2:
       myMesh.indices.add(face.indices[k].GLuint)
 
-  echo fmt"mesh.materialIndex: {mesh.materialIndex}"
-  if mesh.materialIndex >= 0:
-    echo "load a mesh textures"
-    var mat: PMaterial = scene.materials[mesh.materialIndex]
+  let material = scene.materials[mesh.materialIndex]
 
+  # let diffuseMap = loadMaterialTextures(scene, material, TTextureType.TexDiffuse)
 
+  # if mesh.materialIndex >= 0:
+  #   var mat: PMaterial = scene.materials[mesh.materialIndex]
+  #   echo repr(mat.properties)
 
 proc processNode(scene: PScene, node: PNode, mesh: var Mesh) =
   for i in 0..<node.meshCount:
@@ -64,7 +80,9 @@ proc processNode(scene: PScene, node: PNode, mesh: var Mesh) =
 
 
 proc loadModel*(file: string, mesh: var Mesh) =
-  echo fmt"loading model for mesh: {repr(mesh)}"
+  # echo fmt"loading model for mesh: {repr(mesh)}"
+
+  meshCount += 1
 
   let scene = assimp.aiImportFile(file,
     aiProcess_MakeLeftHanded or
@@ -80,6 +98,8 @@ proc loadModel*(file: string, mesh: var Mesh) =
 
   if isNil scene:
     echo fmt"Failed to load model: {file}"
+
+  echo repr(scene)
 
   processNode(scene, scene.rootNode, mesh);
     

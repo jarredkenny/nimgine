@@ -19,6 +19,7 @@ export setCameraDimensions
 
 proc preRender(app: Application) =
   app.scene.preRender()
+  drawCalls = 0
 
 proc render*(app: Application) =
 
