@@ -14,9 +14,9 @@ const MODELS = @[
   "models/airboat.obj"
 ]
 
-const PADDING = 15;
+const PADDING = 10;
 
-let C = 4;
+let C = 0;
 
 for x in 0..C:
   for y in 0..C:

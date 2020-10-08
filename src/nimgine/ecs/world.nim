@@ -27,9 +27,9 @@ proc add*(world: World, entities: seq[Entity]) =
   for entity in entities:
     world.add(entity)
 
-proc newSystem*(): System =
+proc newSystem*(syncToFrame: bool): System =
   inc(systemCount)
-  result = System(id: systemCount)
+  result = System(id: systemCount, syncToFrame: syncToFrame)
 
 proc init*(app: Application) =
   for system in app.world.systems:
@@ -51,12 +51,12 @@ proc entityForSystem*(world: World, system: System): Entity =
 
 proc update*(app: Application) =
   for system in app.world.systems:
-    if system.update != nil:
+    if system.update != nil and (app.clock.isFirstInFrame or system.syncToFrame == app.clock.isFirstInFrame):
       system.update(app, system, app.clock.dtUpdate)
 
 proc handle*(app: Application, event: Event) =
   for system in app.world.systems:
-    if system.handle != nil and event.kind in system.events:
+    if system.handle != nil and event.kind in system.events and (app.clock.isFirstInFrame or system.syncToFrame == app.clock.isFirstInFrame):
       system.handle(app, system, event, app.clock.dtUpdate)
 
 proc preRender*(app: Application) =

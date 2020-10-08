@@ -3,7 +3,7 @@ import ../types
 import ../ecs
 import ../renderer
 
-var cameraSystem* = newSystem()
+var cameraSystem* = newSystem(false)
 
 cameraSystem.matchComponent(Transform)
 cameraSystem.matchComponent(Camera)

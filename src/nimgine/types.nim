@@ -46,8 +46,8 @@ type
     Resize
 
     # Control Intents
-    MoveUp
-    MoveDown
+    MoveForward
+    MoveBackward
     MoveLeft
     MoveRight
     ZoomIn
@@ -99,6 +99,7 @@ type
     update*: proc(app: Application, system: System, dt: float)
     preRender*: proc(scene: Scene, world: World)
     render*: proc(scene: Scene, world: World)
+    syncToFrame*: bool
 
   Point* = float32
 

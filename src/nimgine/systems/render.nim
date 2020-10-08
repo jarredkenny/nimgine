@@ -5,7 +5,7 @@ import ../types
 import ../ecs
 import ../renderer
 
-var renderSystem* = newSystem()
+var renderSystem* = newSystem(true)
 renderSystem.matchComponent(Transform)
 renderSystem.matchComponent(Model)
 

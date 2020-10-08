@@ -28,9 +28,10 @@ DebugLayer.init = proc(app: Application) =
   app.windows.add(consoleWindow)
 
 DebugLayer.poll = proc(app: Application) =
-  debugWindow.push(newUIText(fmt"App event queue: {len(app.bus.queue)}"))
-  debugWindow.push(newUIText(fmt"Log event queue: {len(app.logger.queue)}"))
+  debugWindow.push(newUIText(fmt"Event queue: {len(app.bus.queue)}"))
+  debugWindow.push(newUIText(fmt"Log queue: {len(app.logger.queue)}"))
   debugWindow.push(newUIText(fmt"Entities: {len(app.world.entities)}"))
+  debugWindow.push(newUIText(fmt"Models: {modelCount}"))
   debugWindow.push(newUIText(fmt"Meshes: {meshCount}"))
   debugWindow.push(newUIText(fmt"Draw Calls: {drawCalls}"))
 

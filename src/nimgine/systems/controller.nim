@@ -3,10 +3,10 @@ import ../ecs
 
 import glm
 
-var controllerSystem* = newSystem()
+var controllerSystem* = newSystem(false)
 
 controllerSystem.subscribe(@[
-    MoveUp, MoveDown, MoveLeft, MoveRight, EventType.ZoomIn, EventType.ZoomOut
+    MoveForward, MoveBackward, MoveLeft, MoveRight, EventType.ZoomIn, EventType.ZoomOut
 ])
 
 controllerSystem.matchComponent(Controllable)
@@ -25,17 +25,24 @@ controllerSystem.handle = proc(app: Application, system: System, event: Event, d
         ))
 
         case event.kind:
-            of EventType.MoveUp:
-                transform.rotation += app.world.up * dt * 0.001
-            of EventType.MoveDown:
-                transform.rotation -= app.world.up * dt * 0.001
-            of EventType.MoveLeft:
-                transform.rotation -= vec3(1.0.Point, 0.0, 0.0) * dt * 0.001
-            of EventType.MoveRight:
-                transform.rotation += vec3(1.0.Point, 0.0, 0.0) * dt * 0.001
-            of EventType.ZoomIn:
+            # of EventType.MoveForward:
+            #     transform.rotation += app.world.up * dt * 0.001
+            # of EventType.MoveBackward:
+            #     transform.rotation -= app.world.up * dt * 0.001
+        
+            of MoveForward:
                 transform.translation += vec3(1.0.Point, 0.0, 0.0) + front * dt
-            of EventType.ZoomOut:
+            
+            of MoveBackward:
                 transform.translation -= vec3(1.0.Point, 0.0, 0.0) + front * dt
+
+            of MoveLeft:
+                transform.rotation -= vec3(1.0.Point, 0.0, 0.0) * dt * 0.001
+            of MoveRight:
+                transform.rotation += vec3(1.0.Point, 0.0, 0.0) * dt * 0.001
+            of ZoomIn:
+                transform.translation += vec3(1.0.Point, 0.0, 0.0) + front * dt * 0.001
+            of ZoomOut:
+                transform.translation -= vec3(1.0.Point, 0.0, 0.0) + front * dt * 0.001
             else:
                 discard

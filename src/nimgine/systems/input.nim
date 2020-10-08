@@ -9,7 +9,7 @@ type
     ActiveKeyMap = HashSet[InputType]
 
 var activeKeyMap = ActiveKeyMap()
-var inputSystem* = newSystem()
+var inputSystem* = newSystem(true)
 
 var lastMousePosX: int = 0
 var lastMousePosY: int = 0
@@ -34,9 +34,9 @@ inputSystem.handle = proc(app: Application, system: System, event: Event, dt: fl
                 app.bus.queueEvent(newEvent(MoveRight))
 
             if diffY > 0:
-                app.bus.queueEvent(newEvent(MoveUp))
+                app.bus.queueEvent(newEvent(MoveForward))
             elif diffY < 0:
-                app.bus.queueEvent(newEvent(MoveDown))
+                app.bus.queueEvent(newEvent(MoveBackward))
 
         # Update stored mouve position
         if event.kind == MouseMove:
@@ -69,8 +69,8 @@ inputSystem.update = proc(app: Application, system: System, dt: float) =
     # These are events that fire for every frame a key is held down
     for input in activeKeyMap:
         case input:
-            of KeyW: app.bus.queueEvent(MoveUp)
-            of KeyS: app.bus.queueEvent(MoveDown)
+            of KeyW: app.bus.queueEvent(MoveForward)
+            of KeyS: app.bus.queueEvent(MoveBackward)
             of KeyA: app.bus.queueEvent(MoveLeft)
             of KeyD: app.bus.queueEvent(MoveRight)
             else: discard

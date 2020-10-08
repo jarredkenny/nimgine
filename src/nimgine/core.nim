@@ -59,7 +59,7 @@ proc loop(app: Application) =
       # Poll Events
       for i in countdown(app.layers.len - 1, 0):
         let layer = app.layers[i]
-        if layer.poll != nil and layer.syncToFrame == app.clock.isFirstInFrame:
+        if layer.poll != nil and (app.clock.isFirstInFrame or layer.syncToFrame == app.clock.isFirstInFrame):
           layer.poll(app)
 
       # Handle Events
@@ -68,7 +68,7 @@ proc loop(app: Application) =
 
       # Update layer state
       for layer in app.layers:
-        if layer.update != nil and layer.syncToFrame == app.clock.isFirstInFrame:
+        if layer.update != nil and (app.clock.isFirstInFrame or layer.syncToFrame == app.clock.isFirstInFrame):
           layer.update(app)
 
       update(app.clock)

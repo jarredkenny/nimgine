@@ -8,6 +8,7 @@ import shader
 
 var loadedModels* = initTable[string, Model]()
 
+var modelCount*: uint = 0
 var meshCount*: uint = 0
 var drawCalls*: uint = 0
 
@@ -245,6 +246,7 @@ proc processMesh(model: Model, mesh: PMesh, scene: PScene): Mesh =
 
   var mesh = newMesh(vertices, indices, textures)
   mesh.init()
+  meshCount += 1
   result = mesh
 
 
@@ -268,7 +270,7 @@ proc init*(model: var Model) =
   if model.file.len == 0:
     return
 
-  meshCount += 1
+  modelCount += 1
 
   echo fmt"Loading Model: {model.file}"
 
