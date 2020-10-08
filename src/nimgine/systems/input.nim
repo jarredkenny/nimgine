@@ -1,4 +1,4 @@
-import sets
+import sets, strformat
 
 import ../types
 import ../ui
@@ -29,14 +29,14 @@ inputSystem.handle = proc(app: Application, system: System, event: Event, dt: fl
             let diffX = event.x - lastMousePosX
             let diffY = event.y - lastMousePosY
             if diffX > 0:
-                app.bus.queueEvent(newEvent(MoveLeft))
+                app.bus.queueEvent(newEvent(PanLeft))
             elif diffX < 0:
-                app.bus.queueEvent(newEvent(MoveRight))
+                app.bus.queueEvent(newEvent(PanRight))
 
             if diffY > 0:
-                app.bus.queueEvent(newEvent(MoveForward))
+                app.bus.queueEvent(newEvent(PanUp))
             elif diffY < 0:
-                app.bus.queueEvent(newEvent(MoveBackward))
+                app.bus.queueEvent(newEvent(PanDown))
 
         # Update stored mouve position
         if event.kind == MouseMove:
@@ -58,10 +58,10 @@ inputSystem.handle = proc(app: Application, system: System, event: Event, dt: fl
         # and spawn new events only when received
 
         # Handle Mouse Wheel Zooming
-        case event.input:
-            of InputType.MouseScrollUp: app.bus.queueEvent(EventType.ZoomIn)
-            of InputType.MouseScrollDown: app.bus.queueEvent(EventType.ZoomOut)
-            else: discard
+        # case event.input:
+            # of InputType.MouseScrollUp: app.bus.queueEvent(EventType.ZoomIn)
+            # of InputType.MouseScrollDown: app.bus.queueEvent(EventType.ZoomOut)
+            # else: discard
 
 inputSystem.update = proc(app: Application, system: System, dt: float) =
 

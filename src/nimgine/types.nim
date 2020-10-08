@@ -50,8 +50,10 @@ type
     MoveBackward
     MoveLeft
     MoveRight
-    ZoomIn
-    ZoomOut
+    PanUp
+    PanDown
+    PanRight
+    PanLeft
 
     # UI Events
     MousePosition
