@@ -14,6 +14,7 @@ var inputSystem* = newSystem(true)
 var lastMousePosX: int = 0
 var lastMousePosY: int = 0
 
+
 inputSystem.subscribe(@[Input, MouseMove])
 
 # Handle input events
@@ -24,8 +25,8 @@ inputSystem.handle = proc(app: Application, system: System, event: Event, dt: fl
 
     if event.kind == MouseMove:
 
-        # Handle Click+Drag (MouseDown active, while MouseMove occurs
-        if activeKeyMap.contains(MouseLeft) and event.kind == MouseMove:
+        # Handle Mouse Motion
+        if event.kind == MouseMove:
             let diffX = event.x - lastMousePosX
             let diffY = event.y - lastMousePosY
             if diffX > 0:
@@ -53,15 +54,6 @@ inputSystem.handle = proc(app: Application, system: System, event: Event, dt: fl
         else:
             if activeKeyMap.contains(event.input):
                 activeKeyMap.excl(event.input)
-
-        # Input Events based on events that occur within a frame
-        # and spawn new events only when received
-
-        # Handle Mouse Wheel Zooming
-        # case event.input:
-            # of InputType.MouseScrollUp: app.bus.queueEvent(EventType.ZoomIn)
-            # of InputType.MouseScrollDown: app.bus.queueEvent(EventType.ZoomOut)
-            # else: discard
 
 inputSystem.update = proc(app: Application, system: System, dt: float) =
 

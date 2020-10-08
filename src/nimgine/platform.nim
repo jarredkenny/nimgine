@@ -4,11 +4,12 @@ import opengl
 import types
 import events
 
-var screenWidth: cint = 640
-var screenHeight: cint = 480
+var screenWidth: cint = 1920
+var screenHeight: cint = 1080
 var context: GlContextPtr
 var event = defaultEvent
 var keyboardCharInput = false
+var captureMouse = false
 
 proc toInput(key: Scancode): InputType =
   case key
@@ -98,13 +99,14 @@ proc poll(app: Application) =
     if event.kind == sdl2.EventType.QuitEvent:
       app.bus.queueEvent(types.EventType.Quit)
 
-    if event.kind == sdl2.EventType.KeyDown:
-      app.bus.queueEvent(newInputEvent(event.key.keysym.scancode.toInput, true))
+    if not keyboardCharInput:
+      if event.kind == sdl2.EventType.KeyDown:
+        app.bus.queueEvent(newInputEvent(event.key.keysym.scancode.toInput, true))
 
-    if event.kind == sdl2.EventType.KeyUp:
-      app.bus.queueEvent(newInputEvent(event.key.keysym.scancode.toInput, false))
+      if event.kind == sdl2.EventType.KeyUp:
+        app.bus.queueEvent(newInputEvent(event.key.keysym.scancode.toInput, false))
 
-    if event.kind == sdl2.EventType.TextInput:
+    elif event.kind == sdl2.EventType.TextInput:
       var a = cast[TextInputEventPtr](event.text)
       app.bus.queueEvent(newCharEvent(a.text[0]))
 
@@ -137,6 +139,8 @@ proc poll(app: Application) =
         let width = windowEvent.data1
         let height = windowEvent.data2
         reshape(width, height)
+        screenHeight = height
+        screenWidth = width
         app.bus.queueEvent(newResizeEvent(width, height))
 
 proc handle(app: Application, event: types.Event) =
@@ -149,7 +153,12 @@ proc handle(app: Application, event: types.Event) =
     of types.EventType.UnlockKeyboardInput:
       keyboardCharInput = false
       stopTextInput()
+    of types.EventType.MouseLock:
+      captureMouse = not event.lock
     else: discard
+
+  if captureMouse:
+    warpMouseInWindow(app.window, (screenWidth / 2).cint, (screenHeight / 2).cint)
 
 proc preRender*(app: Application) =
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)

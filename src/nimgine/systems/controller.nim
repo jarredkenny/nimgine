@@ -60,7 +60,3 @@ controllerSystem.handle = proc(app: Application, system: System, event: Event, d
         
         elif transform.rotation.y <= -89.0:
             transform.rotation.y = -89.0
-
-
-
-        echo repr(transform.translation)

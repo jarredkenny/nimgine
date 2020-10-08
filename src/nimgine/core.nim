@@ -64,6 +64,7 @@ proc loop(app: Application) =
 
       # Handle Events
       for event in app.bus.pollEvent():
+        app.logger.log($event)
         app.handle(event)
 
       # Update layer state

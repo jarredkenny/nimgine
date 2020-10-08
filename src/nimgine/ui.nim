@@ -20,6 +20,7 @@ var
   gKeyboardCharInputLock: bool
   gWindowWidth: int32
   gWindowHeight: int32
+  gCaptureMouse: bool
 
 proc igOpenGL3CheckProgram(handle: uint32, desc: string) =
   var status: int32
@@ -402,6 +403,13 @@ proc poll(app: Application) =
   if io.wantSetMousePos:
     app.bus.queueEvent(types.Event(kind: MousePosition, x: io.mousePos.x.cint,
         y: io.mousePos.y.cint))
+
+  if io.wantCaptureMouse and not gCaptureMouse:
+    gCaptureMouse = true
+    app.bus.queueEvent(types.Event(kind: MouseLock, lock: true))
+  elif not io.wantCaptureMouse and gCaptureMouse:
+    gCaptureMouse = false
+    app.bus.queueEvent(types.Event(kind: MouseLock, lock: false))
 
   # Generate LockKeyboardInput and UnlockKeyboardInput events
   # when io.wantCapturekeyboard changes

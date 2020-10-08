@@ -58,6 +58,8 @@ type
     # UI Events
     MousePosition
 
+    MouseLock
+
     # System Events
     Log
 
@@ -75,6 +77,8 @@ type
         unicode*: uint32
       of Charecter:
         charecter*: char
+      of MouseLock:
+        lock*: bool
       of MouseMove, MousePosition:
         x*, y*: int
       of Resize:
