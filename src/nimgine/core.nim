@@ -29,6 +29,7 @@ proc newApplication*(): Application = Application(
 
 proc init(app: Application) =
   app.logger.log("Initialization application")
+  echo "Initializing Application"
   app.world.add(@[
     cameraSystem,
     controllerSystem,
@@ -49,6 +50,7 @@ proc handle(app: Application, event: Event) =
         break
 
 proc loop(app: Application) =
+  echo "Application Loop Starting"
 
   while app.running:
 

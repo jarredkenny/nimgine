@@ -190,22 +190,8 @@ type
 
     None
 
-  VertexBuffer* = ref object
-    id*: uint
-    vertices*: seq[float]
-    name*: string
-    layout*: AttributeLayout
-
-  IndexBuffer* = ref object
-    id*: uint
-    indices*: seq[int]
-
-  AttributeLayout* = ref object
-    size*, stride*, offset*: int
-
   Shader* = ref object
     id*: uint
-    attributes*: Table[string, AttributeLayout]
 
   # New Mesh Types
   Vertex* = object
@@ -224,22 +210,11 @@ type
   Texture* = ref object
     id*: uint
     kind*: TextureType
-    path: string
-
-  Mesh* = ref object of Component
-    file*: string
-    initialized*: bool
-    shader*: Shader
-    vao*: uint
-    vbo*: uint
-    ebo*: uint
-    vertices*: seq[Vertex]
-    indices*: seq[uint32]
-    textures*: seq[Texture]
+    path*: string
     
   Scene* = ref object
     camera*: SceneCamera
-    drawQueue*: Deque[(Mesh, Transform)]
+    drawQueue*: Deque[(Model, Transform)]
 
   SceneCamera* = ref object
     width*, height*: int
@@ -247,6 +222,21 @@ type
     front*: Vec3[Point]
     view*: Mat4[Point]
     projection*: Mat4[Point]
+
+  Model* = ref object of Component
+    file*: string
+    directory*: string
+    initialized*: bool
+    meshes*: seq[Mesh]
+
+  Mesh* = ref object
+    shader*: Shader
+    vao*: uint
+    vbo*: uint
+    ebo*: uint
+    vertices*: seq[Vertex]
+    indices*: seq[uint32]
+    textures*: seq[Texture]
   
   
   UIWindow* = ref object

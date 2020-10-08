@@ -5,11 +5,10 @@ import sdl2
 
 import types
 
-import renderer/[buffers, mesh, shader, scene, camera]
+import renderer/[mesh, shader, scene, camera]
 
+export newModel
 export newShader
-export newVertexBuffer
-export newIndexBuffer
 export init
 export newScene
 export newSceneCamera
@@ -22,13 +21,10 @@ proc preRender(app: Application) =
   drawCalls = 0
 
 proc render*(app: Application) =
-
-  for (mesh, transform) in app.scene.drawQueue.items:
+  for (model, transform) in app.scene.drawQueue.items:
     app.scene.drawQueue.popFirst()
-    var mvp = app.scene.calcMVPForMesh(mesh, transform)
+    var mvp = app.scene.calcMVPForMesh(model, transform)
 
-    mesh.use()
-    mesh.uniform("MVP", mvp)
-    mesh.draw()
+    model.draw(mvp)
 
 var RendererLayer* = ApplicationLayer(preRender: preRender, render: render)

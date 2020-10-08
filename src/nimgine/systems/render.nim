@@ -7,17 +7,19 @@ import ../renderer
 
 var renderSystem* = newSystem()
 renderSystem.matchComponent(Transform)
-renderSystem.matchComponent(Mesh)
+renderSystem.matchComponent(Model)
 
 renderSystem.init = proc(world: World, system: System) =
     for entity in world.entitiesForSystem(renderSystem):
-        var mesh: Mesh = entity.get(Mesh)
-        if not mesh.initialized:
-            mesh.init()
+        var model: Model = entity.get(Model)
+        if not model.initialized:
+            echo "Initializing model.."
+            model.init()
 
 renderSystem.preRender = proc(scene: Scene, world: World) =
     for entity in world.entitiesForSystem(renderSystem):
-        let mesh = entity.get(Mesh)
+        let model: Model = entity.get(Model)
         let transform = entity.get(Transform)
-        if mesh.initialized:
-            scene.submit(mesh, transform)
+        if model.initialized:
+            echo fmt"Submitting model ({model.meshes.len} meshes) for render"
+            scene.submit(model, transform)

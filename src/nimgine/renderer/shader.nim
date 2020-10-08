@@ -1,4 +1,5 @@
-import opengl
+import strformat
+import opengl, glm
 import ../types
 
 proc compileShader(shaderType: uint, source: string): uint =
@@ -30,5 +31,26 @@ proc newShader*(vertexShader, fragmentShader: string): Shader =
   result = Shader(id: id)
 
 proc use*(shader: Shader) =
-  # echo fmt"binding shader: {shader.id}"
   glUseProgram(shader.id.GLuint)
+
+proc setBool*(shader: Shader, location: string, value: bool) =
+  glUniform1i(glGetUniformLocation(shader.id.GLuint, location.cstring).GLint, value.GLint)
+
+proc setInt*(shader: Shader, location: string, value: int32) =
+  glUniform1i(glGetUniformLocation(shader.id.GLuint, location.cstring).GLint, value.GLint)
+
+proc setFloat*(shader: Shader, location: string, value: float32) =
+  glUniform1f(glGetUniformLocation(shader.id.GLuint, location.cstring).GLint, value.GLfloat)
+
+proc setVec2*(shader: Shader, location: string, value: var Vec2f) =
+  glUniform2fv(glGetUniformLocation(shader.id.GLuint, location.cstring).GLint, 1, value.caddr)
+
+proc setVec3*(shader: Shader, location: string, value: var Vec3f) =
+  glUniform3fv(glGetUniformLocation(shader.id.GLuint, location.cstring).GLint, 1, value.caddr)
+
+proc setVec4*(shader: Shader, location: string, value: var Vec4f) =
+  glUniform4fv(glGetUniformLocation(shader.id.GLuint, location.cstring).GLint, 1, value.caddr)
+
+proc setMat4*(shader: Shader, name: string, matrix: var Mat4) =
+  glUniformMatrix4fv(glGetUniformLocation(shader.id.GLuint, name), 1.GLsizei, GL_FALSE, matrix.caddr)
+

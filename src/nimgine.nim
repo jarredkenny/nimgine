@@ -1,4 +1,4 @@
-import nimgine/[types, core, ecs]
+import nimgine/[types, core, ecs, renderer]
 
 let app: Application = newApplication()
 
@@ -15,7 +15,7 @@ for x in 0..C:
     for z in 0..C:
       var e = newEntity()
       e.add(newTransform((24 + (x * 24)).float, (-10 + (y * 18)).float, (-10 + (z * 22)).float))
-      e.add(newMesh("models/WusonOBJ.obj"))
+      e.add(newModel("models/Collada/teapots.DAE"))
       app.world.add(e)
 
 app.start()

@@ -21,18 +21,6 @@ proc newTransform*(x, y, z: float32): Transform =
     scale: vec3(0.float32, 0, 0)
   )
 
-proc newMesh*(file: string): Mesh =
-  var mesh: Mesh
-  if loadedMeshes.hasKey(file):
-    mesh = loadedMeshes[file]
-  else: 
-    mesh = newComponent(Mesh)
-    mesh.file = file
-    loadedMeshes.add(file, mesh)
- 
-  result = mesh
-
-
 var WorldLayer* = ApplicationLayer(
   init: init,
   handle: handle,
