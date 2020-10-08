@@ -1,3 +1,4 @@
+# import math
 import nimgine/[types, core, ecs, renderer]
 
 let app: Application = newApplication()
@@ -8,14 +9,21 @@ camera.add(Controllable())
 camera.add(newTransform(1.float, 0.float, -12.float))
 app.world.add(camera)
 
-let C = 0;
+const MODELS = @[
+  "models/Collada/teapots.DAE",
+  "models/airboat.obj"
+]
+
+const PADDING = 15;
+
+let C = 4;
 
 for x in 0..C:
   for y in 0..C:
     for z in 0..C:
       var e = newEntity()
-      e.add(newTransform((24 + (x * 24)).float, (-10 + (y * 18)).float, (-10 + (z * 22)).float))
-      e.add(newModel("models/Collada/teapots.DAE"))
+      e.add(newTransform((PADDING * + (x * PADDING)).float, (PADDING + (y * PADDING)).float, (-PADDING + (z * PADDING)).float))
+      e.add(newModel(MODELS[z mod 2]))
       app.world.add(e)
 
 app.start()

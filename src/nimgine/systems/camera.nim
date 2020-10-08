@@ -13,7 +13,6 @@ cameraSystem.subscribe(Resize)
 cameraSystem.handle = proc(app: Application, system: System, event: Event, dt: float) =
   case event.kind:
     of EventType.Resize:
-      echo fmt"Setting camera dimensions: {event.width}x{event.height}"
       app.scene.setCameraDimensions(event.width, event.height)
     else:
       discard

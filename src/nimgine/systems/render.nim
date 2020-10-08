@@ -21,5 +21,4 @@ renderSystem.preRender = proc(scene: Scene, world: World) =
         let model: Model = entity.get(Model)
         let transform = entity.get(Transform)
         if model.initialized:
-            echo fmt"Submitting model ({model.meshes.len} meshes) for render"
             scene.submit(model, transform)

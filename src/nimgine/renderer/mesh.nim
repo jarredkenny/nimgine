@@ -6,7 +6,7 @@ import stb_image/read as stbi
 import ../types
 import shader
 
-var loadedMeshes* = initTable[string, Mesh]()
+var loadedModels* = initTable[string, Model]()
 
 var meshCount*: uint = 0
 var drawCalls*: uint = 0
@@ -71,38 +71,61 @@ proc loadTextureWithMips(file: string, gammaCorrection: bool): uint32 =
 
 proc init*(mesh: var Mesh) =
 
-  mesh.shader = newShader(
-    """
+  let textureVert = """
     #version 330 core
     layout (location = 0) in vec3 position;
     layout (location = 1) in vec3 normal;
     layout (location = 2) in vec2 tc;
-
     out vec2 textureCoord;
-
+    out vec3 oNormal;
     uniform mat4 MVP;
     uniform sampler2D TextureDiffuse1;
-
     void main() {
       gl_Position = MVP * vec4(position, 1.0);
       textureCoord = tc;
+      oNormal = normal;
     }
-    """,
     """
+
+  let textureFrag = """
     #version 330 core
     out vec4 FragColor;
-
     in vec2 textureCoord;
-
+    in vec3 oNormal;
     uniform sampler2D TextureDiffuse1;
-
     void main()
     {    
       FragColor = texture(TextureDiffuse1, textureCoord);
     }
     """
-  )
 
+  let normalVert = """
+    #version 330 core
+    layout (location = 0) in vec3 position;
+    layout (location = 1) in vec3 normal;
+    layout (location = 2) in vec2 tc;
+    out vec3 oNormal;
+    uniform mat4 MVP;
+    void main() {
+      gl_Position = MVP * vec4(position, 1.0);
+      oNormal = normal;
+    }
+  """
+
+  let normalFrag = """
+    #version 330 core
+    out vec4 FragColor;
+    in vec3 oNormal;
+    void main()
+    {    
+      FragColor = vec4(oNormal, 1.0);
+    }
+  """
+  
+  if mesh.textures.len > 0:
+    mesh.shader = newShader(textureVert, textureFrag)
+  else:
+    mesh.shader = newShader(normalVert, normalFrag)
 
   var vao: GLuint
   glGenVertexArrays(1, vao.addr)
@@ -127,33 +150,30 @@ proc init*(mesh: var Mesh) =
 
   let stride: GLsizei = sizeof(mesh.vertices[0]).GLsizei
 
-  echo fmt"stride: {stride}"
 
-  let posAttr: GLuint = glGetAttribLocation(mesh.shader.id.GLuint,
-      "position".cstring).GLuint
-  let normAttr: GLuint = glGetAttribLocation(mesh.shader.id.GLuint,
-      "normal".cstring).GLuint
-  let tcAttr: Gluint = glGetAttribLocation(mesh.shader.id.GLuint,
-      "tc".cstring).GLuint
+  let posAttr = glGetAttribLocation(mesh.shader.id.GLuint,
+      "position".cstring)
+  let normAttr = glGetAttribLocation(mesh.shader.id.GLuint,
+      "normal".cstring)
+  let tcAttr = glGetAttribLocation(mesh.shader.id.GLuint,
+      "tc".cstring)
 
   # Position
-  echo fmt"posAttr: {posAttr}"
-  glVertexAttribPointer(posAttr, 3.GLint, cGL_FLOAT, GL_FALSE, stride, cast[
-      pointer](offsetOf(Vertex, position)))
-  glEnableVertexAttribArray(posAttr)
+  if posAttr.int > -1:
+    glVertexAttribPointer(posAttr.GLuint, 3.GLint, cGL_FLOAT, GL_FALSE, stride, cast[
+        pointer](offsetOf(Vertex, position)))
+    glEnableVertexAttribArray(posAttr.GLuint)
 
   # Normal
-  echo fmt"normAttr: {normAttr}"
-  # glVertexAttribPointer(normAttr, 3.GLint, cGL_FLOAT, GL_FALSE, stride, cast[
-  #     pointer](offsetOf(Vertex, normal)))
-
-  # glEnableVertexAttribArray(normAttr)
+  if normAttr.int > -1:
+    glVertexAttribPointer(normAttr.GLuint, 3.GLint, cGL_FLOAT, GL_FALSE, stride, cast[
+        pointer](offsetOf(Vertex, normal)))
+    glEnableVertexAttribArray(normAttr.GLuint)
 
   # # Texture Coordinates
-  echo fmt"tcAttr: {tcAttr}"
-  glVertexAttribPointer(tcAttr, 2.GLint, cGL_FLOAT, GL_FALSE, stride, cast[pointer](offsetOf(Vertex, texCoord)))
-
-  glEnableVertexAttribArray(tcAttr)
+  if tcAttr.int > -1:
+    glVertexAttribPointer(tcAttr.GLuint, 2.GLint, cGL_FLOAT, GL_FALSE, stride, cast[pointer](offsetOf(Vertex, texCoord)))
+    glEnableVertexAttribArray(tcAttr.GLuint)
 
 
 proc newMesh*(vertices: seq[Vertex], indices: seq[uint32], textures: seq[Texture]): Mesh =
@@ -237,7 +257,9 @@ proc processNode(model:var Model, node:PNode, scene:PScene) =
         processNode(model,node.children[i],scene)
 
 proc newModel*(file: string): Model =
-  result = Model(file: file, initialized: false)
+  if not loadedModels.contains(file):
+    loadedModels[file] = Model(file: file, initialized: false)
+  result = loadedModels[file]
 
 proc init*(model: var Model) =
   if model.initialized:
@@ -254,7 +276,6 @@ proc init*(model: var Model) =
     aiProcess_MakeLeftHanded or
     aiProcess_FlipWindingOrder or
     aiProcess_FlipUVs or
-    # aiProcess_PreTransformVertices or
     aiProcess_GenSmoothNormals or
     aiProcess_Triangulate or
     aiProcess_FixInfacingNormals or
@@ -282,7 +303,6 @@ proc draw(mesh: Mesh) =
 
   for i, tex in mesh.textures:
     var activeTex = (GL_TEXTURE0.ord + i).GLenum
-    echo fmt"active tex: {repr(activeTex)}"
     glActiveTexture(activeTex)
     let texIndex =
       case tex.kind:
@@ -299,7 +319,6 @@ proc draw(mesh: Mesh) =
             heightNr.inc()
             heightNr
     let uniform = $tex.kind & $texIndex
-    echo fmt"setting {uniform} in shader"
     mesh.shader.setInt(uniform, i.int32)
     glBindTexture(GL_TEXTURE_2D, mesh.textures[i].id.GLuint)
 
