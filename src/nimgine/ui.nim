@@ -404,13 +404,6 @@ proc poll(app: Application) =
     app.bus.queueEvent(types.Event(kind: MousePosition, x: io.mousePos.x.cint,
         y: io.mousePos.y.cint))
 
-  if io.wantCaptureMouse and not gCaptureMouse:
-    gCaptureMouse = true
-    app.bus.queueEvent(types.Event(kind: MouseLock, lock: true))
-  elif not io.wantCaptureMouse and gCaptureMouse:
-    gCaptureMouse = false
-    app.bus.queueEvent(types.Event(kind: MouseLock, lock: false))
-
   # Generate LockKeyboardInput and UnlockKeyboardInput events
   # when io.wantCapturekeyboard changes
   if io.wantCaptureKeyboard and not gKeyboardCharInputLock:
@@ -430,6 +423,8 @@ proc handle(app: Application, event: types.Event) =
 
   if event.kind == MouseMove:
     io.mousePos = ImVec2(x: event.x.float32, y: event.y.float32)
+    if io.wantCaptureMouse:
+      event.markHandled()
 
   if event.kind == Charecter:
     io.addInputCharacter(event.charecter.uint32)
@@ -460,6 +455,7 @@ proc handle(app: Application, event: types.Event) =
         io.mouseWheel -= 0.5
         event.markHandled()
       else: discard
+
 
 proc render(app: Application) =
   igOpenGL3CreateDeviceObjects()

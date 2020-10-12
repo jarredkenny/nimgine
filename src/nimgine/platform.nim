@@ -9,7 +9,6 @@ var screenHeight: cint = 1080
 var context: GlContextPtr
 var event = defaultEvent
 var keyboardCharInput = false
-var captureMouse = false
 
 proc toInput(key: Scancode): InputType =
   case key
@@ -153,12 +152,7 @@ proc handle(app: Application, event: types.Event) =
     of types.EventType.UnlockKeyboardInput:
       keyboardCharInput = false
       stopTextInput()
-    of types.EventType.MouseLock:
-      captureMouse = not event.lock
     else: discard
-
-  if captureMouse:
-    warpMouseInWindow(app.window, (screenWidth / 2).cint, (screenHeight / 2).cint)
 
 proc preRender*(app: Application) =
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)

@@ -26,7 +26,7 @@ inputSystem.handle = proc(app: Application, system: System, event: Event, dt: fl
     if event.kind == MouseMove:
 
         # Handle Mouse Motion
-        if event.kind == MouseMove:
+        if activeKeyMap.contains(MouseLeft) and event.kind == MouseMove:
             let diffX = event.x - lastMousePosX
             let diffY = event.y - lastMousePosY
             if diffX > 0:
