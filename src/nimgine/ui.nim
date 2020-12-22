@@ -290,6 +290,9 @@ proc add*(window: UIWindow, element: UIElement) =
 proc newUIText*(value: string): UIElement =
   result = UIElement(kind: UIText, text: value)
 
+proc newUISlider*(name: string, value: ptr float32, min, max: float): UIElement =
+  result = UIElement(kind: UISlider, name: name, min: min, max: max, value: value)
+
 proc newUIButton*(label: string): UIELement =
   result = UIElement(kind: UIButton, label: label)
 
@@ -328,6 +331,8 @@ proc draw(element: UIElement) =
               ImGuiInputTextFlags.EnterReturnsTrue):
         element.onEnter(element)
         igSetKeyboardFocusHere()
+    of UISlider:
+      igSliderFloat(element.name.cstring, element.value, element.min, element.max)
     of UIRow:
       for child in element.children:
         draw(child)
@@ -342,7 +347,6 @@ proc draw(element: UIElement) =
       if igGetScrollY() == igGetScrollMaxY():
         igSetScrollHereY(1.0.float32)
       igEndChild()
-    else: discard
 
 proc draw(window: UIWindow) =
   igBegin(window.name, window.open.addr)

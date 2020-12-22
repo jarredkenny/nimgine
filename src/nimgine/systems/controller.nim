@@ -29,16 +29,16 @@ controllerSystem.handle = proc(app: Application, system: System, event: Event, d
         case event.kind:
         
             of MoveForward:
-                transform.translation += front * dt * velocity
+                transform.translation += front * dt * velocity * 10
             
             of MoveBackward:
-                transform.translation -= front * dt * velocity
+                transform.translation -= front * dt * velocity * 10
 
             of MoveLeft:
-                transform.translation -= right * dt * velocity
+                transform.translation -= right * dt * velocity * 10
 
             of MoveRight:
-                transform.translation += right * dt * velocity
+                transform.translation += right * dt * velocity * 10
 
             of PanUp:
                 transform.rotation.y += dt * velocity * 100

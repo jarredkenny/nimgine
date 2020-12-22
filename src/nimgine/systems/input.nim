@@ -30,14 +30,14 @@ inputSystem.handle = proc(app: Application, system: System, event: Event, dt: fl
             let diffX = event.x - lastMousePosX
             let diffY = event.y - lastMousePosY
             if diffX > 0:
-                app.bus.queueEvent(newEvent(PanLeft))
+                app.bus.queueEvent(PanLeft)
             elif diffX < 0:
-                app.bus.queueEvent(newEvent(PanRight))
+                app.bus.queueEvent(PanRight)
 
             if diffY > 0:
-                app.bus.queueEvent(newEvent(PanUp))
+                app.bus.queueEvent(PanUp)
             elif diffY < 0:
-                app.bus.queueEvent(newEvent(PanDown))
+                app.bus.queueEvent(PanDown)
 
         # Update stored mouve position
         if event.kind == MouseMove:
@@ -52,8 +52,17 @@ inputSystem.handle = proc(app: Application, system: System, event: Event, dt: fl
             if not activeKeyMap.contains(event.input):
                 activeKeyMap.incl(event.input)
         else:
+            
+            # Remove key from active key map
             if activeKeyMap.contains(event.input):
                 activeKeyMap.excl(event.input)
+
+            # Fire events which only occur on a keyup
+            case event.input:
+                of KeyM: app.bus.queueEvent(RenderModeMesh)
+                of KeyF: app.bus.queueEvent(RenderModeFull)
+                else: discard
+        
 
 inputSystem.update = proc(app: Application, system: System, dt: float) =
 

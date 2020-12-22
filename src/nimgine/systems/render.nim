@@ -9,17 +9,19 @@ var renderSystem* = newSystem(true)
 renderSystem.matchComponent(Transform)
 renderSystem.matchComponent(Model)
 
-renderSystem.init = proc(world: World, system: System) =
+renderSystem.subscribe(@[RenderModeMesh, RenderModeFull])
+
+renderSystem.preRender = proc(scene: Scene, world: World) =
     for entity in world.entitiesForSystem(renderSystem):
         var model: Model = entity.get(Model)
         if not model.initialized:
             echo "Initializing model.."
             model.init()
 
-renderSystem.preRender = proc(scene: Scene, world: World) =
+renderSystem.render = proc(scene: Scene, world: World) =
     for entity in world.entitiesForSystem(renderSystem):
-        let model: Model = entity.get(Model)
+        var model: Model = entity.get(Model)
         let transform = entity.get(Transform)
-        echo repr(transform.scale)
+        
         if model.initialized:
             scene.submit(model, transform)

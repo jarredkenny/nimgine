@@ -175,6 +175,8 @@ proc init*(mesh: var Mesh) =
   if tcAttr.int > -1:
     glVertexAttribPointer(tcAttr.GLuint, 2.GLint, cGL_FLOAT, GL_FALSE, stride, cast[pointer](offsetOf(Vertex, texCoord)))
     glEnableVertexAttribArray(tcAttr.GLuint)
+  
+  mesh.initialized = true
 
 
 proc newMesh*(vertices: seq[Vertex], indices: seq[uint32], textures: seq[Texture]): Mesh =
@@ -273,6 +275,9 @@ proc newModel*(file: string): Model =
 proc newModel*(mesh: var Mesh): Model =
   result = Model(initialized: false, meshes: @[mesh])
 
+proc newModel*(mesh: Mesh): Model =
+  result = Model(initialized: false, meshes: @[mesh])
+
 proc init*(model: var Model) =
   if model.initialized:
     raise newException(Exception, "mesh is already initialized")
@@ -314,11 +319,11 @@ proc use(mesh: Mesh) =
   glBindVertexArray(mesh.vao.GLuint)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo.GLuint)
 
-proc draw(mesh: Mesh) =
+proc draw(mesh: Mesh, renderMode: SceneRenderMode) =
   drawCalls += 1
   var diffuseNr, specularNr, normalNr, heightNr = 0.uint32
 
-  # glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+  glPolygonMode(GL_FRONT_AND_BACK, if renderMode == SceneRenderMode.Full: GL_FILL else: GL_LINE)
 
   for i, tex in mesh.textures:
     var activeTex = (GL_TEXTURE0.ord + i).GLenum
@@ -350,8 +355,8 @@ proc draw(mesh: Mesh) =
 
 
 
-proc draw*(model: Model, mvp: var Mat4[GLfloat]) =
+proc draw*(model: Model, mvp: var Mat4[GLfloat], renderMode: SceneRenderMode) =
   for mesh in model.meshes:
       mesh.use()
       mesh.shader.setMat4("MVP", mvp)
-      mesh.draw()
+      mesh.draw(renderMode)

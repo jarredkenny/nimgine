@@ -18,13 +18,14 @@ proc submit*(scene: Scene, model: Model, transform: Transform) =
 proc preRender*(scene: Scene) =
   scene.camera.calcProjection()
   scene.camera.calcView()
-
+  
 proc setCameraDimensions*(scene: Scene, width, height: int) =
   scene.camera.width = width
   scene.camera.height = height
 
 proc setCameraPosition*(scene: Scene, transform: Transform) =
   scene.camera.position = transform.translation
+  scene.camera.rotation = transform.rotation
   scene.camera.front = normalize(vec3(
     cos(radians(transform.rotation.x) * cos(radians(transform.rotation.y))),
     sin(radians(transform.rotation.y)),

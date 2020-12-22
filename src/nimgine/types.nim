@@ -60,7 +60,8 @@ type
 
     MouseLock
 
-    ToggleViewMode
+    RenderModeMesh
+    RenderModeFull
 
     # System Events
     Log
@@ -124,6 +125,9 @@ type
     translation*: Vec3[Point]
     rotation*: Vec3[Point]
     scale*: Vec3[Point]
+
+  Terrain* = ref object of Component
+    size*, density*, amplitude*: float32
 
   Clock* = object
     ticks*, fps*: int
@@ -223,11 +227,16 @@ type
     
   Scene* = ref object
     camera*: SceneCamera
+    renderMode*: SceneRenderMode
     drawQueue*: Deque[(Model, Transform)]
+
+  SceneRenderMode* {.pure.} = enum
+    Mesh,
+    Full
 
   SceneCamera* = ref object
     width*, height*: int
-    position*: Vec3[Point]
+    position*, rotation*: Vec3[Point]
     front*: Vec3[Point]
     view*: Mat4[Point]
     projection*: Mat4[Point]
@@ -272,10 +281,13 @@ type
     of UIInput:
       buffer*: string
       onEnter*: proc(e: UIElement)
+    of UISlider:
+      min*, max*: float32
+      name*: string
+      value*: ptr float32
     of UIRow:
       children*: seq[UIELement]
     of UIConsole:
       history*: int
       lines*: Deque[string]
       scrollToBottom*: bool
-    else: discard

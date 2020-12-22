@@ -12,8 +12,7 @@ proc `$`*(entity: Entity): string =
   result = "<Entity id=" & $entity.id & ">"
 
 proc add*[T](entity: Entity, component: T) =
-  if not entity.components.hasKey(name(T)):
-    entity.components.add(name(T), component)
+    entity.components[name(T)] = component
 
 proc get*(entity: Entity, T: typedesc): T =
   if entity.components.hasKey(name(T)):

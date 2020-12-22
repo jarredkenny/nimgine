@@ -9,7 +9,7 @@ import ecs
 import renderer
 import debug
 
-import systems/[input, render, camera, controller]
+import systems/[input, render, camera, controller, terrain]
 
 proc newApplication*(): Application = Application(
   world: newWorld(),
@@ -30,10 +30,11 @@ proc init(app: Application) =
   app.logger.log("Initialization application")
   echo "Initializing Application"
   app.world.add(@[
+    terrainSystem,
+    inputSystem,
     cameraSystem,
     controllerSystem,
-    inputSystem,
-    renderSystem
+    renderSystem,
   ])
   for layer in app.layers:
     if layer.init != nil:
@@ -52,7 +53,6 @@ proc loop(app: Application) =
   echo "Application Loop Starting"
 
   while app.running:
-
 
     while app.clock.isFirstInFrame or app.clock.dtRender < 1.0/60.0:
 
@@ -73,6 +73,7 @@ proc loop(app: Application) =
           layer.update(app)
 
       app.clock.update()
+
 
     # Pre-Render
     for i in countdown(app.layers.len - 1, 0):

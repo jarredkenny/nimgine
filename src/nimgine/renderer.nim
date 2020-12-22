@@ -5,7 +5,7 @@ import sdl2
 
 import types
 
-import renderer/[mesh, shader, scene, camera]
+import renderer/[mesh, shader, scene, camera, terrain]
 
 export newMesh
 export newModel
@@ -17,6 +17,13 @@ export submit
 export setCameraPosition
 export setCameraDimensions
 export loadTexture
+export newTerrainMesh
+
+proc handle(app: Application, event: types.Event) =
+  case event.kind:
+    of RenderModeMesh: app.scene.renderMode = SceneRenderMode.Mesh
+    of RenderModeFull: app.scene.renderMode = SceneRenderMode.Full
+    else: discard
 
 proc preRender(app: Application) =
   app.scene.preRender()
@@ -27,6 +34,6 @@ proc render*(app: Application) =
     app.scene.drawQueue.popFirst()
     var mvp = app.scene.calcMVPForMesh(model, transform)
 
-    model.draw(mvp)
+    model.draw(mvp, app.scene.renderMode)
 
-var RendererLayer* = ApplicationLayer(preRender: preRender, render: render)
+var RendererLayer* = ApplicationLayer(preRender: preRender, handle: handle, render: render)
