@@ -65,4 +65,8 @@ inputSystem.update = proc(app: Application, system: System, dt: float) =
             of KeyS: app.bus.queueEvent(MoveBackward)
             of KeyA: app.bus.queueEvent(MoveLeft)
             of KeyD: app.bus.queueEvent(MoveRight)
+            of KeyArrowUp: app.bus.queueEvent(PanUp)
+            of KeyArrowDown: app.bus.queueEvent(PanDown)
+            of KeyArrowLeft: app.bus.queueEvent(PanLeft)
+            of KeyArrowRight: app.bus.queueEvent(PanRight)
             else: discard

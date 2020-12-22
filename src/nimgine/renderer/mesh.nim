@@ -199,6 +199,13 @@ proc loadMaterialTextures(model: Model, mat: PMaterial, texType: TTextureType, t
 
   return textures
 
+proc loadTexture*(path: string, kind: TextureType): Texture =
+  result = Texture(
+    id: loadTextureWithMips(path, true),
+    kind: kind,
+    path: $path
+  )
+
 proc processMesh(model: Model, mesh: PMesh, scene: PScene): Mesh =
 
   var vertices = newSeq[Vertex]()
@@ -263,16 +270,24 @@ proc newModel*(file: string): Model =
     loadedModels[file] = Model(file: file, initialized: false)
   result = loadedModels[file]
 
+proc newModel*(mesh: var Mesh): Model =
+  result = Model(initialized: false, meshes: @[mesh])
+
 proc init*(model: var Model) =
   if model.initialized:
     raise newException(Exception, "mesh is already initialized")
-
-  if model.file.len == 0:
-    return
-
+  
   modelCount += 1
 
-  echo fmt"Loading Model: {model.file}"
+  if model.file.len == 0:
+    for mesh in model.meshes.mitems:
+      if not mesh.initialized:
+        mesh.init()
+    model.initialized = true
+    return
+
+
+  echo fmt"Loading Model from file: {model.file}"
 
   let scene = assimp.aiImportFile(model.file,
     aiProcess_MakeLeftHanded or
@@ -303,6 +318,8 @@ proc draw(mesh: Mesh) =
   drawCalls += 1
   var diffuseNr, specularNr, normalNr, heightNr = 0.uint32
 
+  # glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+
   for i, tex in mesh.textures:
     var activeTex = (GL_TEXTURE0.ord + i).GLenum
     glActiveTexture(activeTex)
@@ -329,6 +346,7 @@ proc draw(mesh: Mesh) =
 
   glBindVertexArray(0)
   glActiveTexture(GL_TEXTURE0)
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
 
 

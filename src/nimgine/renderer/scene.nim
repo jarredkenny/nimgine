@@ -32,6 +32,11 @@ proc setCameraPosition*(scene: Scene, transform: Transform) =
   ))
 
 proc calcMVPForMesh*(scene: Scene, model: Model, transform: Transform): Mat4[GLfloat] =
-  result = scene.camera.projection * scene.camera.view * translate(mat4(1.Glfloat), vec3(
-                    transform.translation.x.GLfloat, transform.translation.y,
-                    transform.translation.z))
+  var model = mat4(1.Point)
+  model = translate(model, transform.translation)
+  model = rotate(model, radians(transform.rotation.x), vec3(0.0.Point, 1.0, 0.0))
+  model = rotate(model, radians(transform.rotation.y), vec3(1.0.Point, 0.0, 0.0))
+  model = rotate(model, radians(transform.rotation.z), vec3(0.0.Point, 0.0, 1.0))
+  model = scale(model, transform.scale)
+
+  result = scene.camera.projection * scene.camera.view * model

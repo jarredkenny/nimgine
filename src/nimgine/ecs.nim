@@ -18,7 +18,13 @@ proc newTransform*(x, y, z: float32): Transform =
   result = Transform(
     translation: vec3(x, y, z),
     rotation: vec3(0.float32, 0, 1),
-    scale: vec3(0.float32, 0, 0)
+    scale: vec3(1.float32, 1, 1)
+  )
+
+proc newTransform*(): Transform =
+  result = Transform(
+    rotation: vec3(0.float32, 0, 1),
+    scale: vec3(1.float32, 1, 1)
   )
 
 var WorldLayer* = ApplicationLayer(

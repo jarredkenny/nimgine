@@ -7,6 +7,7 @@ import types
 
 import renderer/[mesh, shader, scene, camera]
 
+export newMesh
 export newModel
 export newShader
 export init
@@ -15,6 +16,7 @@ export newSceneCamera
 export submit
 export setCameraPosition
 export setCameraDimensions
+export loadTexture
 
 proc preRender(app: Application) =
   app.scene.preRender()

@@ -14,8 +14,9 @@ proc newClock*(): Clock =
 
 proc update*(clock: var Clock) =
   var now = cpuTime()
-  var dt = now - clock.dtUpdate
+  var dt = now - clock.lastUpdate
   clock.dtUpdate = dt
+  clock.lastUpdate = now
   clock.dtRender = now - clock.lastRender
   clock.fps = (1.0 / clock.dtRender).int
   clock.ticks = clock.ticks + 1

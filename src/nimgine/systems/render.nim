@@ -20,5 +20,6 @@ renderSystem.preRender = proc(scene: Scene, world: World) =
     for entity in world.entitiesForSystem(renderSystem):
         let model: Model = entity.get(Model)
         let transform = entity.get(Transform)
+        echo repr(transform.scale)
         if model.initialized:
             scene.submit(model, transform)

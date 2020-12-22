@@ -60,6 +60,8 @@ type
 
     MouseLock
 
+    ToggleViewMode
+
     # System Events
     Log
 
@@ -125,7 +127,7 @@ type
 
   Clock* = object
     ticks*, fps*: int
-    dtUpdate*, dtRender*, lastRender*: float
+    dtUpdate*, dtRender*, lastUpdate*, lastRender*: float
     isFirstInFrame*: bool
 
   InputState* = bool
@@ -237,6 +239,7 @@ type
     meshes*: seq[Mesh]
 
   Mesh* = ref object
+    initialized*: bool
     shader*: Shader
     vao*: uint
     vbo*: uint

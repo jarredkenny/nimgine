@@ -1,5 +1,4 @@
 import strformat, os, sequtils
-
 import types
 import logger
 import platform
@@ -54,6 +53,7 @@ proc loop(app: Application) =
 
   while app.running:
 
+
     while app.clock.isFirstInFrame or app.clock.dtRender < 1.0/60.0:
 
       # Poll Events
@@ -72,7 +72,7 @@ proc loop(app: Application) =
         if layer.update != nil and (app.clock.isFirstInFrame or layer.syncToFrame == app.clock.isFirstInFrame):
           layer.update(app)
 
-      update(app.clock)
+      app.clock.update()
 
     # Pre-Render
     for i in countdown(app.layers.len - 1, 0):
@@ -80,13 +80,15 @@ proc loop(app: Application) =
       if layer.preRender != nil:
         layer.preRender(app)
 
+
     # Render
     for i in countdown(app.layers.len - 1, 0):
       let layer = app.layers[i]
       if layer.render != nil:
         layer.render(app)
 
-    render(app.clock)
+    app.clock.render()
+
 
 
 proc destroy(app: Application) =

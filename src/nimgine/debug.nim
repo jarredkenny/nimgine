@@ -1,8 +1,8 @@
-import strformat, deques
+import strformat, deques, glm
 
 import types, ui, logger
 
-import renderer/mesh 
+import renderer/mesh
 
 var DebugLayer* = ApplicationLayer(syncToFrame: true)
 
@@ -28,6 +28,9 @@ DebugLayer.init = proc(app: Application) =
   app.windows.add(consoleWindow)
 
 DebugLayer.poll = proc(app: Application) =
+  debugWindow.push(newUIText(fmt"cam x:{app.scene.camera.position.x}"))
+  debugWindow.push(newUIText(fmt"cam y:{app.scene.camera.position.y}"))
+  debugWindow.push(newUIText(fmt"cam z:{app.scene.camera.position.z}"))
   debugWindow.push(newUIText(fmt"Event queue: {len(app.bus.queue)}"))
   debugWindow.push(newUIText(fmt"Log queue: {len(app.logger.queue)}"))
   debugWindow.push(newUIText(fmt"Entities: {len(app.world.entities)}"))

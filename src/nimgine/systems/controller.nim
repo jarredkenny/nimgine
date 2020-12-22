@@ -1,7 +1,7 @@
 import ../types
 import ../ecs
 
-import strformat
+import strformat, math
 import glm
 
 var controllerSystem* = newSystem(false)
@@ -17,7 +17,7 @@ controllerSystem.matchComponent(Transform)
 controllerSystem.handle = proc(app: Application, system: System, event: Event, dt: float) =
 
     for entity in app.world.entitiesForSystem(controllerSystem):
-        var velocity = 0.1
+        var velocity = 10.0
         var transform = entity.get(Transform)
         var front = normalize(vec3(
             cos(radians(transform.rotation.x) * cos(radians(transform.rotation.y))),
@@ -41,16 +41,16 @@ controllerSystem.handle = proc(app: Application, system: System, event: Event, d
                 transform.translation += right * dt * velocity
 
             of PanUp:
-                transform.rotation.y += dt * velocity
+                transform.rotation.y += dt * velocity * 100
         
             of PanDown:
-                transform.rotation.y -= dt * velocity
+                transform.rotation.y -= dt * velocity * 100
 
             of PanLeft:
-                transform.rotation.x -= dt * velocity
+                transform.rotation.x -= dt * velocity * 100
 
             of PanRight:
-                transform.rotation.x += dt * velocity
+                transform.rotation.x += dt * velocity * 100
         
             else:
                 discard
@@ -60,3 +60,9 @@ controllerSystem.handle = proc(app: Application, system: System, event: Event, d
         
         elif transform.rotation.y <= -89.0:
             transform.rotation.y = -89.0
+
+        if transform.rotation.x >= 360.0:
+            transform.rotation.x = 0.0
+        elif transform.rotation.x <= 0.0:
+            transform.rotation.x = 360.0
+

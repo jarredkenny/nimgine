@@ -1,4 +1,5 @@
 import typetraits, tables
+
 import ../types
 
 var entityCount: int = 0
