@@ -34,7 +34,7 @@ proc generatePlane(density: int): Mesh =
   for z in 0..density:
     for x in 0..density:
 
-      var height = noise.perlin(x, z) * 10
+      var height = noise.perlin(x, z) * (noise.perlin(x, z) * 10)
 
       vertices.add(Vertex(
         position: vec3(
@@ -66,7 +66,7 @@ proc generatePlane(density: int): Mesh =
 
   result = newMesh(vertices, indices, textures)
 
-var terrainMesh = generatePlane(200)
+var terrainMesh = generatePlane(80)
 
 var terrainTransform = newTransform()
 
