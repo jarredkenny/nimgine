@@ -14,7 +14,8 @@ var
   consoleElement: UIElement
   terrainWindow: UIWindow
 
-  terrainSize*, terrainDensity*, terrainAmp*: float32 = 100
+  terrainSize*, terrainDensity*: float32 = 100
+  terrainAmp*, terrainSpread*: float32 = 50
 
 DebugLayer.init = proc(app: Application) =
 
@@ -76,6 +77,9 @@ DebugLayer.update = proc(app: Application) =
   consoleWindow.push(footer)
 
   # Construct Terrain Window
-  terrainWindow.push(newUISlider("Size", terrainSize.addr, 0.0.float32, 1000.0.float32))
-  terrainWindow.push(newUISlider("Density", terrainDensity.addr, 0.0.float32, 1000.0.float32))
-  terrainWindow.push(newUISlider("Amplitide", terrainAmp.addr, 0.0.float32, 100.0.float32))
+  terrainWindow.push(newUISlider("Size", terrainSize.addr, 1.float32, 1000.0.float32))
+  terrainWindow.push(newUISlider("Density", terrainDensity.addr, 1.float32, 1000.0.float32))
+  terrainWindow.push(newUISlider("Amplitide", terrainAmp.addr, 1.float32, 1000.0.float32))
+  terrainWindow.push(newUISlider("Spread", terrainSpread.addr, 1.float32, 1000.0.float32))
+
+

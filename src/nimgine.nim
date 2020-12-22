@@ -6,10 +6,10 @@ var camera = newEntity()
 camera.add(Camera())
 camera.add(Controllable())
 
-var cameraTransform = newTransform(0.float, 0, -20)
+var cameraTransform = newTransform(-60.float, 82, -113)
 
-cameraTransform.rotation.x = 90
-cameraTransform.rotation.y = -18
+cameraTransform.rotation.x = 80
+cameraTransform.rotation.y = -46
 
 camera.add(cameraTransform)
 app.world.add(camera)
@@ -21,8 +21,8 @@ const MODELS = @[
 
 
 let t = newEntity()
-let terrain = Terrain(size: terrainSize, density: terrainDensity, amplitude: terrainAmp)
-let terrainTrans = newTransform(0.float32, -100, 0)
+let terrain = Terrain(size: terrainSize, density: terrainDensity, amplitude: terrainAmp, spread: terrainSpread)
+let terrainTrans = newTransform(0.float32, -30, 0)
 t.add(terrain)
 t.add(newModel(newTerrainMesh(terrain)))
 t.add(terrainTrans)

@@ -14,5 +14,6 @@ terrainSystem.preRender = proc(scene: Scene, world: World) =
     terrain.size = terrainSize
     terrain.density = terrainDensity
     terrain.amplitude = terrainAmp
+    terrain.spread = terrainSpread
 
     entity.add(newModel(newTerrainMesh(terrain)))

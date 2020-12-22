@@ -15,7 +15,6 @@ renderSystem.preRender = proc(scene: Scene, world: World) =
     for entity in world.entitiesForSystem(renderSystem):
         var model: Model = entity.get(Model)
         if not model.initialized:
-            echo "Initializing model.."
             model.init()
 
 renderSystem.render = proc(scene: Scene, world: World) =

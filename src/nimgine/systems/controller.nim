@@ -17,7 +17,7 @@ controllerSystem.matchComponent(Transform)
 controllerSystem.handle = proc(app: Application, system: System, event: Event, dt: float) =
 
     for entity in app.world.entitiesForSystem(controllerSystem):
-        var velocity = 10.0
+        var velocity = 30.0
         var transform = entity.get(Transform)
         var front = normalize(vec3(
             cos(radians(transform.rotation.x) * cos(radians(transform.rotation.y))),
