@@ -24,8 +24,10 @@ proc setCameraDimensions*(scene: Scene, width, height: int) =
   scene.camera.height = height
 
 proc setCameraPosition*(scene: Scene, transform: Transform) =
+  echo repr(transform.rotation)
   scene.camera.position = transform.translation
   scene.camera.rotation = transform.rotation
+
   scene.camera.front = normalize(vec3(
     cos(radians(transform.rotation.x) * cos(radians(transform.rotation.y))),
     sin(radians(transform.rotation.y)),

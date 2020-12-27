@@ -6,7 +6,7 @@ var camera = newEntity()
 camera.set(Camera())
 camera.set(Controllable())
 
-var cameraTransform = newTransform(0, 80, 0)
+var cameraTransform = newTransform(0, 0, 0)
 
 cameraTransform.rotation.x = 0
 cameraTransform.rotation.y = -90

@@ -72,8 +72,6 @@ proc newTerrainModel*(terrain: Terrain, viewer: Transform, rd: int): Model =
 
   var chunks = newSeq[Mesh]()
 
-  echo fmt"rd: {rd}"
-
   for cX in countup(chunkX - rd, chunkX + rd):
     for cZ in countup(chunkZ - rd, chunkZ + rd):
 
