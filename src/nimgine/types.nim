@@ -127,8 +127,14 @@ type
     scale*: Vec3[Point]
 
   Terrain* = ref object of Component
-    size*, density*, amplitude*, spread*: float32
-
+    size*: int
+    density*: int
+    octaves*: int
+    amplitude*: float
+    spreadX*: float
+    spreadZ*: float
+    persistence*: float
+  
   Clock* = object
     ticks*, fps*: int
     dtUpdate*, dtRender*, lastUpdate*, lastRender*: float

@@ -11,9 +11,12 @@ terrainSystem.matchComponent(Terrain)
 terrainSystem.preRender = proc(scene: Scene, world: World) =
   for entity in  world.entitiesForSystem(terrainSystem):
     var terrain = entity.get(Terrain)
-    terrain.size = terrainSize
-    terrain.density = terrainDensity
+    terrain.size = terrainSize.int
+    terrain.density = terrainDensity.int
+    terrain.octaves = terrainOctaves.int
     terrain.amplitude = terrainAmp
-    terrain.spread = terrainSpread
+    terrain.spreadX = terrainSpreadX
+    terrain.spreadZ = terrainSpreadZ 
+    terrain.persistence = terrainPersistence
 
-    entity.add(newModel(newTerrainMesh(terrain)))
+    entity.set(newModel(newTerrainMesh(terrain)))

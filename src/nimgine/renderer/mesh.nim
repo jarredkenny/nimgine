@@ -12,13 +12,15 @@ var modelCount*: uint = 0
 var meshCount*: uint = 0
 var drawCalls*: uint = 0
 
-proc loadTextureWithMips(file: string, gammaCorrection: bool): uint32 =
+proc loadTextureWithMips*(file: string, gammaCorrection: bool): uint32 =
+
   var textureId: GLuint
   glGenTextures(1.GLsizei, addr textureId)
   glBindTexture(GL_TEXTURE_2D, textureId)
 
   stbi.setFlipVerticallyOnLoad(true)               
   var width,height,channels:int  
+
 
   let path = normalizedPath(file.replace("\\", "/"))
 
@@ -177,6 +179,10 @@ proc init*(mesh: var Mesh) =
     glEnableVertexAttribArray(tcAttr.GLuint)
   
   mesh.initialized = true
+
+  for texture in mesh.textures:
+    if texture.id == 0:
+      texture.id = loadTextureWithMips(texture.path, true)
 
 
 proc newMesh*(vertices: seq[Vertex], indices: seq[uint32], textures: seq[Texture]): Mesh =

@@ -14,8 +14,13 @@ var
   consoleElement: UIElement
   terrainWindow: UIWindow
 
-  terrainSize*, terrainDensity*: float32 = 100
-  terrainAmp*, terrainSpread*: float32 = 50
+  terrainSize*: float32 = 100.0
+  terrainDensity*: float32 = 100.0
+  terrainOctaves*: float32 = 4.0
+  terrainAmp*: float32 = 10.0
+  terrainSpreadX*: float32 = 50.0
+  terrainSpreadZ*: float32 = 50.0
+  terrainPersistence*: float32 = 0.2
 
 DebugLayer.init = proc(app: Application) =
 
@@ -77,9 +82,12 @@ DebugLayer.update = proc(app: Application) =
   consoleWindow.push(footer)
 
   # Construct Terrain Window
+
   terrainWindow.push(newUISlider("Size", terrainSize.addr, 1.float32, 1000.0.float32))
   terrainWindow.push(newUISlider("Density", terrainDensity.addr, 1.float32, 1000.0.float32))
-  terrainWindow.push(newUISlider("Amplitide", terrainAmp.addr, 1.float32, 1000.0.float32))
-  terrainWindow.push(newUISlider("Spread", terrainSpread.addr, 1.float32, 1000.0.float32))
-
+  terrainWindow.push(newUISlider("Octaves", terrainOctaves.addr, 1.float32, 10.0.float32))
+  terrainWindow.push(newUISlider("Amplitide",  terrainAmp.addr, 1.float32, 1000.0.float32))
+  terrainWindow.push(newUISlider("Spread X", terrainSpreadX.addr, 1.float32, 1000.0.float32))
+  terrainWindow.push(newUISlider("Spread Z", terrainSpreadZ.addr, 1.float32, 1000.0.float32))
+  terrainWindow.push(newUISlider("Persistance", terrainPersistence.addr, 0.float32, 1.0.float32))
 

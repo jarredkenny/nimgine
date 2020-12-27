@@ -7,37 +7,51 @@ import ./mesh
 
 randomize()
 
-let noise = newNoise()
 
-proc generatePlane(size, density, amplitude, spread: int): Mesh {.memoized.} =
+var highH, lowH: float = 0.0
+let seed = rand(99999999).uint32
+
+let colors = Texture(
+  kind: TextureType.TextureDiffuse,
+  path: "textures/terrain.png"
+)
+
+
+proc generateTerrainMesh(size, density, octaves: int, amplitude, spreadX, spreadZ, persistence: float): Mesh {.memoized.} =
   echo "Regenerating terrain model"
   var vertices = newSeq[Vertex]()
   var indices = newSeq[uint32]()
   var textures = newSeq[Texture]()
+  let noise = newNoise(seed, octaves, persistence)
 
   var den = density
+
+  # textures.add(colors)
 
   # Generate Vertices
   for z in 0..den:
     for x in 0..den:
-
-        var scaledZ = (z.float - (den / 2)) / den.float
         var scaledX = (x.float - (den / 2)) / den.float
-
-        var nZ = scaledZ * size.float
+        var scaledZ = (z.float - (den / 2)) / den.float
         var nX = scaledX * size.float
+        var nZ = scaledZ * size.float
+        var rX = nX * (1  / (spreadX.float / 60))
+        var rZ = nZ * ( 1 / (spreadZ.float / 60))
+        var h = noise.simplex(rX, rZ)
 
-        var h = noise.perlin(nX * (1  / (spread.float /  50)), (nZ * ( 1 / (spread.float / 50))))
+        h = (h - 0.5) * 2
 
-        var height = (h * amplitude.float) - (h * (amplitude.float * 0.5))
-
+        var height = h * amplitude.float
         vertices.add(Vertex(
             position: vec3(
                 nX.float32,
                 height.float32,
                 nZ.float32,
             ),
+            # texCoord: vec2(rX.float32, rZ.float32)
         ))
+
+  echo fmt"low: {lowH} high: {highH}"
 
   # Generate indices
   for i in 0..<den:
@@ -62,9 +76,13 @@ proc generatePlane(size, density, amplitude, spread: int): Mesh {.memoized.} =
   result = newMesh(vertices, indices, textures)
 
 
-proc newTerrainMesh*(size, density, amplitude, spread: int): Mesh =
-  result = generatePlane(size, density, amplitude, spread)
-
-
 proc newTerrainMesh*(terrain: Terrain): Mesh =
-  result = generatePlane(terrain.size.int, terrain.density.int, terrain.amplitude.int, terrain.spread.int)
+  result = generateTerrainMesh(
+    terrain.size,
+    terrain.density,
+    terrain.octaves,
+    terrain.amplitude,
+    terrain.spreadX,
+    terrain.spreadZ,
+    terrain.persistence
+  )

@@ -11,7 +11,7 @@ proc newEntity*(): Entity =
 proc `$`*(entity: Entity): string =
   result = "<Entity id=" & $entity.id & ">"
 
-proc add*[T](entity: Entity, component: T) =
+proc set*[T](entity: Entity, component: T) =
     entity.components[name(T)] = component
 
 proc get*(entity: Entity, T: typedesc): T =

@@ -12,6 +12,7 @@ export entityForSystem
 export get
 export newWorld
 export add
+export set
 export newEntity
 
 proc newTransform*(x, y, z: float32): Transform =

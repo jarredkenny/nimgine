@@ -1,7 +1,7 @@
 import deques
 import types
 
-proc newLogger(): Logger =
+proc newLogger*(): Logger =
   result = Logger(level: LogLevel.Info, queue: initDeque[string]())
 
 proc newLogger*(level: LogLevel): Logger =
