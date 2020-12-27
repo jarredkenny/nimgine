@@ -116,7 +116,8 @@ type
     entities*: seq[Entity]
     systems*: seq[System]
     up*: Vec3[Point]
-
+    viewer*: Transform
+    
   Camera* = ref object of Component
 
   Controllable* = ref object of Component
@@ -134,7 +135,7 @@ type
     spreadX*: float
     spreadZ*: float
     persistence*: float
-  
+
   Clock* = object
     ticks*, fps*: int
     dtUpdate*, dtRender*, lastUpdate*, lastRender*: float

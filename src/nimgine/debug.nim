@@ -14,8 +14,9 @@ var
   consoleElement: UIElement
   terrainWindow: UIWindow
 
-  terrainSize*: float32 = 100.0
-  terrainDensity*: float32 = 100.0
+  terrainRenderDistance*: float32 = 10
+  terrainSize*: float32 = 10.0
+  terrainDensity*: float32 = 50.0
   terrainOctaves*: float32 = 4.0
   terrainAmp*: float32 = 10.0
   terrainSpreadX*: float32 = 50.0
@@ -39,9 +40,9 @@ DebugLayer.init = proc(app: Application) =
   app.windows.add(terrainWindow)
 
 DebugLayer.poll = proc(app: Application) =
-  debugWindow.push(newUIText(fmt"cam x:{app.scene.camera.position.x}"))
-  debugWindow.push(newUIText(fmt"cam y:{app.scene.camera.position.y}"))
-  debugWindow.push(newUIText(fmt"cam z:{app.scene.camera.position.z}"))
+  debugWindow.push(newUIText(fmt"viewer x:{app.world.viewer.translation.x}"))
+  debugWindow.push(newUIText(fmt"viewer y:{app.world.viewer.translation.y}"))
+  debugWindow.push(newUIText(fmt"viewer z:{app.world.viewer.translation.z}"))
   debugWindow.push(newUIText(fmt"cam yaw:{app.scene.camera.rotation.x}"))
   debugWindow.push(newUIText(fmt"cam pitch:{app.scene.camera.rotation.y}"))
   debugWindow.push(newUIText(fmt"cam roll:{app.scene.camera.rotation.z}"))
@@ -83,7 +84,8 @@ DebugLayer.update = proc(app: Application) =
 
   # Construct Terrain Window
 
-  terrainWindow.push(newUISlider("Size", terrainSize.addr, 1.float32, 1000.0.float32))
+  terrainWindow.push(newUISlider("Distance", terrainRenderDistance.addr, 1.float32, 32.0.float32))
+  terrainWindow.push(newUISlider("Size", terrainSize.addr, 32.float32, 256.float32))
   terrainWindow.push(newUISlider("Density", terrainDensity.addr, 1.float32, 1000.0.float32))
   terrainWindow.push(newUISlider("Octaves", terrainOctaves.addr, 1.float32, 10.0.float32))
   terrainWindow.push(newUISlider("Amplitide",  terrainAmp.addr, 1.float32, 1000.0.float32))

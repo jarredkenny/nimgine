@@ -17,7 +17,7 @@ export submit
 export setCameraPosition
 export setCameraDimensions
 export loadTexture
-export newTerrainMesh
+export newTerrainModel
 export loadTextureWithMips
 
 proc handle(app: Application, event: types.Event) =

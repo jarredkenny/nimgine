@@ -11,7 +11,7 @@ proc `$`*(w: World): string =
       w.systems) & ">"
 
 proc newWorld*(): World =
-  result = World(up: vec3(0.0.Point, 1.0, 0))
+  result = World(up: vec3(0.0.Point, 1.0, 0), viewer: Transform())
 
 proc add*(world: World, system: System) =
   world.systems.add(system)

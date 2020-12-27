@@ -7,18 +7,12 @@ import ./mesh
 
 randomize()
 
-
-var highH, lowH: float = 0.0
 let seed = rand(99999999).uint32
 
-let colors = Texture(
-  kind: TextureType.TextureDiffuse,
-  path: "textures/terrain.png"
-)
-
-
-proc generateTerrainMesh(size, density, octaves: int, amplitude, spreadX, spreadZ, persistence: float): Mesh {.memoized.} =
-  echo "Regenerating terrain model"
+proc generateTerrainChunk(chunkX, chunkZ, size, density, octaves: int, amplitude, spreadX, spreadZ, persistence: float): Mesh {.memoized.} =
+  
+  echo fmt"Generating chunk {chunkX}x{chunkZ}"
+  
   var vertices = newSeq[Vertex]()
   var indices = newSeq[uint32]()
   var textures = newSeq[Texture]()
@@ -26,18 +20,16 @@ proc generateTerrainMesh(size, density, octaves: int, amplitude, spreadX, spread
 
   var den = density
 
-  # textures.add(colors)
-
   # Generate Vertices
   for z in 0..den:
     for x in 0..den:
         var scaledX = (x.float - (den / 2)) / den.float
         var scaledZ = (z.float - (den / 2)) / den.float
-        var nX = scaledX * size.float
-        var nZ = scaledZ * size.float
+        var nX = (scaledX * size.float) + (size.float * chunkX.float)
+        var nZ = scaledZ * size.float + (size.float * chunkZ.float)
         var rX = nX * (1  / (spreadX.float / 60))
         var rZ = nZ * ( 1 / (spreadZ.float / 60))
-        var h = noise.simplex(rX, rZ)
+        var h = noise.perlin(rX, rZ, 0.0)
 
         h = (h - 0.5) * 2
 
@@ -48,10 +40,7 @@ proc generateTerrainMesh(size, density, octaves: int, amplitude, spreadX, spread
                 height.float32,
                 nZ.float32,
             ),
-            # texCoord: vec2(rX.float32, rZ.float32)
         ))
-
-  echo fmt"low: {lowH} high: {highH}"
 
   # Generate indices
   for i in 0..<den:
@@ -76,13 +65,32 @@ proc generateTerrainMesh(size, density, octaves: int, amplitude, spreadX, spread
   result = newMesh(vertices, indices, textures)
 
 
-proc newTerrainMesh*(terrain: Terrain): Mesh =
-  result = generateTerrainMesh(
-    terrain.size,
-    terrain.density,
-    terrain.octaves,
-    terrain.amplitude,
-    terrain.spreadX,
-    terrain.spreadZ,
-    terrain.persistence
-  )
+proc newTerrainModel*(terrain: Terrain, viewer: Transform, rd: int): Model =
+
+  let chunkX = (viewer.translation.x / terrain.size.float32).int
+  let chunkZ = (viewer.translation.z / terrain.size.float32).int
+
+  var chunks = newSeq[Mesh]()
+
+  echo fmt"rd: {rd}"
+
+  for cX in countup(chunkX - rd, chunkX + rd):
+    for cZ in countup(chunkZ - rd, chunkZ + rd):
+
+      let distance = sqrt(pow((chunkX - cX).float, 2) + pow((chunkZ - cZ).float, 2))
+      let density = if distance < 2.0: terrain.density else: (terrain.density.float / (distance)).int
+
+      var chunk = generateTerrainChunk(
+        cX,
+        cZ,
+        terrain.size,
+        density,
+        terrain.octaves,
+        terrain.amplitude,
+        terrain.spreadX,
+        terrain.spreadZ,
+        terrain.persistence
+      )
+      chunks.add(chunk)
+
+  result = newModel(chunks)

@@ -7,9 +7,10 @@ import ../debug
 var terrainSystem* = newSystem(false)
 
 terrainSystem.matchComponent(Terrain)
+terrainSystem.matchComponent(Model)
 
-terrainSystem.preRender = proc(scene: Scene, world: World) =
-  for entity in  world.entitiesForSystem(terrainSystem):
+terrainSystem.update = proc(app: Application, system: System, dt: float) =
+  for entity in  app.world.entitiesForSystem(terrainSystem):
     var terrain = entity.get(Terrain)
     terrain.size = terrainSize.int
     terrain.density = terrainDensity.int
@@ -19,4 +20,5 @@ terrainSystem.preRender = proc(scene: Scene, world: World) =
     terrain.spreadZ = terrainSpreadZ 
     terrain.persistence = terrainPersistence
 
-    entity.set(newModel(newTerrainMesh(terrain)))
+  
+    entity.set(newTerrainModel(terrain, app.world.viewer, terrainRenderDistance.int))

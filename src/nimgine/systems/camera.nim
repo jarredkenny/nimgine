@@ -20,5 +20,6 @@ cameraSystem.handle = proc(app: Application, system: System, event: Event, dt: f
 cameraSystem.preRender = proc(scene: Scene, world: World) =
   let entity = world.entityForSystem(cameraSystem)
   let transform: Transform = entity.get(Transform)
+  world.viewer = transform
   scene.setCameraPosition(transform)
 

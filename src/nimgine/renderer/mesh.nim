@@ -284,6 +284,9 @@ proc newModel*(mesh: var Mesh): Model =
 proc newModel*(mesh: Mesh): Model =
   result = Model(initialized: false, meshes: @[mesh])
 
+proc newModel*(meshes: seq[Mesh]): Model =
+  result = Model(initialized: false, meshes: meshes)
+
 proc init*(model: var Model) =
   if model.initialized:
     raise newException(Exception, "mesh is already initialized")
