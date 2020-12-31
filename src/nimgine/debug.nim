@@ -14,6 +14,8 @@ var
   consoleElement: UIElement
   terrainWindow: UIWindow
 
+  entityWindow: UIWindow
+
   terrainRenderDistance*: float32 = 10
   terrainSize*: float32 = 10.0
   terrainDensity*: float32 = 50.0
@@ -27,17 +29,19 @@ DebugLayer.init = proc(app: Application) =
 
   # Create Windows
   debugWindow = UIWindow(name: "Debug", open: true)
-  logWindow = UIWindow(name: "Logs", open: true)
+  logWindow = UIWindow(name: "Logs", open: false)
   logConsole = newUIConsole(1000)
-  consoleWindow = UIWindow(name: "Console", open: true)
+  consoleWindow = UIWindow(name: "Console", open: false)
   consoleElement = newUIConsole(100)
   terrainWindow = UIWindow(name: "Terrain", open: true)
+  entityWindow = UIWindow(name: "Entity Manager", open: true)
   
   # Add Windows to Application
   app.windows.add(debugWindow)
   app.windows.add(logWindow)
   app.windows.add(consoleWindow)
   app.windows.add(terrainWindow)
+  app.windows.add(entityWindow)
 
 DebugLayer.poll = proc(app: Application) =
   debugWindow.push(newUIText(fmt"viewer x:{app.world.viewer.translation.x}"))
@@ -53,6 +57,7 @@ DebugLayer.poll = proc(app: Application) =
   debugWindow.push(newUIText(fmt"Models: {modelCount}"))
   debugWindow.push(newUIText(fmt"Meshes: {meshCount}"))
   debugWindow.push(newUIText(fmt"Draw Calls: {drawCalls}"))
+
 
 DebugLayer.update = proc(app: Application) =
 
@@ -81,6 +86,8 @@ DebugLayer.update = proc(app: Application) =
   ])
 
   consoleWindow.push(footer)
+
+  entityWindow.push(newUIEntityTree(app.world.entities))
 
   # Construct Terrain Window
 

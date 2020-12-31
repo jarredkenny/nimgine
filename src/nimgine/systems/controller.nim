@@ -17,7 +17,7 @@ controllerSystem.matchComponent(Transform)
 controllerSystem.handle = proc(app: Application, system: System, event: Event, dt: float) =
 
     for entity in app.world.entitiesForSystem(controllerSystem):
-        var velocity = 30.0
+        var velocity = 100.0
         var transform = entity.get(Transform)
         var front = normalize(vec3(
             cos(radians(transform.rotation.x) * cos(radians(transform.rotation.y))),
@@ -29,28 +29,28 @@ controllerSystem.handle = proc(app: Application, system: System, event: Event, d
         case event.kind:
         
             of MoveForward:
-                transform.translation += front * dt * velocity * 10
+                transform.translation += front * dt * velocity
             
             of MoveBackward:
-                transform.translation -= front * dt * velocity * 10
+                transform.translation -= front * dt * velocity
 
             of MoveLeft:
-                transform.translation -= right * dt * velocity * 10
+                transform.translation -= right * dt * velocity
 
             of MoveRight:
-                transform.translation += right * dt * velocity * 10
+                transform.translation += right * dt * velocity
 
             of PanUp:
-                transform.rotation.y += dt * velocity * 100
+                transform.rotation.y += dt * velocity
         
             of PanDown:
-                transform.rotation.y -= dt * velocity * 100
+                transform.rotation.y -= dt * velocity
 
             of PanLeft:
-                transform.rotation.x -= dt * velocity * 100
+                transform.rotation.x -= dt * velocity
 
             of PanRight:
-                transform.rotation.x += dt * velocity * 100
+                transform.rotation.x += dt * velocity
         
             else:
                 discard
@@ -65,4 +65,3 @@ controllerSystem.handle = proc(app: Application, system: System, event: Event, d
             transform.rotation.x = 0.0
         elif transform.rotation.x <= 0.0:
             transform.rotation.x = 360.0
-

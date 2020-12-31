@@ -1,4 +1,4 @@
-import strformat, strutils, tables, os
+import strformat, strutils, tables, os, sugar, sequtils
 
 import opengl, glm, assimp
 import stb_image/read as stbi
@@ -184,6 +184,8 @@ proc init*(mesh: var Mesh) =
     if texture.id == 0:
       texture.id = loadTextureWithMips(texture.path, true)
 
+  meshCount += 1
+
 
 proc newMesh*(vertices: seq[Vertex], indices: seq[uint32], textures: seq[Texture]): Mesh =
   var mesh = Mesh(vertices: vertices, indices: indices, textures: textures)
@@ -261,7 +263,6 @@ proc processMesh(model: Model, mesh: PMesh, scene: PScene): Mesh =
 
   var mesh = newMesh(vertices, indices, textures)
   mesh.init()
-  meshCount += 1
   result = mesh
 
 
@@ -369,3 +370,10 @@ proc draw*(model: Model, mvp: var Mat4[GLfloat], renderMode: SceneRenderMode) =
       mesh.use()
       mesh.shader.setMat4("MVP", mvp)
       mesh.draw(renderMode)
+
+proc extend*(m1: var Mesh, m2: Mesh) =
+  let l = m1.indices.len + 1
+  m1.vertices = m1.vertices & m2.vertices
+  for i in m2.indices:
+    if i notin m1.indices:
+      m1.indices.add(i + l.uint32)

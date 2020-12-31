@@ -266,6 +266,7 @@ type
   
   
   UIWindow* = ref object
+    id*: int
     name*: string
     open*: bool
     elements*: seq[UIElement]
@@ -277,8 +278,11 @@ type
     UIInput
     UIRow
     UIConsole
+    UIEntityTree
 
   UIELement* = ref object
+    id*: int
+    window*: UIWindow
     case kind*: UIElementType
     of UIText:
       text*: string
@@ -298,3 +302,5 @@ type
       history*: int
       lines*: Deque[string]
       scrollToBottom*: bool
+    of UIEntityTree:
+      entities*: seq[Entity]

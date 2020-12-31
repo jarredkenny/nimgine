@@ -24,7 +24,6 @@ proc setCameraDimensions*(scene: Scene, width, height: int) =
   scene.camera.height = height
 
 proc setCameraPosition*(scene: Scene, transform: Transform) =
-  echo repr(transform.rotation)
   scene.camera.position = transform.translation
   scene.camera.rotation = transform.rotation
 

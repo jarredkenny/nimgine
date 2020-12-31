@@ -1,4 +1,4 @@
-import deques, strformat
+import deques, strformat, tables
 import sdl2, opengl, imgui
 import types, events, input, logger
 
@@ -21,6 +21,8 @@ var
   gWindowWidth: int32
   gWindowHeight: int32
   gCaptureMouse: bool
+  elementCount: int
+  windowCount: int
 
 proc igOpenGL3CheckProgram(handle: uint32, desc: string) =
   var status: int32
@@ -279,33 +281,46 @@ proc igOpenGL3RenderDrawData*() =
       last_scissor_box[3])
 
 proc push*(window: UIWindow, element: UIELement) =
+  element.window = window
   window.elements.add(element)
 
 proc newUIWindow*(name: string, open: bool = true): UIWindow =
-  result = UIWindow()
+  windowCount += 1
+  result = UIWindow(id: windowCount)
 
 proc add*(window: UIWindow, element: UIElement) =
   window.elements.add(element)
 
 proc newUIText*(value: string): UIElement =
-  result = UIElement(kind: UIText, text: value)
+  elementCount += 1
+  result = UIElement(id: elementCount, kind: UIText, text: value)
 
 proc newUISlider*(name: string, value: ptr float32, min, max: float): UIElement =
-  result = UIElement(kind: UISlider, name: name, min: min, max: max, value: value)
+  elementCount += 1
+  result = UIElement(id: elementCount, kind: UISlider, name: name, min: min, max: max, value: value)
 
 proc newUIButton*(label: string): UIELement =
-  result = UIElement(kind: UIButton, label: label)
+  elementCount += 1
+  result = UIElement(id: elementCount, kind: UIButton, label: label)
 
 proc newUIInput*(onEnter: proc(e: UIElement) ): UIElement =
-  let element = UIElement(kind: UIInput, buffer: "", onEnter: onEnter)
+  elementCount += 1
+  let element = UIElement(id: elementCount, kind: UIInput, buffer: "", onEnter: onEnter)
   element.buffer.setLen(100)
   result = element
 
 proc newUIRow*(children: seq[UIElement]): UIElement =
-  result = UIElement(kind: UIRow, children: children)
+  elementCount += 1
+  result = UIElement(id: elementCount, kind: UIRow, children: children)
+
+proc newUIEntityTree*(entities: seq[Entity]): UIElement =
+  elementCount += 1
+  result = UIElement(id: elementCount, kind: UIEntityTree, entities: entities)
 
 proc newUIConsole*(history: int): UIElement =
+  elementCount += 1
   result = UIElement(
+    id: elementCount,
     kind: UIConsole,
     history: history,
     lines: initDeque[string](),
@@ -347,6 +362,19 @@ proc draw(element: UIElement) =
       if igGetScrollY() == igGetScrollMaxY():
         igSetScrollHereY(1.0.float32)
       igEndChild()
+    of UIEntityTree:
+      igPushId(element.window.id.int32)
+      let flags = (ImGuiTreeNodeFlags.Leaf.int32 or ImGuiTreeNodeFlags.NoTreePushOnOpen.int32 or ImGuiTreeNodeFlags.Bullet.int32).ImGuiTreeNodeFlags
+      for id, entity in element.entities:
+        igPushID(id.int32)
+        let node_open = igTreeNode("Object", "%s %i", $entity.typeof, id.int32)
+        if node_open:
+          for component in keys(entity.components):
+            if component.len > 0:
+              igTreeNodeEx("Object", flags, "%s", component)
+          igTreePop()
+        igPopID()
+      igPopId()
 
 proc draw(window: UIWindow) =
   igBegin(window.name, window.open.addr)
@@ -464,8 +492,10 @@ proc handle(app: Application, event: types.Event) =
 proc render(app: Application) =
   igOpenGL3CreateDeviceObjects()
   igNewFrame()
+  # igShowDemoWindow()
   for window in app.windows:
-    window.draw()
+    if window.open:
+      window.draw()
   igRender()
   igOpenGL3RenderDrawData()
 
