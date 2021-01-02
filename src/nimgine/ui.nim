@@ -363,18 +363,22 @@ proc draw(element: UIElement) =
         igSetScrollHereY(1.0.float32)
       igEndChild()
     of UIEntityTree:
-      igPushId(element.window.id.int32)
-      let flags = (ImGuiTreeNodeFlags.Leaf.int32 or ImGuiTreeNodeFlags.NoTreePushOnOpen.int32 or ImGuiTreeNodeFlags.Bullet.int32).ImGuiTreeNodeFlags
-      for id, entity in element.entities:
-        igPushID(id.int32)
-        let node_open = igTreeNode("Object", "%s %i", $entity.typeof, id.int32)
-        if node_open:
-          for component in keys(entity.components):
-            if component.len > 0:
-              igTreeNodeEx("Object", flags, "%s", component)
-          igTreePop()
-        igPopID()
-      igPopId()
+      discard
+      # igPushId(element.window.id.int32)
+      # let flags = (ImGuiTreeNodeFlags.Leaf.int32 or ImGuiTreeNodeFlags.NoTreePushOnOpen.int32 or ImGuiTreeNodeFlags.Bullet.int32).ImGuiTreeNodeFlags
+      # for id, entity in element.entities:
+      #   igPushID(id.int32)
+      #   let node_open = igTreeNode("Object", "%s %i", $entity.typeof, id.int32)
+      #   if node_open:
+      #     for component in keys(entity.components):
+      #         igPushID(entity.components[component].addr)
+      #         if igTreeNode("Object", "%s", component):
+      #           igText(repr(entity.components[component][]))
+      #           igTreePop()
+      #         igPopId()
+      #     igTreePop()
+      #   igPopID()
+      # igPopId()
 
 proc draw(window: UIWindow) =
   igBegin(window.name, window.open.addr)

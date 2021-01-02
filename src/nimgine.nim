@@ -2,27 +2,29 @@ import glm
 import nimgine/[types, core, ecs, renderer, debug]
 let app: Application = newApplication()
 
-var camera = newEntity()
-camera.set(Camera())
-camera.set(Controllable())
+app.init()
 
-var cameraTransform = newTransform(0, 8, 0)
+# var camera = newEntity()
+# camera.set(Camera())
+# camera.set(Controllable())
 
-# cameraTransform.rotation.x = 90
-# cameraTransform.rotation.y = 90
-# cameraTransform.rotation.z = 1
+# var cameraTransform = newTransform(0, 8, 0)
 
-camera.set(cameraTransform)
-app.world.add(camera)
+# # cameraTransform.rotation.x = 90
+# # cameraTransform.rotation.y = 90
+# # cameraTransform.rotation.z = 1
 
-let chunk = generateChunk(-16, 16, -16, 16, -16, 16)
-let chunkModel = newModel(chunk)
+# camera.set(cameraTransform)
+# app.world.add(camera)
 
-let terrain = newEntity()
-terrain.set(chunkModel)
-terrain.set(newTransform(0, 0, 0))
+# let chunk = generateChunk(-32, 32, -32, 32, -32, 32)
+# let chunkModel = newModel(chunk)
 
-app.world.add(terrain)
+# let terrain = newEntity()
+# terrain.set(chunkModel)
+# terrain.set(newTransform(0, 0, 0))
+
+# app.world.add(terrain)
 
 
 # let t = newEntity()

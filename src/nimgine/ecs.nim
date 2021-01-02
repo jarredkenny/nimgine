@@ -1,18 +1,15 @@
 import types, tables
 import glm
-import ecs/[entity, component, system, world]
+import ecs/[entity, system, universe]
 
 import renderer/mesh
 
-export newSystem
-export subscribe
+export add
 export matchComponent
 export entitiesForSystem
 export entityForSystem
-export get
-export newWorld
-export add
-export set
+export subscribe
+export newUniverse
 export newEntity
 
 proc newTransform*(x, y, z: float32): Transform =
@@ -27,11 +24,26 @@ proc newTransform*(): Transform =
     rotation: vec3(0.float32, 0, 1),
     scale: vec3(1.float32, 1, 1)
   )
+  
+proc newSystem*(sync: bool): System =
+  result = System(syncToFrame: sync)
 
-var WorldLayer* = ApplicationLayer(
-  init: init,
-  handle: handle,
-  update: update,
-  preRender: preRender,
-  render: render
+proc newSystem*(): System =
+  result = System()
+
+var UniverseLayer* = ApplicationLayer(
+  init: proc(app: Application) =
+    app.universe = newUniverse()
+  ,
+  handle: proc(app: Application, event: Event) =
+    app.universe.handle(event, app.clock.dtUpdate, app.clock.isFirstInFrame)
+  ,
+  update: proc(app: Application) =
+    app.universe.update(app.clock.dtUpdate, app.clock.isFirstInFrame)
+  ,
+  preRender: proc(app: Application) =
+    app.universe.preRender(app.scene)
+  ,
+  render: proc(app: Application) =
+    app.universe.render(app.scene)
 )

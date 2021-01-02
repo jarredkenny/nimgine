@@ -11,25 +11,27 @@ import debug
 
 import systems/[input, render, camera, controller, terrain]
 
-proc newApplication*(): Application = Application(
-  world: newWorld(),
-  scene: newScene(),
-  clock: newClock(),
-  bus: newEventQueue(),
-  logger: newLogger(LogLevel.Info),
-  layers: @[
-    PlatformLayer,
-    UILayer,
-    WorldLayer,
-    RendererLayer,
-    DebugLayer,
-  ]
-)
+proc newApplication*(): Application =
+  result = Application(
+    universe: newUniverse(),
+    scene: newScene(),
+    clock: newClock(),
+    bus: newEventQueue(),
+    logger: newLogger(LogLevel.Info),
+    layers: @[
+      PlatformLayer,
+      UILayer,
+      UniverseLayer,
+      RendererLayer,
+      DebugLayer,
+    ]
+  )
+  result.universe.app = result
 
-proc init(app: Application) =
+proc init*(app: Application) =
   app.logger.log("Initialization application")
   echo "Initializing Application"
-  app.world.add(@[
+  app.universe.add(@[
     terrainSystem,
     inputSystem,
     cameraSystem,
@@ -99,6 +101,5 @@ proc destroy(app: Application) =
 
 proc start*(app: Application) =
   app.running = true
-  app.init()
   app.loop()
   app.destroy()

@@ -10,16 +10,17 @@ cameraSystem.matchComponent(Camera)
 
 cameraSystem.subscribe(Resize)
 
-cameraSystem.handle = proc(app: Application, system: System, event: Event, dt: float) =
+cameraSystem.handle = proc(universe: Universe, system: System, event: Event, dt: float) =
   case event.kind:
     of EventType.Resize:
-      app.scene.setCameraDimensions(event.width, event.height)
+      universe.app.scene.setCameraDimensions(event.width, event.height)
     else:
       discard
 
-cameraSystem.preRender = proc(scene: Scene, world: World) =
-  let entity = world.entityForSystem(cameraSystem)
-  let transform: Transform = entity.get(Transform)
-  world.viewer = transform
-  scene.setCameraPosition(transform)
+cameraSystem.preRender = proc(universe: Universe, scene: Scene) =
+  let entity = universe.entityForSystem(cameraSystem)
+  # Univ: get model from entity
+  # let transform: Transform = entity.get(Transform)
+  # world.viewer = transform
+  # scene.setCameraPosition(transform)
 

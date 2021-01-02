@@ -21,7 +21,7 @@ inputSystem.subscribe(@[Input, MouseMove])
 # Update active map events so that events which are fired for every frame
 # an update in active can fire on subsequent update events.
 # For events which spawn for every input event received, spawn them
-inputSystem.handle = proc(app: Application, system: System, event: Event, dt: float) =
+inputSystem.handle = proc(universe: Universe, system: System, event: Event, dt: float) =
 
     if event.kind == MouseMove:
 
@@ -30,14 +30,14 @@ inputSystem.handle = proc(app: Application, system: System, event: Event, dt: fl
             let diffX = event.x - lastMousePosX
             let diffY = event.y - lastMousePosY
             if diffX > 0:
-                app.bus.queueEvent(PanLeft)
+                universe.app.bus.queueEvent(PanLeft)
             elif diffX < 0:
-                app.bus.queueEvent(PanRight)
+                universe.app.bus.queueEvent(PanRight)
 
             if diffY > 0:
-                app.bus.queueEvent(PanUp)
+                universe.app.bus.queueEvent(PanUp)
             elif diffY < 0:
-                app.bus.queueEvent(PanDown)
+                universe.app.bus.queueEvent(PanDown)
 
         # Update stored mouve position
         if event.kind == MouseMove:
@@ -59,12 +59,13 @@ inputSystem.handle = proc(app: Application, system: System, event: Event, dt: fl
 
             # Fire events which only occur on a keyup
             case event.input:
-                of KeyM: app.bus.queueEvent(RenderModeMesh)
-                of KeyF: app.bus.queueEvent(RenderModeFull)
+                of KeyM: universe.app.bus.queueEvent(RenderModeMesh)
+                of KeyF: universe.app.bus.queueEvent(RenderModeFull)
                 else: discard
         
 
-inputSystem.update = proc(app: Application, system: System, dt: float) =
+inputSystem.update = proc(universe: Universe, system: System, dt: float) =
+    let app = universe.app
 
     # Input events based on active key map
     # These are events that fire for every frame a key is held down

@@ -1,11 +1,37 @@
-import tables, deques, sets
+import tables, deques, sets, bitops
 import glm, sdl2
 
+
+const MAX_ENTITIES* = 32
+const MAX_COMPONENTS* = 16
+
 type
+  EntityId* = uint32
+  Component* = uint32
+  
+  Entity* = ref object
+      id*: EntityId
+      universe*: Universe 
+
+  Signature* = BitsRange[Component]
+
+  AbstractComponentList* = ref object of RootObj
+
+  ComponentList*[T] = ref object of AbstractComponentList
+      data*: seq[T]
+
+  Universe* = ref object
+      app*: Application
+      entityIdPool*: Deque[EntityId]
+      componentTypes*: Table[string, Component]
+      components*: Table[Component, AbstractComponentList]
+      entityComponents*: Table[EntityId, Signature]
+      systems*: seq[System]
 
   Application* = ref object
     running*: bool
     world*: World
+    universe*: Universe
     scene*: Scene
     clock*: Clock
     bus*: EventQueue
@@ -92,22 +118,21 @@ type
     queue*: Deque[Event]
     handlers*: Table[EventType, seq[proc(e: Event)]]
 
-  Component* = ref object of RootObj
-    id*: int
-
-  Entity* = ref object
-    id*: int
-    components*: Table[string, Component]
+  # Component* = ref object of RootObj
+  
+  # Entity* = ref object
+  #   id*: int
+  #   components*: Table[string, Component]
 
   System* = ref object
     id*: int
     events*: set[EventType]
     components*: HashSet[string]
-    init*: proc(world: World, system: System)
-    handle*: proc(app: Application, system: System, event: Event, dt: float)
-    update*: proc(app: Application, system: System, dt: float)
-    preRender*: proc(scene: Scene, world: World)
-    render*: proc(scene: Scene, world: World)
+    init*: proc(universe: Universe, system: System)
+    handle*: proc(universe: Universe, system: System, event: Event, dt: float)
+    update*: proc(universe: Universe, system: System, dt: float)
+    preRender*: proc(universe: Universe, scene: Scene)
+    render*: proc(universe: Universe, scene: Scene)
     syncToFrame*: bool
 
   Point* = float32
@@ -118,16 +143,16 @@ type
     up*: Vec3[Point]
     viewer*: Transform
     
-  Camera* = ref object of Component
+  Camera* = object
 
-  Controllable* = ref object of Component
+  Controllable* = object
 
-  Transform* = ref object of Component
+  Transform* = object
     translation*: Vec3[Point]
     rotation*: Vec3[Point]
     scale*: Vec3[Point]
 
-  Terrain* = ref object of Component
+  Terrain* = object
     size*: int
     density*: int
     octaves*: int
@@ -248,7 +273,7 @@ type
     view*: Mat4[Point]
     projection*: Mat4[Point]
 
-  Model* = ref object of Component
+  Model* = object
     file*: string
     directory*: string
     initialized*: bool

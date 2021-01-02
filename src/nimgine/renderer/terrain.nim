@@ -120,10 +120,6 @@ proc single_cell(x, y, z: int): Mesh =
             match += pow(2, v.float).int
 
     let faces = CASES[match]
-    
-
-    echo repr(faces)
-
 
     proc edge_to_boundary_vertex(edge: int): Vertex =
         let v0 = EDGES[edge][0]

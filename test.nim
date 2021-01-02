@@ -1,10 +1,11 @@
 import tables, deques, bitops
 
+import ./src/nimgine/types
+
 const MAX_ENTITIES = 32
 const MAX_COMPONENTS = 16
 
 type
-    Event = object
     Vec3[T] = array[3, T]
 
     EntityId = uint32
@@ -26,6 +27,7 @@ type
         componentTypes: Table[string, Component]
         components: Table[Component, AbstractComponentList]
         entityComponents: Table[EntityId, Signature]
+        systems: seq[System]
 
     Transform = object
         position: Vec3[float32]
@@ -53,7 +55,6 @@ proc newUniverse(): Universe =
 proc newEntity(universe: Universe): Entity =
     result = Entity(id: universe.entityIdPool.popFirst(), universe: universe)
     universe.entityComponents[result.id] = Signature(0)
-
 
 proc add[T](universe: Universe, entity: Entity, component: T) =
 
@@ -88,6 +89,8 @@ proc add[T](entity: Entity, component: T) =
 proc remove(entity: Entity, componentType: typedesc) =
     entity.universe.remove(entity, componentType)
 
+
+
 # Usage
 let universe = newUniverse()
 
@@ -108,4 +111,3 @@ e3.remove(Sprite)
 universe.destroy(e1)
 universe.destroy(e2)
 universe.destroy(e3)
-
