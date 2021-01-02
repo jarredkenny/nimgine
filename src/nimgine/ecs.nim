@@ -2,8 +2,6 @@ import types, tables
 import glm
 import ecs/[entity, system, universe]
 
-import renderer/mesh
-
 export add
 export matchComponent
 export entitiesForSystem
@@ -11,6 +9,7 @@ export entityForSystem
 export subscribe
 export newUniverse
 export newEntity
+export entitiesWith
 
 proc newTransform*(x, y, z: float32): Transform =
   result = Transform(
@@ -33,7 +32,7 @@ proc newSystem*(): System =
 
 var UniverseLayer* = ApplicationLayer(
   init: proc(app: Application) =
-    app.universe = newUniverse()
+    discard
   ,
   handle: proc(app: Application, event: Event) =
     app.universe.handle(event, app.clock.dtUpdate, app.clock.isFirstInFrame)

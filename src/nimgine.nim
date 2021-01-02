@@ -2,7 +2,16 @@ import glm
 import nimgine/[types, core, ecs, renderer, debug]
 let app: Application = newApplication()
 
-app.init()
+let universe = app.init()
+
+let camera = universe.newEntity()
+
+# camera.add(Camera())
+# camera.add(Controllable())
+# camera.add(Transform())
+camera.add(Terrain())
+camera.add(Model())
+
 
 # var camera = newEntity()
 # camera.set(Camera())

@@ -13,7 +13,7 @@ type
       id*: EntityId
       universe*: Universe 
 
-  Signature* = BitsRange[Component]
+  Signature* = BitsRange[MAX_COMPONENTS]
 
   AbstractComponentList* = ref object of RootObj
 
@@ -117,12 +117,6 @@ type
   EventQueue* = ref object
     queue*: Deque[Event]
     handlers*: Table[EventType, seq[proc(e: Event)]]
-
-  # Component* = ref object of RootObj
-  
-  # Entity* = ref object
-  #   id*: int
-  #   components*: Table[string, Component]
 
   System* = ref object
     id*: int

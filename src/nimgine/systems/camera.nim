@@ -18,7 +18,8 @@ cameraSystem.handle = proc(universe: Universe, system: System, event: Event, dt:
       discard
 
 cameraSystem.preRender = proc(universe: Universe, scene: Scene) =
-  let entity = universe.entityForSystem(cameraSystem)
+  discard
+  # let entity = universe.entityForSystem(cameraSystem)
   # Univ: get model from entity
   # let transform: Transform = entity.get(Transform)
   # world.viewer = transform

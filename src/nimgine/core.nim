@@ -1,4 +1,3 @@
-import strformat, os, sequtils
 import types
 import logger
 import platform
@@ -28,19 +27,21 @@ proc newApplication*(): Application =
   )
   result.universe.app = result
 
-proc init*(app: Application) =
+proc init*(app: Application): Universe =
   app.logger.log("Initialization application")
   echo "Initializing Application"
-  app.universe.add(@[
-    terrainSystem,
-    inputSystem,
-    cameraSystem,
-    controllerSystem,
-    renderSystem,
-  ])
+
+  app.universe.add(terrainSystem)
+  app.universe.add(inputSystem)
+  app.universe.add(cameraSystem)
+  app.universe.add(controllerSystem)
+  app.universe.add(renderSystem)
+
   for layer in app.layers:
     if layer.init != nil:
       layer.init(app)
+
+  result = app.universe
 
 proc handle(app: Application, event: Event) =
   if event.kind == EventType.Quit:

@@ -1,4 +1,4 @@
-import strformat
+import strformat, sequtils, sets
 import ../types
 import ../ecs
 import ../renderer
@@ -10,8 +10,11 @@ terrainSystem.matchComponent(Terrain)
 terrainSystem.matchComponent(Model)
 
 terrainSystem.update = proc(universe: Universe, system: System, dt: float) =
-  for entity in  universe.entitiesForSystem(terrainSystem):
-    discard
+  for entity in universe.entitiesWith(system.components):
+    echo repr(entity)
+
+  # for entity in  universe.entitiesForSystem(terrainSystem):
+    # discard
     # UNIV: get component for model
     # var terrain = entity.get(Terrain)
     # terrain.size = terrainSize.int
