@@ -94,7 +94,6 @@ proc loop(app: Application) =
     app.clock.render()
 
 
-
 proc destroy(app: Application) =
   for layer in app.layers:
     if layer.destroy != nil:

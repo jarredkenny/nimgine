@@ -12,16 +12,16 @@ renderSystem.matchComponent(Model)
 renderSystem.subscribe(@[RenderModeMesh, RenderModeFull])
 
 renderSystem.preRender = proc(universe: Universe, scene: Scene) =
-    for entity in universe.entitiesForSystem(renderSystem):
-        discard
+    discard
+    # for entity in universe.entitiesForSystem(renderSystem):
         # UNIV: get model component from entity
         # var model: Model = entity.get(Model)
         # if not model.initialized:
         #     model.init()
 
 renderSystem.render = proc(universe: Universe, scene: Scene) =
-    for entity in universe.entitiesForSystem(renderSystem):
-        discard
+    discard
+    # for entity in universe.entitiesForSystem(renderSystem):
         # UNIV: get model component form entity
         # var model: Model = entity.get(Model)
         # let transform = entity.get(Transform)

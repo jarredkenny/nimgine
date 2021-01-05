@@ -16,10 +16,10 @@ controllerSystem.matchComponent(Transform)
 
 controllerSystem.handle = proc(universe: Universe, system: System, event: Event, dt: float) =
 
-
-    for entity in universe.entitiesForSystem(controllerSystem):
-        var velocity = 100.0
-        # UNIV: get component from model
+    discard
+    # for entity in universe.entitiesForSystem(controllerSystem):
+    #     var velocity = 100.0
+    #     # UNIV: get component from model
         # var transform = entity.get(Transform)
         # var front = normalize(vec3(
         #     cos(radians(transform.rotation.x) * cos(radians(transform.rotation.y))),

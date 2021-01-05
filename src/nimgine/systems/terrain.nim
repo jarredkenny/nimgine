@@ -11,7 +11,17 @@ terrainSystem.matchComponent(Model)
 
 terrainSystem.update = proc(universe: Universe, system: System, dt: float) =
   for entity in universe.entitiesWith(system.components):
-    echo repr(entity)
+    # var terrain = entity.get(Terrain)
+
+    var terrain: Terrain = universe.get(entity, Terrain)
+
+    terrain.size = terrainSize.int
+    terrain.density = terrainDensity.int
+    terrain.octaves = terrainOctaves.int
+    terrain.amplitude = terrainAmp
+    terrain.spreadX = terrainSpreadX
+    terrain.spreadZ = terrainSpreadZ 
+    terrain.persistence = terrainPersistence
 
   # for entity in  universe.entitiesForSystem(terrainSystem):
     # discard

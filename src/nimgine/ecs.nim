@@ -2,10 +2,9 @@ import types, tables
 import glm
 import ecs/[entity, system, universe]
 
+export get
 export add
 export matchComponent
-export entitiesForSystem
-export entityForSystem
 export subscribe
 export newUniverse
 export newEntity

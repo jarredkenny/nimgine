@@ -19,10 +19,14 @@ type
 
   ComponentList*[T] = ref object of AbstractComponentList
       data*: seq[T]
+      entityIndexMap*: array[MAX_ENTITIES, int]
+      indexEntityMap*: array[MAX_ENTITIES, EntityId]
 
   Universe* = ref object
       app*: Application
+      entities*: Table[EntityId, Entity]
       entityIdPool*: Deque[EntityId]
+      entityComponentIndex: seq[int]
       componentTypes*: Table[string, Component]
       components*: Table[Component, AbstractComponentList]
       entityComponents*: Table[EntityId, Signature]
